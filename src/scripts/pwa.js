@@ -142,30 +142,31 @@ export function initializePWA() {
     document.body.classList.add('pwa-installed');
   }
 
-  // For testing: show install button after a delay if no prompt appears
-  // This helps with local development testing
-  setTimeout(() => {
-    console.log('PWA: Checking install status after 2 seconds');
-    console.log('PWA: deferredPrompt:', !!deferredPrompt);
-    console.log('PWA: isInstalled:', isInstalled);
+  // For testingin DEV: show install button after a delay if no prompt appears
+  if (import.meta.env.DEV) {
+    setTimeout(() => {
+      console.log('PWA: Checking install status after 2 seconds');
+      console.log('PWA: deferredPrompt:', !!deferredPrompt);
+      console.log('PWA: isInstalled:', isInstalled);
 
-    if (!deferredPrompt && !isInstalled) {
-      console.log(
-        'PWA: No install prompt detected, showing button for testing'
-      );
-      const installBtn = document.getElementById('install-app-btn');
-      if (installBtn) {
-        installBtn.style.display = 'inline-block';
-        installBtn.textContent = '📱 Install App (Test)';
+      if (!deferredPrompt && !isInstalled) {
+        console.log(
+          'PWA: No install prompt detected, showing button for testing'
+        );
+        const installBtn = document.getElementById('install-app-btn');
+        if (installBtn) {
+          installBtn.style.display = 'inline-block';
+          installBtn.textContent = '📱 Install App (Test)';
 
-        installBtn.addEventListener('click', () => {
-          alert(
-            'Install prompt not available. Try:\n1. Build and serve over HTTPS\n2. Use Chrome/Edge\n3. Visit multiple times\n4. Clear browser data and revisit'
-          );
-        });
+          installBtn.addEventListener('click', () => {
+            alert(
+              'Install prompt not available. Try:\n1. Build and serve over HTTPS\n2. Use Chrome/Edge\n3. Visit multiple times\n4. Clear browser data and revisit'
+            );
+          });
+        }
       }
-    }
-  }, 2000);
+    }, 2000);
+  }
 }
 
 // Check if app is offline

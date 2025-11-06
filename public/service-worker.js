@@ -1,19 +1,8 @@
 // Blood Pressure Tracker Service Worker
 // Simple cache-first strategy for offline functionality
 
-const CACHE_NAME = 'bp-tracker-v1';
-const STATIC_ASSETS = [
-  './',
-  './index.html',
-  './styles/main.css',
-  './scripts/app.js',
-  './scripts/storage.js',
-  './scripts/ui.js',
-  './scripts/visualScales.js',
-  './scripts/charts.js',
-  './scripts/bloodPressure.js',
-  './manifest.json',
-];
+const CACHE_NAME = 'bp-tracker-v3';
+const STATIC_ASSETS = ['./', './index.html', './manifest.json'];
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -23,8 +12,16 @@ self.addEventListener('install', (event) => {
     caches
       .open(CACHE_NAME)
       .then((cache) => {
-        console.log('Service Worker: Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        console.log('Service Worker: Caching essential assets');
+        // Cache essential assets individually to avoid failing on missing files
+        return Promise.allSettled(
+          STATIC_ASSETS.map((url) =>
+            cache.add(url).catch((error) => {
+              console.warn('Service Worker: Failed to cache', url, error);
+              return null;
+            })
+          )
+        );
       })
       .then(() => {
         console.log('Service Worker: Installation complete');
