@@ -4,6 +4,7 @@ import { saveReading } from './storage.js';
 import { showStatus, loadHistory, deleteReadingHandler } from './ui.js';
 import { initializeVisualScales, clearIndicators } from './visualScales.js';
 import { initializeCharts } from './charts.js';
+import { initializePWA, setupOfflineHandling } from './pwa.js';
 
 // Make functions available globally for onclick handlers
 window.addReading = addReading;
@@ -56,6 +57,12 @@ async function addReading() {
 // Initialize the app
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('Blood Pressure Tracker initialized');
+
+  // Initialize PWA features
+  initializePWA();
+  setupOfflineHandling();
+
+  // Initialize app components
   initializeVisualScales();
   initializeCharts();
   await loadHistory();

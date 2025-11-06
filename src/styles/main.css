@@ -243,3 +243,71 @@ button:hover {
     gap: 15px;
   }
 }
+
+/* PWA-specific styles */
+.offline {
+  position: relative;
+}
+
+.offline::before {
+  content: 'Offline Mode';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #ffc107;
+  color: #000;
+  text-align: center;
+  padding: 5px;
+  font-size: 12px;
+  z-index: 999;
+}
+
+.offline body {
+  padding-top: 40px;
+}
+
+/* PWA install banner adjustments */
+.pwa-installed #install-banner {
+  display: none;
+}
+
+/* Standalone mode adjustments */
+@media (display-mode: standalone) {
+  body {
+    padding-top: 20px;
+    /* Add safe area for devices with notches */
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+
+  h1 {
+    text-align: center;
+    color: #007bff;
+  }
+}
+
+/* iOS PWA status bar */
+@supports (-webkit-touch-callout: none) {
+  .pwa-installed body {
+    padding-top: max(20px, env(safe-area-inset-top));
+  }
+}
+
+/* Enhanced mobile experience in PWA mode */
+@media (max-width: 480px) and (display-mode: standalone) {
+  .input-group {
+    flex-direction: column;
+  }
+
+  .input-with-scale {
+    min-width: 100%;
+  }
+
+  button {
+    padding: 15px;
+    font-size: 16px;
+  }
+}

@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   base: '/blood-pressure-tracker/',
   root: 'src',
+  publicDir: '../public',
   build: {
     outDir: '../dist',
     emptyOutDir: true,
