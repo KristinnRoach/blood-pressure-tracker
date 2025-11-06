@@ -21,14 +21,14 @@
   - **Test: Verify original PoC functionality works in new structure with console open**
   - **Git: Commit project structure setup**
 
-- [ ] 3. Implement IndexedDB storage with Dexie.js
+- [x] 3. Implement IndexedDB storage with Dexie.js
 
   - Replace localStorage with IndexedDB using Dexie.js
   - Create database schema for readings (and optional users)
   - Migrate existing localStorage data if present
   - _Requirements: 2.1, 2.3, 2.5_
 
-- [ ]\* 3.1 Write minimal Vitest tests for storage operations (delete after verification)
+- [ ]\* 3.1 Write minimal Vitest tests for storage operations (delete after verification). Commit, push to Git and run pnpm gh-deploy
 
   - Test database connection and basic CRUD operations
   - Remove tests once storage is stable

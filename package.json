@@ -15,5 +15,8 @@
     "jsdom": "^27.1.0",
     "vite": "^5.0.0",
     "vitest": "^1.0.0"
+  },
+  "dependencies": {
+    "dexie": "^4.2.1"
   }
 }

@@ -7,7 +7,7 @@ import { showStatus, loadHistory, deleteReadingHandler } from './ui.js';
 window.addReading = addReading;
 window.deleteReadingHandler = deleteReadingHandler;
 
-function addReading() {
+async function addReading() {
   console.log('Adding reading...'); // Console monitoring for testing
 
   const sys = parseInt(document.getElementById('systolic').value);
@@ -29,22 +29,27 @@ function addReading() {
     date: new Date().toISOString(),
   };
 
-  console.log('Saving reading:', reading);
-  saveReading(reading);
+  try {
+    console.log('Saving reading:', reading);
+    await saveReading(reading);
 
-  // Clear input fields
-  document.getElementById('systolic').value = '';
-  document.getElementById('diastolic').value = '';
-  document.getElementById('pulse').value = '';
+    // Clear input fields
+    document.getElementById('systolic').value = '';
+    document.getElementById('diastolic').value = '';
+    document.getElementById('pulse').value = '';
 
-  console.log('Updating UI...');
-  showStatus(sys, dia, pulse);
-  loadHistory();
-  console.log('Reading added successfully');
+    console.log('Updating UI...');
+    showStatus(sys, dia, pulse);
+    await loadHistory();
+    console.log('Reading added successfully');
+  } catch (error) {
+    console.error('Error saving reading:', error);
+    alert('Error saving reading. Please try again.');
+  }
 }
 
 // Initialize the app
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   console.log('Blood Pressure Tracker initialized');
-  loadHistory();
+  await loadHistory();
 });

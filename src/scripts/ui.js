@@ -15,35 +15,46 @@ export function showStatus(sys, dia, pulse) {
   `;
 }
 
-export function loadHistory() {
-  const history = getReadings();
-  const historyDiv = document.getElementById('history');
+export async function loadHistory() {
+  try {
+    const history = await getReadings();
+    const historyDiv = document.getElementById('history');
 
-  if (history.length === 0) {
-    historyDiv.innerHTML = '<p>No readings yet</p>';
-    return;
-  }
+    if (history.length === 0) {
+      historyDiv.innerHTML = '<p>No readings yet</p>';
+      return;
+    }
 
-  historyDiv.innerHTML = history
-    .map((reading, index) => {
-      const date = new Date(reading.date);
-      const category = getCategory(reading.systolic, reading.diastolic);
-      return `
-        <div class="entry">
-          <div>
-            <strong>${reading.systolic}/${reading.diastolic}</strong> mmHg, ${
-        reading.pulse
-      } bpm<br>
-            <small>${date.toLocaleDateString()} ${date.toLocaleTimeString()}</small>
+    historyDiv.innerHTML = history
+      .map((reading, index) => {
+        const date = new Date(reading.date);
+        const category = getCategory(reading.systolic, reading.diastolic);
+        return `
+          <div class="entry">
+            <div>
+              <strong>${reading.systolic}/${reading.diastolic}</strong> mmHg, ${
+          reading.pulse
+        } bpm<br>
+              <small>${date.toLocaleDateString()} ${date.toLocaleTimeString()}</small>
+            </div>
+            <button class="delete" onclick="window.deleteReadingHandler(${index})">Delete</button>
           </div>
-          <button class="delete" onclick="window.deleteReadingHandler(${index})">Delete</button>
-        </div>
-      `;
-    })
-    .join('');
+        `;
+      })
+      .join('');
+  } catch (error) {
+    console.error('Error loading history:', error);
+    document.getElementById('history').innerHTML =
+      '<p>Error loading readings</p>';
+  }
 }
 
-export function deleteReadingHandler(index) {
-  deleteReading(index);
-  loadHistory();
+export async function deleteReadingHandler(index) {
+  try {
+    await deleteReading(index);
+    await loadHistory();
+  } catch (error) {
+    console.error('Error deleting reading:', error);
+    alert('Error deleting reading. Please try again.');
+  }
 }
