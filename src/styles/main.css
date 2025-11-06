@@ -20,13 +20,104 @@ h1 {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.input-with-scale {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
 }
 
 input {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.visual-scale {
+  position: relative;
+  height: 20px;
+  margin-bottom: 5px;
+}
+
+.scale-track {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+
+.scale-segment {
   flex: 1;
+  position: relative;
+}
+
+.scale-segment.normal {
+  background: #28a745;
+}
+
+.scale-segment.elevated {
+  background: #ffc107;
+}
+
+.scale-segment.high1 {
+  background: #fd7e14;
+}
+
+.scale-segment.high2 {
+  background: #dc3545;
+}
+
+.scale-segment.crisis {
+  background: #6f42c1;
+}
+
+.scale-segment.low {
+  background: #17a2b8;
+}
+
+.scale-segment.high {
+  background: #dc3545;
+}
+
+.scale-indicator {
+  position: absolute;
+  top: 0;
+  width: 3px;
+  height: 12px;
+  background: #000;
+  border-radius: 1px;
+  opacity: 0;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.scale-indicator.active {
+  opacity: 1;
+}
+
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #666;
+  margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .input-group {
+    flex-direction: column;
+  }
+
+  .input-with-scale {
+    min-width: 100%;
+  }
 }
 
 button {

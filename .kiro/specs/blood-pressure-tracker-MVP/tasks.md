@@ -28,7 +28,7 @@
   - Migrate existing localStorage data if present
   - _Requirements: 2.1, 2.3, 2.5_
 
-- [ ]\* 3.1 Write minimal Vitest tests for storage operations (delete after verification). Commit, push to Git and run pnpm gh-deploy
+- [ ]\* 3.1 Write minimal Vitest tests for storage operations (delete after verification).
 
   - Test database connection and basic CRUD operations
   - Remove tests once storage is stable

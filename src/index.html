@@ -10,9 +10,45 @@
     <h1>Blood Pressure Tracker</h1>
 
     <div class="input-group">
-      <input type="number" id="systolic" placeholder="Systolic" />
-      <input type="number" id="diastolic" placeholder="Diastolic" />
-      <input type="number" id="pulse" placeholder="Pulse" />
+      <div class="input-with-scale">
+        <input type="number" id="systolic" placeholder="Systolic" />
+        <div class="visual-scale" id="systolic-scale">
+          <div class="scale-track">
+            <div class="scale-segment normal"></div>
+            <div class="scale-segment elevated"></div>
+            <div class="scale-segment high1"></div>
+            <div class="scale-segment high2"></div>
+            <div class="scale-segment crisis"></div>
+          </div>
+          <div class="scale-indicator" id="systolic-indicator"></div>
+        </div>
+      </div>
+
+      <div class="input-with-scale">
+        <input type="number" id="diastolic" placeholder="Diastolic" />
+        <div class="visual-scale" id="diastolic-scale">
+          <div class="scale-track">
+            <div class="scale-segment normal"></div>
+            <div class="scale-segment high1"></div>
+            <div class="scale-segment high2"></div>
+            <div class="scale-segment crisis"></div>
+          </div>
+          <div class="scale-indicator" id="diastolic-indicator"></div>
+        </div>
+      </div>
+
+      <div class="input-with-scale">
+        <input type="number" id="pulse" placeholder="Pulse" />
+        <div class="visual-scale" id="pulse-scale">
+          <div class="scale-track">
+            <div class="scale-segment low"></div>
+            <div class="scale-segment normal"></div>
+            <div class="scale-segment high"></div>
+          </div>
+          <div class="scale-indicator" id="pulse-indicator"></div>
+        </div>
+      </div>
+
       <button onclick="addReading()">Add</button>
     </div>
 
