@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blood Pressure Tracker</title>
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body>
+    <h1>Blood Pressure Tracker</h1>
+
+    <div class="input-group">
+      <input type="number" id="systolic" placeholder="Systolic" />
+      <input type="number" id="diastolic" placeholder="Diastolic" />
+      <input type="number" id="pulse" placeholder="Pulse" />
+      <button onclick="addReading()">Add</button>
+    </div>
+
+    <div id="status"></div>
+
+    <div class="ranges">
+      <h3>Reference Ranges</h3>
+      <strong>Blood Pressure:</strong><br />
+      Normal: &lt;120/&lt;80<br />
+      Elevated: 120-129/&lt;80<br />
+      High Stage 1: 130-139/80-89<br />
+      High Stage 2: ≥140/≥90<br />
+      Crisis: &gt;180/&gt;120<br /><br />
+      <strong>Pulse:</strong> 60-100 bpm (normal)
+    </div>
+
+    <div class="history">
+      <h3>History</h3>
+      <div id="history"></div>
+    </div>
+
+    <script type="module" src="./scripts/app.js"></script>
+  </body>
+</html>
