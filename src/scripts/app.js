@@ -3,6 +3,7 @@
 import { saveReading } from './storage.js';
 import { showStatus, loadHistory, deleteReadingHandler } from './ui.js';
 import { initializeVisualScales, clearIndicators } from './visualScales.js';
+import { initializeCharts } from './charts.js';
 
 // Make functions available globally for onclick handlers
 window.addReading = addReading;
@@ -56,5 +57,6 @@ async function addReading() {
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('Blood Pressure Tracker initialized');
   initializeVisualScales();
+  initializeCharts();
   await loadHistory();
 });

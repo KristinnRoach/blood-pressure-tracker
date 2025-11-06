@@ -35,7 +35,7 @@
   - **Test: Add readings and verify persistence across browser sessions with console monitoring**
   - **Git: Commit IndexedDB implementation**
 
-- [ ] 4. Add visual feedback scales for measurements
+- [x] 4. Add visual feedback scales for measurements
 
   - Create horizontal progress bars for systolic, diastolic, and pulse
   - Implement color-coded segments (green/yellow/orange/red)
@@ -44,7 +44,7 @@
   - **Test: Enter various values and verify visual feedback accuracy with console monitoring**
   - **Git: Commit visual feedback scales**
 
-- [ ] 5. Implement trend charts with Chart.js
+- [x] 5. Implement trend charts with Chart.js
 
   - Add Chart.js library for lightweight charting
   - Create combined systolic/diastolic line chart

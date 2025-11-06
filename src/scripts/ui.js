@@ -2,6 +2,7 @@
 
 import { getCategory, getPulseStatus } from './bloodPressure.js';
 import { getReadings, deleteReading } from './storage.js';
+import { updateCharts } from './charts.js';
 
 export function showStatus(sys, dia, pulse) {
   const category = getCategory(sys, dia);
@@ -22,6 +23,8 @@ export async function loadHistory() {
 
     if (history.length === 0) {
       historyDiv.innerHTML = '<p>No readings yet</p>';
+      // Update charts with empty data
+      updateCharts([]);
       return;
     }
 
@@ -42,10 +45,15 @@ export async function loadHistory() {
         `;
       })
       .join('');
+
+    // Update charts with current data
+    updateCharts(history);
   } catch (error) {
     console.error('Error loading history:', error);
     document.getElementById('history').innerHTML =
       '<p>Error loading readings</p>';
+    // Update charts with empty data on error
+    updateCharts([]);
   }
 }
 

@@ -102,14 +102,6 @@ input {
   opacity: 1;
 }
 
-.scale-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  color: #666;
-  margin-top: 2px;
-}
-
 @media (max-width: 768px) {
   .input-group {
     flex-direction: column;
@@ -180,18 +172,6 @@ button:hover {
   border-bottom: none;
 }
 
-.ranges {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 4px;
-  margin: 20px 0;
-  font-size: 14px;
-}
-
-.ranges h3 {
-  margin-bottom: 10px;
-}
-
 .delete {
   background: #dc3545;
   padding: 5px 10px;
@@ -200,4 +180,66 @@ button:hover {
 
 .delete:hover {
   background: #c82333;
+}
+/* Chart styles */
+.charts {
+  margin-top: 30px;
+}
+
+.chart-filters {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  cursor: pointer;
+  font-size: 14px;
+  color: #6c757d;
+  background: #f8f9fa;
+  padding: 6px 12px;
+  border-radius: 4px;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.filter-label.active {
+  color: #495057;
+  background: #e9ecef;
+  font-weight: 500;
+}
+
+.filter-label:hover {
+  color: #495057;
+  background: #e9ecef;
+}
+
+.chart-container {
+  position: relative;
+  height: 350px;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+}
+
+.insufficient-data {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    height: 300px;
+    margin-bottom: 15px;
+  }
+
+  .chart-filters {
+    justify-content: center;
+    gap: 15px;
+  }
 }
