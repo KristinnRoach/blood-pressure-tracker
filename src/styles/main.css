@@ -311,3 +311,45 @@ button:hover {
     font-size: 16px;
   }
 }
+/* Header and install button styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.install-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: none;
+  transition: background-color 0.2s;
+}
+
+.install-btn:hover {
+  background: #0056b3;
+}
+
+.install-btn:active {
+  background: #004085;
+}
+
+/* Mobile header adjustments */
+@media (max-width: 480px) {
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .install-btn {
+    font-size: 16px;
+    padding: 12px 20px;
+  }
+}

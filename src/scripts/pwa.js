@@ -99,50 +99,15 @@ export function setupInstallPrompt() {
 function showInstallOption() {
   if (isInstalled) return;
 
-  // Create a simple install notification
-  const installBanner = document.createElement('div');
-  installBanner.id = 'install-banner';
-  installBanner.innerHTML = `
-    <div style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: #007bff;
-      color: white;
-      padding: 10px;
-      text-align: center;
-      z-index: 1000;
-      font-size: 14px;
-    ">
-      <span>Install this app for a better experience</span>
-      <button id="install-button" style="
-        margin-left: 10px;
-        background: white;
-        color: #007bff;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 3px;
-        cursor: pointer;
-      ">Install</button>
-      <button id="dismiss-install" style="
-        margin-left: 5px;
-        background: transparent;
-        color: white;
-        border: 1px solid white;
-        padding: 5px 10px;
-        border-radius: 3px;
-        cursor: pointer;
-      ">×</button>
-    </div>
-  `;
+  const installBtn = document.getElementById('install-app-btn');
+  if (installBtn) {
+    installBtn.style.display = 'inline-block';
 
-  document.body.appendChild(installBanner);
+    // Handle install button click (remove any existing listeners first)
+    const newBtn = installBtn.cloneNode(true);
+    installBtn.parentNode.replaceChild(newBtn, installBtn);
 
-  // Handle install button click
-  document
-    .getElementById('install-button')
-    .addEventListener('click', async () => {
+    newBtn.addEventListener('click', async () => {
       if (deferredPrompt) {
         console.log('PWA: Showing install prompt');
         deferredPrompt.prompt();
@@ -154,18 +119,14 @@ function showInstallOption() {
         hideInstallOption();
       }
     });
-
-  // Handle dismiss button click
-  document.getElementById('dismiss-install').addEventListener('click', () => {
-    hideInstallOption();
-  });
+  }
 }
 
 // Hide install option
 function hideInstallOption() {
-  const banner = document.getElementById('install-banner');
-  if (banner) {
-    banner.remove();
+  const installBtn = document.getElementById('install-app-btn');
+  if (installBtn) {
+    installBtn.style.display = 'none';
   }
 }
 
@@ -180,6 +141,27 @@ export function initializePWA() {
   if (isInstalled) {
     document.body.classList.add('pwa-installed');
   }
+
+  // For testing: show install button after a delay if no prompt appears
+  // This helps with local development testing
+  setTimeout(() => {
+    if (!deferredPrompt && !isInstalled) {
+      console.log(
+        'PWA: No install prompt detected, showing button for testing'
+      );
+      const installBtn = document.getElementById('install-app-btn');
+      if (installBtn) {
+        installBtn.style.display = 'inline-block';
+        installBtn.textContent = '📱 Install App (Test)';
+
+        installBtn.addEventListener('click', () => {
+          alert(
+            'Install prompt not available. Try:\n1. Build and serve over HTTPS\n2. Use Chrome/Edge\n3. Visit multiple times'
+          );
+        });
+      }
+    }
+  }, 2000);
 }
 
 // Check if app is offline
