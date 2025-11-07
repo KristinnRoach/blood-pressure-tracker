@@ -41,9 +41,9 @@
     - Use design system custom properties for all colors and spacing
     - _Requirements: 2.5_
 
-- [ ] 3. Update UI to use ReadingInfoModal instead of status div
+- [x] 3. Update UI to use ReadingInfoModal instead of status div
 
-  - [ ] 3.1 Modify ui.js to integrate modal
+  - [x] 3.1 Modify ui.js to integrate modal
 
     - Import ReadingInfoModal class
     - Create modal instance on module load
@@ -51,7 +51,7 @@
     - Pass reading data to modal including category information
     - _Requirements: 2.1, 2.2_
 
-  - [ ] 3.2 Remove status div from HTML
+  - [x] 3.2 Remove status div from HTML
     - Delete `<div id="status"></div>` from index.html
     - Update app.js if needed to remove status div references
     - _Requirements: 2.1_

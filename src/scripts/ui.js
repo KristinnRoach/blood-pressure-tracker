@@ -3,17 +3,26 @@
 import { getCategory, getPulseStatus } from './bloodPressure.js';
 import { getReadings, deleteReading } from './storage.js';
 import { updateCharts } from './charts.js';
+import { ReadingInfoModal } from './modal.js';
+
+// Create modal instance on module load
+const modal = new ReadingInfoModal();
 
 export function showStatus(sys, dia, pulse) {
   const category = getCategory(sys, dia);
   const pulseStatus = getPulseStatus(pulse);
-  const statusDiv = document.getElementById('status');
-  statusDiv.className = 'status ' + category.class;
-  statusDiv.innerHTML = `
-    <strong>${category.text}</strong><br>
-    ${sys}/${dia} mmHg<br>
-    Pulse: ${pulse} bpm (${pulseStatus})
-  `;
+
+  // Prepare reading data for modal
+  const reading = {
+    systolic: sys,
+    diastolic: dia,
+    pulse: pulse,
+    date: new Date().toISOString(),
+    category: category,
+  };
+
+  // Show modal with reading data
+  modal.show(reading);
 }
 
 export async function loadHistory() {
