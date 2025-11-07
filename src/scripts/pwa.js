@@ -46,6 +46,13 @@ export async function registerServiceWorker() {
         });
       });
 
+      // Check for updates every 30 seconds when page is visible
+      setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          registration.update();
+        }
+      }, 30000);
+
       return registration;
     } catch (error) {
       console.error('PWA: Service worker registration failed', error);
@@ -59,12 +66,14 @@ export async function registerServiceWorker() {
 
 // Show update notification
 function showUpdateAvailable(registration) {
-  // Simple update notification - could be enhanced with a proper UI
-  if (confirm('A new version of the app is available. Update now?')) {
-    if (registration.waiting) {
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+  // Auto-update without user confirmation for faster deployments
+  console.log('PWA: Auto-updating to new version');
+  if (registration.waiting) {
+    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    // Small delay to let service worker activate
+    setTimeout(() => {
       window.location.reload();
-    }
+    }, 100);
   }
 }
 

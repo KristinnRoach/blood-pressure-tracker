@@ -6,7 +6,7 @@
   "scope": "/blood-pressure-tracker/",
   "display": "standalone",
   "background_color": "#aaaaaa",
-  "theme_color": "#007bff",
+  "theme_color": "#428fe1",
   "orientation": "portrait-primary",
   "categories": ["health", "blood-pressure", "tracker"],
   "icons": [

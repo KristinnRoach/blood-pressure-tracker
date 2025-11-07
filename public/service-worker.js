@@ -1,7 +1,7 @@
 // Blood Pressure Tracker Service Worker
 // Simple cache-first strategy for offline functionality
 
-const CACHE_NAME = 'bp-tracker-v3';
+const CACHE_NAME = 'bp-tracker-v4';
 const STATIC_ASSETS = ['./', './index.html', './manifest.json'];
 
 // Install event - cache static assets
@@ -59,7 +59,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve from cache first, fallback to network
+// Fetch event - network first for HTML, cache first for assets
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') {
@@ -71,46 +71,86 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        console.log('Service Worker: Serving from cache', event.request.url);
-        return cachedResponse;
-      }
+  const url = new URL(event.request.url);
+  const isHTMLRequest =
+    event.request.mode === 'navigate' ||
+    url.pathname.endsWith('.html') ||
+    url.pathname === '/' ||
+    url.pathname.endsWith('/');
 
-      console.log('Service Worker: Fetching from network', event.request.url);
-      return fetch(event.request)
+  if (isHTMLRequest) {
+    // Network first for HTML files to get updates immediately
+    event.respondWith(
+      fetch(event.request)
         .then((response) => {
-          // Don't cache non-successful responses
-          if (
-            !response ||
-            response.status !== 200 ||
-            response.type !== 'basic'
-          ) {
+          if (response && response.status === 200) {
+            console.log(
+              'Service Worker: Fetched fresh HTML from network',
+              event.request.url
+            );
+            // Cache the fresh HTML
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
             return response;
           }
-
-          // Clone the response for caching
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-
-          return response;
+          throw new Error('Network response not ok');
         })
         .catch((error) => {
-          console.error('Service Worker: Network fetch failed', error);
+          console.log(
+            'Service Worker: Network failed, serving cached HTML',
+            event.request.url
+          );
+          // Fallback to cache for offline
+          return caches.match(event.request).then((cachedResponse) => {
+            return cachedResponse || caches.match('./index.html');
+          });
+        })
+    );
+  } else {
+    // Cache first for assets (CSS, JS, images)
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          console.log(
+            'Service Worker: Serving asset from cache',
+            event.request.url
+          );
+          return cachedResponse;
+        }
 
-          // Return a basic offline page for navigation requests
-          if (event.request.mode === 'navigate') {
-            return caches.match('./index.html');
-          }
+        console.log(
+          'Service Worker: Fetching asset from network',
+          event.request.url
+        );
+        return fetch(event.request)
+          .then((response) => {
+            // Don't cache non-successful responses
+            if (
+              !response ||
+              response.status !== 200 ||
+              response.type !== 'basic'
+            ) {
+              return response;
+            }
 
-          throw error;
-        });
-    })
-  );
+            // Clone the response for caching
+            const responseToCache = response.clone();
+
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+
+            return response;
+          })
+          .catch((error) => {
+            console.error('Service Worker: Asset fetch failed', error);
+            throw error;
+          });
+      })
+    );
+  }
 });
 
 // Handle service worker updates
