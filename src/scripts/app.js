@@ -6,6 +6,7 @@ import { initializeVisualScales, clearIndicators } from './visualScales.js';
 import { initializeCharts } from './charts.js';
 import { initializePWA, setupOfflineHandling } from './pwa.js';
 import { generateDummyData, shouldGenerateDummyData } from './dummyData.js';
+import { initTheme } from './theme.js';
 
 // Make functions available globally for onclick handlers
 window.addReading = addReading;
@@ -78,6 +79,9 @@ async function generateDummyDataHandler() {
 // Initialize the app
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('Blood Pressure Tracker initialized');
+
+  // Initialize theme first (before any UI rendering)
+  initTheme();
 
   // Show dummy data button only in development
   if (shouldGenerateDummyData()) {
