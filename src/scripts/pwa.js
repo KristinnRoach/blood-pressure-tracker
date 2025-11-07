@@ -142,7 +142,7 @@ export function initializePWA() {
     document.body.classList.add('pwa-installed');
   }
 
-  // For testingin DEV: show install button after a delay if no prompt appears
+  // For testing in DEV: show install button after a delay if no prompt appears
   if (import.meta.env.DEV) {
     setTimeout(() => {
       console.log('PWA: Checking install status after 2 seconds');
