@@ -64,7 +64,18 @@
   - **Test: Install app on mobile/desktop and verify offline functionality with console monitoring**
   - **Git: Commit PWA implementation and deploy to GitHub Pages**
 
-- [ ] 7. Enhance mobile responsiveness
+- [x] 7. Add development dummy data (DEV only)
+
+  - Create function to generate 10 realistic dummy blood pressure readings
+  - Include varied systolic (90-180), diastolic (60-120), and pulse (50-120) values
+  - Spread readings across different dates (last 30 days)
+  - Add DEV environment check to only run in development
+  - Include readings that represent different BP categories (normal, elevated, high, etc.)
+  - _Requirements: Development testing and UI validation_
+  - **Test: Verify dummy data appears in history and charts with console monitoring**
+  - **Git: Commit dummy data functionality**
+
+- [ ] 8. Enhance mobile responsiveness
 
   - Optimize layout for mobile screens
   - Improve touch interactions
@@ -73,7 +84,7 @@
   - **Test: Verify app works well on mobile devices with console monitoring**
   - **Git: Commit mobile responsiveness improvements**
 
-- [ ]\* 8. Optional: Add multi-user functionality
+- [ ]\* 9. Optional: Add multi-user functionality
 
   - Create simple user selection dropdown
   - Add "Add User" functionality with username input
@@ -83,7 +94,7 @@
   - **Test: Create multiple users and verify data separation**
   - **Git: Commit multi-user functionality**
 
-- [ ]\* 9. Optional: Add data export functionality
+- [ ]\* 10. Optional: Add data export functionality
 
   - Implement CSV export for readings
   - Add export button to history section
@@ -91,7 +102,7 @@
   - **Test: Export data and verify CSV format**
   - **Git: Commit export functionality**
 
-- [ ]\* 10. Optional: Performance optimizations
+- [ ]\* 11. Optional: Performance optimizations
 
   - Implement pagination for large history lists
   - Add lazy loading for chart library
@@ -99,7 +110,7 @@
   - **Test: Add 100+ readings and verify performance with console monitoring**
   - **Git: Commit performance optimizations**
 
-- [ ]\* 11. Optional: Add Playwright E2E testing (post-MVP)
+- [ ]\* 12. Optional: Add Playwright E2E testing (post-MVP)
   - Set up Playwright for end-to-end testing
   - Create minimal E2E tests for core user flows
   - Only add after MVP is complete and stable

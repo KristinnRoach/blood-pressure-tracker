@@ -29,10 +29,10 @@ let currentReadings = [];
 
 export function initializeCharts() {
   // Create chart containers if they don't exist
-  createChartContainers();
+  createChartContainer();
 
   // Initialize combined chart
-  const chartCtx = document.getElementById('combined-chart').getContext('2d');
+  const chartCtx = document.getElementById('chart-canvas').getContext('2d');
   combinedChart = new Chart(chartCtx, {
     type: 'line',
     data: {
@@ -111,7 +111,7 @@ export function initializeCharts() {
   setupFilterListeners();
 }
 
-function createChartContainers() {
+function createChartContainer() {
   // Find the history section
   const historySection = document.querySelector('.history');
 
@@ -131,7 +131,7 @@ function createChartContainers() {
         <p>Add at least 2 readings to see trend charts</p>
       </div>
       <div class="chart-container">
-        <canvas id="combined-chart"></canvas>
+        <canvas id="chart-canvas"></canvas>
       </div>
     `;
 
