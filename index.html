@@ -6,15 +6,24 @@
     <meta name="theme-color" content="#007bff" />
     <title>Blood Pressure Tracker</title>
     <link rel="manifest" href="/blood-pressure-tracker/assets/manifest-D732m7vu.json" />
-    <script type="module" crossorigin src="/blood-pressure-tracker/assets/index-ChYjjXqb.js"></script>
-    <link rel="stylesheet" crossorigin href="/blood-pressure-tracker/assets/index-G-Q-dISn.css">
+    <script type="module" crossorigin src="/blood-pressure-tracker/assets/index-OCKAZDsk.js"></script>
+    <link rel="stylesheet" crossorigin href="/blood-pressure-tracker/assets/index-C2sFFa4l.css">
   </head>
   <body>
     <div class="header">
       <h1>Blood Pressure Tracker</h1>
-      <button id="install-app-btn" class="install-btn" style="display: none">
-        📱 Install App
-      </button>
+      <div class="header-actions">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          aria-label="Toggle theme"
+        >
+          <span class="theme-icon">🌙</span>
+        </button>
+        <button id="install-app-btn" class="install-btn" style="display: none">
+          📱 Install App
+        </button>
+      </div>
     </div>
 
     <div class="input-group">
@@ -76,11 +85,12 @@
       </button>
     </div>
 
-    <div id="status"></div>
+    <div class="section">
+      <div id="chart-container"></div>
+    </div>
 
-    <div class="history">
-      <h3>History</h3>
-      <div id="history"></div>
+    <div class="section">
+      <div id="calendar-container"></div>
     </div>
 
   </body>
