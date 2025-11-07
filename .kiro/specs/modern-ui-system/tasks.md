@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Implement CSS design system with custom properties and themes
+- [x] 1. Implement CSS design system with custom properties and themes
 
   - Add CSS custom properties at `:root` level for essential colors, spacing, and border radius
   - Add dark theme using `@media (prefers-color-scheme: dark)` query
@@ -8,16 +8,16 @@
   - Test theme switching by changing system preferences
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [ ] 2. Create ReadingInfoModal component
+- [x] 2. Create ReadingInfoModal component
 
-  - [ ] 2.1 Create modal.js file with ReadingInfoModal class
+  - [x] 2.1 Create modal.js file with ReadingInfoModal class
 
     - Implement constructor and init() method to create modal DOM structure
     - Create modal overlay and content elements
     - Add modal HTML to document body on initialization
     - _Requirements: 2.1, 2.2_
 
-  - [ ] 2.2 Implement modal show() method
+  - [x] 2.2 Implement modal show() method
 
     - Accept reading object parameter with systolic, diastolic, pulse, date, and category
     - Populate modal with reading details
@@ -25,7 +25,7 @@
     - Show modal by adding active class
     - _Requirements: 2.2, 2.3_
 
-  - [ ] 2.3 Implement modal close functionality
+  - [x] 2.3 Implement modal close functionality
 
     - Add hide() method to remove active class
     - Attach click listener to close button
@@ -33,7 +33,7 @@
     - Attach ESC key listener to document
     - _Requirements: 2.4_
 
-  - [ ] 2.4 Add modal CSS styles
+  - [x] 2.4 Add modal CSS styles
     - Style modal overlay with semi-transparent background
     - Style modal content card with border, shadow, and centering
     - Add close button styling
