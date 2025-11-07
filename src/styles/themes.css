@@ -1,0 +1,166 @@
+:root {
+  /* Core colors - Light theme */
+  --bg-primary: #f8f4de;
+  --bg-secondary: rgba(109, 134, 143, 0.879);
+  --text-primary: #428fe1;
+  --text-secondary: #000;
+  --border-color: rgba(38, 45, 52, 0.923);
+  --accent-color: #428fe1;
+  --accent-hover: #0056b3;
+  --accent-active: #004085;
+
+  /* Input colors */
+  --input-bg: #fbf9ed;
+  --input-border: #000000;
+
+  /* Category colors (shared across themes) */
+  --color-normal: #28a745;
+  --color-elevated: #ffc107;
+  --color-high1: #fd7e14;
+  --color-high2: #dc3545;
+  --color-critical: #6f42c1;
+  --color-low: #17a2b8;
+
+  /* Category background colors for status */
+  --bg-normal: #d4edda;
+  --bg-elevated: #fff3cd;
+  --bg-high1: #f8d7da;
+  --bg-high2: #f5c2c7;
+  --bg-critical: #842029;
+  --bg-low: #d1ecf1;
+
+  /* Category text colors for status */
+  --text-normal: #155724;
+  --text-elevated: #856404;
+  --text-high1: #721c24;
+  --text-high2: #842029;
+  --text-critical: white;
+  --text-low: #0c5460;
+
+  /* Filter colors */
+  --filter-bg: #bec3c9;
+  --filter-bg-active: var(--accent-color);
+  --filter-bg-hover: #6badf379;
+  --filter-border: rgba(45, 49, 53, 0.923);
+  --filter-text: #000000;
+  --filter-text-hover: whitesmoke;
+
+  /* Other colors */
+  --delete-bg: #dc3545;
+  --delete-hover: #c82333;
+  --border-light: #eee;
+  --border-scale: #ddd;
+  --text-muted: #666;
+  --offline-bg: #ffc107;
+  --offline-text: #000;
+
+  /* Spacing */
+  --spacing-xs: 5px;
+  --spacing-sm: 8px;
+  --spacing-md: 10px;
+  --spacing-lg: 15px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 30px;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+}
+
+/* Dark theme - NOTE: Currently need to manually duplicate all vars for dark mode! (See below) */
+
+/* applies when system prefers dark OR when manually set */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg-primary: #2a2d31;
+    --bg-secondary: #1a1d21;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --border-color: #4a4d51;
+    --accent-color: #6badf3;
+    --accent-hover: #5a9de3;
+    --accent-active: #4a8dd3;
+
+    --input-bg: #3a3d41;
+    --input-border: #5a5d61;
+
+    /* Category background colors adjusted for dark theme */
+    --bg-normal: #1a3a1f;
+    --bg-elevated: #3a3520;
+    --bg-high1: #3a1f1f;
+    --bg-high2: #3a1a1f;
+    --bg-critical: #4a1a1f;
+    --bg-low: #1a2f3a;
+
+    /* Category text colors adjusted for dark theme */
+    --text-normal: #5fd175;
+    --text-elevated: #ffd54f;
+    --text-high1: #ff8a80;
+    --text-high2: #ff6b6b;
+    --text-critical: #ffcdd2;
+    --text-low: #4dd0e1;
+
+    --filter-bg: #3a3d41;
+    --filter-bg-active: var(--accent-color);
+    --filter-bg-hover: #4a8dd3;
+    --filter-border: #5a5d61;
+    --filter-text: #e0e0e0;
+    --filter-text-hover: #ffffff;
+
+    --delete-bg: #c82333;
+    --delete-hover: #a71d2a;
+    --border-light: #3a3d41;
+    --border-scale: #4a4d51;
+    --text-muted: #888;
+    --offline-bg: #ffc107;
+    --offline-text: #000;
+  }
+}
+
+/* Duplicated below, keep these in sync until a better solution is found! */
+
+/* Manual dark theme override - uses same variables as auto dark mode */
+:root[data-theme='dark'] {
+  --bg-primary: #2a2d31;
+  --bg-secondary: #1a1d21;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --border-color: #4a4d51;
+  --accent-color: #4a8dd3;
+  --accent-hover: #398dd3;
+  --accent-active: #298dd3;
+
+  --input-bg: #3a3d41;
+  --input-border: #5a5d61;
+
+  --bg-normal: #1a3a1f;
+  --bg-elevated: #3a3520;
+  --bg-high1: #3a1f1f;
+  --bg-high2: #3a1a1f;
+  --bg-critical: #4a1a1f;
+  --bg-low: #1a2f3a;
+
+  --text-normal: #5fd175;
+  --text-elevated: #ffd54f;
+  --text-high1: #ff8a80;
+  --text-high2: #ff6b6b;
+  --text-critical: #ffcdd2;
+  --text-low: #4dd0e1;
+
+  --filter-bg: #3a3d41;
+  --filter-bg-active: var(--accent-color);
+  --filter-bg-hover: #4a8dd3;
+  --filter-border: #5a5d61;
+  --filter-text: #e0e0e0;
+  --filter-text-hover: #ffffff;
+
+  --delete-bg: #c82333;
+  --delete-hover: #a71d2a;
+  --border-light: #3a3d41;
+  --border-scale: #4a4d51;
+  --text-muted: #888;
+  --offline-bg: #ffc107;
+  --offline-text: #000;
+}

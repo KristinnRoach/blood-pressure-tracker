@@ -41,9 +41,9 @@
     - Use design system custom properties for all colors and spacing
     - _Requirements: 2.5_
 
-- [ ] 3. Update UI to use ReadingInfoModal instead of status div
+- [x] 3. Update UI to use ReadingInfoModal instead of status div
 
-  - [ ] 3.1 Modify ui.js to integrate modal
+  - [x] 3.1 Modify ui.js to integrate modal
 
     - Import ReadingInfoModal class
     - Create modal instance on module load
@@ -51,21 +51,21 @@
     - Pass reading data to modal including category information
     - _Requirements: 2.1, 2.2_
 
-  - [ ] 3.2 Remove status div from HTML
+  - [x] 3.2 Remove status div from HTML
     - Delete `<div id="status"></div>` from index.html
     - Update app.js if needed to remove status div references
     - _Requirements: 2.1_
 
-- [ ] 4. Create Calendar component
+- [x] 4. Create Calendar component
 
-  - [ ] 4.1 Create calendar.js file with Calendar class
+  - [x] 4.1 Create calendar.js file with Calendar class
 
     - Implement constructor accepting containerId parameter
     - Initialize currentMonth to current date
     - Create empty readings array and modal reference property
     - _Requirements: 3.1_
 
-  - [ ] 4.2 Implement calendar data loading
+  - [x] 4.2 Implement calendar data loading
 
     - Create init() method accepting modal reference
     - Implement loadReadings() method to fetch readings from storage
@@ -73,7 +73,7 @@
     - Store modal reference for later use
     - _Requirements: 3.1_
 
-  - [ ] 4.3 Implement calendar rendering logic
+  - [x] 4.3 Implement calendar rendering logic
 
     - Create render() method to build calendar grid
     - Calculate days in current month and starting day of week
@@ -82,7 +82,7 @@
     - Apply color coding to days based on reading category
     - _Requirements: 3.2, 3.3_
 
-  - [ ] 4.4 Implement calendar navigation
+  - [x] 4.4 Implement calendar navigation
 
     - Create nextMonth() method to advance calendar by one month
     - Create prevMonth() method to go back one month
@@ -90,7 +90,7 @@
     - Re-render calendar after navigation
     - _Requirements: 3.2_
 
-  - [ ] 4.5 Implement day click interaction
+  - [x] 4.5 Implement day click interaction
 
     - Create handleDayClick() method accepting date parameter
     - Check if clicked day has a reading
@@ -98,7 +98,7 @@
     - Attach click listeners to all day elements with readings
     - _Requirements: 3.4_
 
-  - [ ] 4.6 Implement tooltip on hover
+  - [x] 4.6 Implement tooltip on hover
 
     - Create handleDayHover() method accepting date and event parameters
     - Create tooltip element in DOM
@@ -108,7 +108,7 @@
     - Attach hover listeners to all day elements with readings
     - _Requirements: 3.5_
 
-  - [ ] 4.7 Add calendar CSS styles
+  - [x] 4.7 Add calendar CSS styles
     - Style calendar container with header and grid layout
     - Create 7-column grid for days of week
     - Style day cells with appropriate sizing and spacing
@@ -120,15 +120,15 @@
     - Use design system custom properties throughout
     - _Requirements: 3.6, 3.7_
 
-- [ ] 5. Replace History section with Calendar component
+- [x] 5. Replace History section with Calendar component
 
-  - [ ] 5.1 Update HTML structure
+  - [x] 5.1 Update HTML structure
 
     - Replace history section content with calendar container div
     - Update section title from "History" to "Calendar" or similar
     - _Requirements: 3.1_
 
-  - [ ] 5.2 Integrate calendar into app.js
+  - [x] 5.2 Integrate calendar into app.js
 
     - Import Calendar class
     - Create calendar instance with container ID
@@ -137,16 +137,57 @@
     - Ensure calendar refreshes when new reading is added
     - _Requirements: 3.1_
 
-  - [ ] 5.3 Update ui.js to refresh calendar
+  - [x] 5.3 Update ui.js to refresh calendar
     - Modify loadHistory() function to refresh calendar instead of history list
     - Ensure calendar updates after adding or deleting readings
     - _Requirements: 3.1_
 
-- [ ] 6. Integration and final adjustments
+- [x] 6. Support multiple readings per day
+
+  - [x] 6.1 Update calendar data structure to store all readings per day
+
+    - Change readingsByDate from Map<string, Reading> to Map<string, Reading[]>
+    - Update loadReadings() to push all readings for same date into array
+    - _Requirements: 3.1_
+
+  - [x] 6.2 Create median calculation utility
+
+    - Add calculateMedian() helper function for arrays of numbers
+    - Add getMedianReading() method that returns median systolic, diastolic, and pulse from array of readings
+    - _Requirements: 3.3_
+
+  - [x] 6.3 Update calendar rendering to use median values
+
+    - Modify render() to calculate median values for days with multiple readings
+    - Use median values to determine category color for calendar day
+    - _Requirements: 3.3_
+
+  - [x] 6.4 Update modal to display multiple readings
+
+    - Modify modal.show() to accept either single reading or array of readings
+    - When array provided, display list of all readings with timestamps
+    - Show median values at top if multiple readings
+    - Add visual separator between readings in list
+    - _Requirements: 2.2, 3.4_
+
+  - [x] 6.5 Update handleDayClick to pass all readings
+
+    - Modify handleDayClick() to pass entire readings array for clicked day
+    - Ensure modal receives all readings, not just one
+    - _Requirements: 3.4_
+
+  - [x] 6.6 Update charts to use median values per day
+    - Modify chart data preparation to group readings by day
+    - Calculate median for each day's readings
+    - Use median values as data points in charts
+    - _Requirements: 3.3_
+
+- [ ] 7. Integration and final adjustments
   - Test complete flow: add reading → modal shows → calendar updates
   - Verify theme switching works across all components
   - Test modal and calendar on mobile, tablet, and desktop viewports
-  - Verify all close methods work for modal (click outside, close button, ESC)
+  - Add keydown "Enter" as a way to close the modal
+  - Verify all close methods work for modal (click outside, close button, ESC, Enter)
   - Test calendar navigation and verify readings display correctly across months
   - Test tooltip positioning and content
   - Verify color coding matches reading categories throughout

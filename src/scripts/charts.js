@@ -116,16 +116,14 @@ export function initializeCharts() {
 }
 
 function createChartContainer() {
-  // Find the history section
-  const historySection = document.querySelector('.history');
+  // Find the chart container
+  const chartContainer = document.getElementById('chart-container');
+  if (!chartContainer) {
+    console.error('Chart container not found!');
+    return false;
+  }
 
-  // Check if charts section already exists
-  if (!document.getElementById('charts-section')) {
-    // Create charts section
-    const chartsSection = document.createElement('div');
-    chartsSection.id = 'charts-section';
-    chartsSection.className = 'charts';
-    chartsSection.innerHTML = `
+  chartContainer.innerHTML = `
       <div class="chart-filters">
         <span class="filter-label active" data-dataset="0">Systolic</span>
         <span class="filter-label active" data-dataset="1">Diastolic</span>
@@ -134,14 +132,14 @@ function createChartContainer() {
       <div id="insufficient-data" class="insufficient-data" style="display: none;">
         <p>Add at least 2 readings to see trend charts</p>
       </div>
-      <div class="chart-container">
+      <div class="chart-canvas-wrapper">
         <canvas id="chart-canvas"></canvas>
       </div>
     `;
 
-    // Insert before history section
-    historySection.parentNode.insertBefore(chartsSection, historySection);
-  }
+  // // Insert before history section
+  // historySection.parentNode.insertBefore(chartsSection, historySection);
+  return true;
 }
 
 function setupFilterListeners() {
@@ -163,11 +161,17 @@ function setupFilterListeners() {
   });
 }
 
+function calculateMedian(numbers) {
+  if (numbers.length === 0) return 0;
+  const sorted = [...numbers].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid];
+}
+
 export function updateCharts(readings) {
   console.log('Updating charts with', readings.length, 'readings');
-
-  // Store current readings for filter operations
-  currentReadings = readings;
 
   // Handle insufficient data case
   const insufficientDataDiv = document.getElementById('insufficient-data');
@@ -187,34 +191,62 @@ export function updateCharts(readings) {
   if (chartContainer) chartContainer.style.display = 'block';
   if (chartFilters) chartFilters.style.display = 'flex';
 
-  // Sort readings by date (oldest first for chart display)
-  const sortedReadings = [...readings].reverse();
-
-  // Prepare data for charts
-  const labels = sortedReadings.map((reading, index) => {
+  // Group readings by date and calculate median for each day
+  const readingsByDate = new Map();
+  readings.forEach((reading) => {
     const date = new Date(reading.date);
-    const day = date.getDate();
+    const dateKey = `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-    // Show month abbreviation when month changes or for first entry
-    if (
-      index === 0 ||
-      date.getMonth() !== new Date(sortedReadings[index - 1].date).getMonth()
-    ) {
-      const monthAbbr = date.toLocaleDateString('en-US', { month: 'short' });
-      return `${monthAbbr}: ${day}`;
+    if (!readingsByDate.has(dateKey)) {
+      readingsByDate.set(dateKey, []);
     }
-
-    return day.toString();
+    readingsByDate.get(dateKey).push(reading);
   });
 
-  const systolicData = sortedReadings.map((reading) => reading.systolic);
-  const diastolicData = sortedReadings.map((reading) => reading.diastolic);
-  const pulseData = sortedReadings.map((reading) => reading.pulse);
+  // Calculate median for each day and sort by date
+  const dailyMedians = Array.from(readingsByDate.entries())
+    .map(([dateKey, dayReadings]) => {
+      const systolicValues = dayReadings.map((r) => r.systolic);
+      const diastolicValues = dayReadings.map((r) => r.diastolic);
+      const pulseValues = dayReadings.map((r) => r.pulse);
+
+      return {
+        date: dateKey,
+        systolic: Math.round(calculateMedian(systolicValues)),
+        diastolic: Math.round(calculateMedian(diastolicValues)),
+        pulse: Math.round(calculateMedian(pulseValues)),
+      };
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  // Store for tooltip access
+  currentReadings = dailyMedians;
+
+  // Prepare data for charts
+  const labels = dailyMedians.map((reading, index) => {
+    const [year, month, day] = reading.date.split('-');
+    const date = new Date(year, month - 1, day);
+    const dayNum = date.getDate();
+
+    // Show month abbreviation when month changes or for first entry
+    if (index === 0 || month !== dailyMedians[index - 1].date.split('-')[1]) {
+      const monthAbbr = date.toLocaleDateString('en-US', { month: 'short' });
+      return `${monthAbbr}: ${dayNum}`;
+    }
+
+    return dayNum.toString();
+  });
+
+  const systolicData = dailyMedians.map((reading) => reading.systolic);
+  const diastolicData = dailyMedians.map((reading) => reading.diastolic);
+  const pulseData = dailyMedians.map((reading) => reading.pulse);
 
   // Update combined chart
   if (combinedChart) {
-    // Store sorted readings for tooltip access
-    currentReadings = sortedReadings;
+    // Store daily medians for tooltip access
+    currentReadings = dailyMedians;
 
     combinedChart.data.labels = labels;
     combinedChart.data.datasets[0].data = systolicData;

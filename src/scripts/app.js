@@ -7,6 +7,12 @@ import { initializeCharts } from './charts.js';
 import { initializePWA, setupOfflineHandling } from './pwa.js';
 import { generateDummyData, shouldGenerateDummyData } from './dummyData.js';
 import { initTheme } from './theme.js';
+import { Calendar } from './calendar.js';
+import { ReadingInfoModal } from './modal.js';
+
+// Create calendar and modal instances
+let calendar = null;
+let modal = null;
 
 // Make functions available globally for onclick handlers
 window.addReading = addReading;
@@ -49,7 +55,17 @@ async function addReading() {
 
     console.log('Updating UI...');
     showStatus(sys, dia, pulse);
-    await loadHistory();
+
+    // Refresh calendar and charts if calendar exists
+    if (calendar) {
+      await calendar.loadReadings();
+      calendar.render();
+
+      // Update charts with new data
+      const { updateCharts } = await import('./charts.js');
+      updateCharts(calendar.readings);
+    }
+
     console.log('Reading added successfully');
   } catch (error) {
     console.error('Error saving reading:', error);
@@ -63,8 +79,15 @@ async function generateDummyDataHandler() {
   try {
     const count = await generateDummyData();
 
-    // Refresh the UI to show new data
-    await loadHistory();
+    // Refresh calendar and charts if calendar exists
+    if (calendar) {
+      await calendar.loadReadings();
+      calendar.render();
+
+      // Update charts with new data
+      const { updateCharts } = await import('./charts.js');
+      updateCharts(calendar.readings);
+    }
 
     alert(
       `Successfully added ${count} dummy readings for development testing!`
@@ -99,5 +122,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize app components
   initializeVisualScales();
   initializeCharts();
-  await loadHistory();
+
+  // Initialize modal and calendar
+  modal = new ReadingInfoModal();
+  calendar = new Calendar('calendar-container');
+  await calendar.init(modal);
 });

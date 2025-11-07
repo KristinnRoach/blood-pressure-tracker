@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#007bff" />
     <title>Blood Pressure Tracker</title>
+    <link rel="stylesheet" href="./styles/reset-normalize.css" />
+    <link rel="stylesheet" href="./styles/themes.css" />
     <link rel="stylesheet" href="./styles/main.css" />
     <link rel="manifest" href="./manifest.json" />
   </head>
@@ -84,11 +86,12 @@
       </button>
     </div>
 
-    <div id="status"></div>
+    <div class="section">
+      <div id="chart-container"></div>
+    </div>
 
-    <div class="history">
-      <h3>History</h3>
-      <div id="history"></div>
+    <div class="section">
+      <div id="calendar-container"></div>
     </div>
 
     <script type="module" src="./scripts/app.js"></script>
