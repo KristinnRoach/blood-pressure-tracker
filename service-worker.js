@@ -1,8 +1,9 @@
 // Blood Pressure Tracker Service Worker
 // Simple cache-first strategy for offline functionality
 
-const CACHE_NAME = 'bp-tracker-v4';
+const CACHE_NAME = 'bp-tracker-v5';
 const STATIC_ASSETS = ['./', './index.html'];
+const MAX_CACHE_SIZE = 50; // Maximum number of cached items
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -138,7 +139,12 @@ self.addEventListener('fetch', (event) => {
             // Clone the response for caching
             const responseToCache = response.clone();
 
-            caches.open(CACHE_NAME).then((cache) => {
+            caches.open(CACHE_NAME).then(async (cache) => {
+              // Limit cache size to prevent quota issues
+              const keys = await cache.keys();
+              if (keys.length >= MAX_CACHE_SIZE) {
+                await cache.delete(keys[0]); // Remove oldest entry
+              }
               cache.put(event.request, responseToCache);
             });
 
@@ -158,5 +164,14 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     console.log('Service Worker: Received skip waiting message');
     self.skipWaiting();
+  }
+
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    console.log('Service Worker: Clearing all caches');
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => caches.delete(cacheName))
+      );
+    });
   }
 });
