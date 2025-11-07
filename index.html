@@ -6,8 +6,8 @@
     <meta name="theme-color" content="#007bff" />
     <title>Blood Pressure Tracker</title>
     <link rel="manifest" href="/blood-pressure-tracker/assets/manifest-DZBeX1-i.json" />
-    <script type="module" crossorigin src="/blood-pressure-tracker/assets/index-CUTeIE_f.js"></script>
-    <link rel="stylesheet" crossorigin href="/blood-pressure-tracker/assets/index-DitJ4uy4.css">
+    <script type="module" crossorigin src="/blood-pressure-tracker/assets/index-DRF4aK6U.js"></script>
+    <link rel="stylesheet" crossorigin href="/blood-pressure-tracker/assets/index-C_icn9-f.css">
   </head>
   <body>
     <div class="header">
@@ -58,6 +58,22 @@
       </div>
 
       <button onclick="addReading()">Add</button>
+      <button
+        id="dev-dummy-data-btn"
+        onclick="generateDummyDataHandler()"
+        style="
+          display: none;
+          margin-left: 10px;
+          background-color: #6c757d;
+          color: white;
+          border: none;
+          padding: 8px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+        "
+      >
+        🧪 Add Dummy Data (DEV)
+      </button>
     </div>
 
     <div id="status"></div>
