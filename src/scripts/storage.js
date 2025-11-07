@@ -70,8 +70,27 @@ export async function saveReading(reading) {
     userId: null, // Single user mode for now
   };
 
-  await db.readings.add(readingData);
-  console.log('Reading saved to IndexedDB:', readingData);
+  try {
+    await db.readings.add(readingData);
+    console.log('Reading saved to IndexedDB:', readingData);
+  } catch (error) {
+    console.error('Error saving reading:', error);
+
+    // Check for quota error (including inner error)
+    if (
+      error.name === 'QuotaExceededError' ||
+      error.name === 'AbortError' ||
+      (error.inner && error.inner.name === 'QuotaExceededError')
+    ) {
+      alert(
+        'Unable to save: Storage quota exceeded. Try clearing browser data or use a different browser mode.'
+      );
+    } else {
+      alert('Failed to save reading. Please try again.');
+    }
+
+    throw error; // Re-throw so caller knows it failed
+  }
 }
 
 export async function getReadings() {

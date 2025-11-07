@@ -240,8 +240,8 @@ button:hover {
 .filter-label {
   cursor: pointer;
   font-size: 14px;
-  color: #6c757d;
-  background: #f8f9fa;
+  color: #000000;
+  background: #bec3c9;
   padding: 6px 12px;
   border: 2px solid rgba(45, 49, 53, 0.923);
   border-radius: 8px;
@@ -250,14 +250,13 @@ button:hover {
 }
 
 .filter-label.active {
-  color: #495057;
-  background: #e9ecef;
+  background: #6badf3;
   font-weight: 500;
 }
 
 .filter-label:hover {
-  color: #495057;
-  background: #e9ecef;
+  color: whitesmoke;
+  background: #6badf379;
 }
 
 .insufficient-data {

@@ -25,7 +25,7 @@ export async function registerServiceWorker() {
       console.log('PWA: Registering service worker...');
 
       const registration = await navigator.serviceWorker.register(
-        './service-worker.js'
+        `${import.meta.env.BASE_URL}service-worker.js`
       );
 
       console.log('PWA: Service worker registered successfully', registration);
@@ -45,13 +45,6 @@ export async function registerServiceWorker() {
           }
         });
       });
-
-      // Check for updates every 30 seconds when page is visible
-      setInterval(() => {
-        if (document.visibilityState === 'visible') {
-          registration.update();
-        }
-      }, 30000);
 
       return registration;
     } catch (error) {
