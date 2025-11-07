@@ -20,6 +20,12 @@ function checkInstallStatus() {
 
 // Register service worker
 export async function registerServiceWorker() {
+  // Skip service worker registration in development
+  if (import.meta.env.DEV) {
+    console.log('PWA: Skipping service worker registration in DEV mode');
+    return null;
+  }
+
   if ('serviceWorker' in navigator) {
     try {
       console.log('PWA: Registering service worker...');

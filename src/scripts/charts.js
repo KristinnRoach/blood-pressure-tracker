@@ -74,33 +74,37 @@ export function initializeCharts() {
         legend: {
           display: false,
         },
+        tooltip: {
+          callbacks: {
+            title: function (context) {
+              // Use the stored full date from currentReadings
+              const index = context[0].dataIndex;
+              if (currentReadings[index]) {
+                const date = new Date(currentReadings[index].date);
+                return date.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                });
+              }
+              return context[0].label;
+            },
+          },
+        },
       },
       scales: {
         y: {
           type: 'linear',
           display: true,
-          position: 'left',
-          title: {
-            display: true,
-            text: 'mmHg',
-          },
-        },
-        y1: {
-          type: 'linear',
-          display: true,
           position: 'right',
           title: {
-            display: true,
-            text: 'bpm',
-          },
-          grid: {
-            drawOnChartArea: false,
+            display: false,
           },
         },
         x: {
+          display: true,
           title: {
-            display: true,
-            text: 'Date',
+            display: false,
           },
         },
       },
@@ -187,9 +191,20 @@ export function updateCharts(readings) {
   const sortedReadings = [...readings].reverse();
 
   // Prepare data for charts
-  const labels = sortedReadings.map((reading) => {
+  const labels = sortedReadings.map((reading, index) => {
     const date = new Date(reading.date);
-    return date.toLocaleDateString();
+    const day = date.getDate();
+
+    // Show month abbreviation when month changes or for first entry
+    if (
+      index === 0 ||
+      date.getMonth() !== new Date(sortedReadings[index - 1].date).getMonth()
+    ) {
+      const monthAbbr = date.toLocaleDateString('en-US', { month: 'short' });
+      return `${monthAbbr}: ${day}`;
+    }
+
+    return day.toString();
   });
 
   const systolicData = sortedReadings.map((reading) => reading.systolic);
@@ -198,6 +213,9 @@ export function updateCharts(readings) {
 
   // Update combined chart
   if (combinedChart) {
+    // Store sorted readings for tooltip access
+    currentReadings = sortedReadings;
+
     combinedChart.data.labels = labels;
     combinedChart.data.datasets[0].data = systolicData;
     combinedChart.data.datasets[1].data = diastolicData;

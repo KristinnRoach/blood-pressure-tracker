@@ -42,12 +42,12 @@ h1 {
 
 input {
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #000000;
+  border-radius: 8px;
   width: 100%;
   margin-bottom: 8px;
 
-  background-color: #f2f0e8;
+  background-color: #fbf9ed;
 }
 
 .visual-scale {
@@ -85,7 +85,7 @@ input {
   background: #dc3545;
 }
 
-.scale-segment.crisis {
+.scale-segment.critical {
   background: #6f42c1;
 }
 
@@ -114,12 +114,20 @@ input {
 }
 
 @media (max-width: 768px) {
-  .input-group {
+  /* .input-group {
     flex-direction: column;
   }
-
+*/
   .input-with-scale {
-    min-width: 100%;
+    max-width: calc(100dvw / 3.5);
+    display: flex;
+    gap: 8px;
+  }
+
+  .visual-scale,
+  .input-with-scale input {
+    flex: 1;
+    min-width: 0;
   }
 }
 
@@ -163,7 +171,7 @@ button:hover {
   color: #842029;
 }
 
-.crisis {
+.critical {
   background: #842029;
   color: white;
 }
@@ -216,8 +224,10 @@ button:hover {
 
 .chart-container {
   position: relative;
-  min-height: 350px;
-  height: 45dvh;
+
+  min-height: 300px;
+  height: 40dvh;
+  max-height: 400px;
   margin-bottom: 20px;
   padding: 10px;
   border: none;
