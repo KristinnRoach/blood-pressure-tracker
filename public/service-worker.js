@@ -2,7 +2,7 @@
 // Simple cache-first strategy for offline functionality
 
 const CACHE_NAME = 'bp-tracker-v4';
-const STATIC_ASSETS = ['./', './index.html', './manifest.json'];
+const STATIC_ASSETS = ['./', './index.html'];
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
