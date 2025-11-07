@@ -2,33 +2,31 @@
 
 ## Introduction
 
-This feature introduces a modern, minimal CSS design system and enhanced UI components for the blood pressure tracker application. The design system will provide consistent theming with light/dark mode support using CSS custom properties and container queries. The UI enhancements replace the existing status display with a modal component and transform the history view into an interactive calendar with color-coded readings.
+This feature introduces a simple modern CSS design system and enhanced UI components for the blood pressure tracker application. The design system provides basic theming with light/dark mode support using essential CSS custom properties. The UI enhancements replace the existing status display with a modal component and transform the history view into an interactive calendar with color-coded readings.
 
 ## Glossary
 
 - **Application**: The blood pressure tracker web application
-- **Design System**: A collection of CSS custom properties, container queries, and theme definitions
+- **Design System**: A minimal collection of CSS custom properties and theme definitions for essential styling
 - **ReadingInfoModal**: A modal component that displays detailed information about a blood pressure reading
 - **Calendar Component**: An interactive calendar view that displays historical readings with color-coded indicators
 - **Reading Category**: The classification of a blood pressure reading (e.g., normal, elevated, hypertension)
 - **Theme**: Visual appearance mode (light or dark) applied to the Application
-- **Custom Properties**: CSS variables used for consistent styling across the Application
-- **Container Queries**: CSS feature that allows styling based on container size rather than viewport size
+- **Custom Properties**: CSS variables for essential colors and spacing used across the Application
 - **Tooltip**: A small popup that appears on hover showing summary information
 
 ## Requirements
 
 ### Requirement 1
 
-**User Story:** As a user, I want a modern design system with consistent theming, so that the application has a cohesive visual appearance across all components
+**User Story:** As a user, I want a simple modern design with light and dark themes, so that the application looks clean and adapts to my system preferences
 
 #### Acceptance Criteria
 
-1. THE Application SHALL define CSS custom properties for colors, spacing, typography, and other design tokens
-2. THE Application SHALL implement container queries for responsive component layouts
-3. THE Application SHALL provide a light theme with appropriate color values
-4. THE Application SHALL provide a dark theme with appropriate color values
-5. WHEN the user's system preference changes, THE Application SHALL update the active theme to match the system preference
+1. THE Application SHALL define CSS custom properties for essential colors and spacing values only
+2. THE Application SHALL provide a light theme with appropriate color values
+3. THE Application SHALL provide a dark theme with appropriate color values
+4. WHEN the user's system preference changes, THE Application SHALL update the active theme to match the system preference
 
 ### Requirement 2
 
