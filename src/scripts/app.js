@@ -1,7 +1,11 @@
 // Main application logic
 
 import { saveReading } from './storage.js';
-import { showStatus, loadHistory, deleteReadingHandler } from './ui.js';
+import {
+  showStatus,
+  deleteReadingHandler,
+  deleteReadingByIdHandler,
+} from './ui.js';
 import { initializeVisualScales, clearIndicators } from './visualScales.js';
 import { initializeCharts } from './charts.js';
 import { initializePWA, setupOfflineHandling } from './pwa.js';
@@ -18,6 +22,7 @@ let modal = null;
 window.addReading = addReading;
 window.deleteReadingHandler = deleteReadingHandler;
 window.generateDummyDataHandler = generateDummyDataHandler;
+window.deleteReadingById = deleteReadingByIdHandler;
 
 async function addReading() {
   console.log('Adding reading...'); // Console monitoring for testing
@@ -127,4 +132,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   modal = new ReadingInfoModal();
   calendar = new Calendar('calendar-container');
   await calendar.init(modal);
+
+  // Listen for external updates to readings (delete/add) so calendar and charts can refresh
+  document.addEventListener('readings-updated', async () => {
+    if (calendar) {
+      await calendar.loadReadings();
+      calendar.render();
+
+      const { updateCharts } = await import('./charts.js');
+      updateCharts(calendar.readings);
+    }
+  });
+
+  // When a specific reading is deleted, close any open modal showing it
+  document.addEventListener('reading-deleted', () => {
+    if (modal && typeof modal.hide === 'function') {
+      modal.hide();
+    }
+  });
 });

@@ -116,8 +116,28 @@ export async function deleteReading(index) {
   const readings = await getReadings();
   if (index >= 0 && index < readings.length) {
     const readingToDelete = readings[index];
-    await db.readings.delete(readingToDelete.id);
-    console.log('Reading deleted from IndexedDB:', readingToDelete.id);
+    await deleteReadingById(readingToDelete.id);
+    console.log(
+      'Reading deleted from IndexedDB (via index):',
+      readingToDelete.id
+    );
+  }
+}
+
+export async function deleteReadingById(id) {
+  await ensureInitialized();
+
+  if (id == null) {
+    console.warn('deleteReadingById called with null/undefined id');
+    return;
+  }
+
+  try {
+    await db.readings.delete(id);
+    console.log('Reading deleted from IndexedDB by id:', id);
+  } catch (error) {
+    console.error('Error deleting reading by id:', error);
+    throw error;
   }
 }
 
