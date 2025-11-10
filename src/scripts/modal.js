@@ -141,11 +141,12 @@ export class ReadingInfoModal {
           const pulseClass = flags.pulse ? 'abnormal-value' : '';
 
           html += `
-            <div class="reading-item">
+            <div class="reading-item" data-id="${reading.id}">
               <span class="reading-time">${time}</span>
               <span class="reading-values-compact">
                 <span class="${systolicClass}">${reading.systolic}</span>/<span class="${diastolicClass}">${reading.diastolic}</span>, <span class="${pulseClass}">${reading.pulse}</span>
               </span>
+              <button class="delete" onclick="window.deleteReadingById(${reading.id})">Delete</button>
             </div>
           `;
         });
@@ -179,6 +180,11 @@ export class ReadingInfoModal {
           <div>Pulse: <span class="${statuses.pulseClass}">${
         statuses.pulseStatus
       }</span></div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="delete" onclick="window.deleteReadingById(${
+            reading.id
+          })">Delete</button>
         </div>
       `;
     }

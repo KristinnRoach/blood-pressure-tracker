@@ -1,7 +1,7 @@
 // UI update functions for status display and history
 
 import { getCategory, getPulseStatus } from './bloodPressure.js';
-import { getReadings, deleteReading } from './storage.js';
+import { getReadings, deleteReading, deleteReadingById } from './storage.js';
 import { updateCharts } from './charts.js';
 import { ReadingInfoModal } from './modal.js';
 
@@ -29,6 +29,14 @@ export async function loadHistory() {
   try {
     const history = await getReadings();
     const historyDiv = document.getElementById('history');
+
+    // If there's no history container in the current UI (some pages don't include it),
+    // avoid attempting DOM updates and just update charts.
+    if (!historyDiv) {
+      // Update charts with current data (or empty array)
+      updateCharts(history.length ? history : []);
+      return;
+    }
 
     if (history.length === 0) {
       historyDiv.innerHTML = '<p>No readings yet</p>';
@@ -72,6 +80,27 @@ export async function deleteReadingHandler(index) {
     await loadHistory();
   } catch (error) {
     console.error('Error deleting reading:', error);
+    alert('Error deleting reading. Please try again.');
+  }
+}
+
+export async function deleteReadingByIdHandler(id) {
+  try {
+    if (!confirm('Delete this reading? This action cannot be undone.')) return;
+
+    await deleteReadingById(id);
+
+    // Refresh history and charts
+    await loadHistory();
+
+    // Notify other components (calendar) to refresh
+    document.dispatchEvent(new CustomEvent('readings-updated'));
+    // Notify UI that a specific reading was deleted so modals can close if open
+    document.dispatchEvent(
+      new CustomEvent('reading-deleted', { detail: { id } })
+    );
+  } catch (error) {
+    console.error('Error deleting reading by id:', error);
     alert('Error deleting reading. Please try again.');
   }
 }
