@@ -12,22 +12,42 @@
   </head>
   <body>
     <div class="header">
-      <h1>Blood Pressure Tracker</h1>
-      <div class="header-actions">
-        <button
-          id="theme-toggle-btn"
-          class="theme-toggle-btn"
-          aria-label="Toggle theme"
-        >
-          <span class="theme-icon">🌙</span>
-        </button>
-        <button id="install-app-btn" class="install-btn" style="display: none">
-          📱 Install App
-        </button>
-      </div>
+      <h1 id="app-title">Blood Pressure Tracker</h1>
+
+      <button id="new-reading-btn">Add new reading</button>
+
+      <button
+        id="theme-toggle-btn"
+        class="theme-toggle-btn"
+        aria-label="Toggle theme"
+      >
+        <span class="theme-icon">🌙</span>
+      </button>
+
+      <button id="install-app-btn" class="install-btn" style="display: none">
+        📱 Install App
+      </button>
     </div>
 
-    <div class="input-group">
+    <div id="chart-section" class="section">
+      <div id="chart-container" class="hidden"></div>
+    </div>
+
+    <div class="section">
+      <div id="calendar-container"></div>
+    </div>
+
+    <div class="section">
+      <h2>History</h2>
+      <div id="history-list"></div>
+    </div>
+
+    <script type="module" src="./scripts/app.js"></script>
+  </body>
+</html>
+
+<!-- 
+    <form id="reading-form" class="input-group">
       <div class="input-with-scale">
         <input type="number" id="systolic" placeholder="Systolic" />
         <div class="visual-scale" id="systolic-scale">
@@ -67,10 +87,16 @@
         </div>
       </div>
 
-      <button onclick="addReading()">Add</button>
+      <div class="input-with-scale">
+        <input type="date" id="reading-date" aria-label="Reading date" />
+      </div>
+
+      <button type="submit">Add</button>
+
       <button
         id="dev-dummy-data-btn"
         onclick="generateDummyDataHandler()"
+        type="button"
         style="
           display: none;
           margin-left: 10px;
@@ -84,16 +110,4 @@
       >
         🧪 Add Dummy Data (DEV)
       </button>
-    </div>
-
-    <div class="section">
-      <div id="chart-container"></div>
-    </div>
-
-    <div class="section">
-      <div id="calendar-container"></div>
-    </div>
-
-    <script type="module" src="./scripts/app.js"></script>
-  </body>
-</html>
+    </form> -->

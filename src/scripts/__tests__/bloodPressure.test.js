@@ -1,6 +1,6 @@
 // Minimal tests for blood pressure categorization
 import { describe, it, expect } from 'vitest';
-import { getCategory, getPulseStatus } from '../bloodPressure.js';
+import { getCategory, getPulseStatus } from '../analysis/bloodPressure.js';
 
 describe('Blood Pressure Categorization', () => {
   it('should categorize normal blood pressure correctly', () => {

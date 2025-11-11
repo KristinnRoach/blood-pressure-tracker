@@ -6,22 +6,23 @@ export class Calendar {
     this.readings = [];
     this.readingsByDate = new Map();
     this.modal = null;
+    this.selectedDate = null;
   }
 
   async init(modal) {
     this.modal = modal;
     await this.loadReadings();
     this.render();
-
-    // Update charts with readings data
-    const { updateCharts } = await import('./charts.js');
-    updateCharts(this.readings);
   }
 
-  async loadReadings() {
-    // Import storage dynamically to avoid circular dependencies
-    const { getReadings } = await import('./storage.js');
-    this.readings = await getReadings();
+  async loadReadings(readingsOverride = null) {
+    if (readingsOverride) {
+      this.readings = readingsOverride;
+    } else {
+      // Import storage dynamically to avoid circular dependencies
+      const { getReadings } = await import('../storage.js');
+      this.readings = await getReadings();
+    }
 
     // Group readings by date (YYYY-MM-DD format) - store arrays of readings
     this.readingsByDate = new Map();
@@ -37,6 +38,11 @@ export class Calendar {
       }
       this.readingsByDate.get(dateKey).push(reading);
     });
+  }
+
+  async updateReadings(updatedReadings) {
+    await this.loadReadings(updatedReadings);
+    this.render();
   }
 
   render() {
@@ -107,15 +113,18 @@ export class Calendar {
             ? `<span class="reading-count">${readings.length}</span>`
             : '';
 
+        const activeClass = this.selectedDate === dateKey ? ' active' : '';
         html += `
-          <div class="calendar-day has-reading" data-date="${dateKey}" style="background-color: var(--color-${categoryClass})">
+          <div class="calendar-day has-reading${activeClass}" data-date="${dateKey}" style="background-color: var(--color-${categoryClass})">
             <span class="day-number">${day}</span>
             ${countBadge}
           </div>
         `;
       } else {
+        // Always include a data-date on actual month days so they can be clicked
+        const activeClass = this.selectedDate === dateKey ? ' active' : '';
         html += `
-          <div class="calendar-day">
+          <div class="calendar-day${activeClass}" data-date="${dateKey}">
             <span class="day-number">${day}</span>
           </div>
         `;
@@ -171,8 +180,8 @@ export class Calendar {
       .getElementById('next-month')
       ?.addEventListener('click', () => this.nextMonth());
 
-    // Day clicks
-    document.querySelectorAll('.calendar-day.has-reading').forEach((dayEl) => {
+    // Day clicks - include all actual month days (those with a data-date attribute)
+    document.querySelectorAll('.calendar-day[data-date]').forEach((dayEl) => {
       dayEl.addEventListener('click', (e) => {
         const date = e.currentTarget.dataset.date;
         this.handleDayClick(date);
@@ -180,11 +189,33 @@ export class Calendar {
     });
   }
 
-  handleDayClick(dateKey) {
+  async handleDayClick(dateKey) {
     const readings = this.readingsByDate.get(dateKey);
+    console.log('handleDayClick', dateKey, readings, this.modal);
+
+    // pre-fill any existing date input (if present in DOM)
+    const dateInputEl = document.getElementById('reading-date');
+    if (dateInputEl) dateInputEl.value = dateKey;
+
+    // Update selection
+    this.selectedDate = dateKey;
+    // Re-render to update active visuals (safe because the container is replaced and listeners re-attached)
+    this.render();
+
     if (readings && readings.length > 0 && this.modal) {
-      // Pass all readings to modal
-      this.modal.show(readings);
+      // Pass all readings to modal (existing reading info display)
+      this.modal.open(readings);
+    } else {
+      // No readings on this day — open AddReadingModal with the clicked date prefilled
+      try {
+        const { AddReadingModal } = await import('./addReadingModal.js');
+        const newModal = AddReadingModal();
+        if (newModal && typeof newModal.open === 'function') {
+          newModal.open(dateKey);
+        }
+      } catch (err) {
+        console.error('Error opening AddReadingModal for date:', dateKey, err);
+      }
     }
   }
 

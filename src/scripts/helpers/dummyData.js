@@ -1,6 +1,6 @@
 // Development dummy data generator for blood pressure readings
 
-import { saveReading } from './storage.js';
+import { saveReading } from '../storage.js';
 
 // Generate realistic dummy blood pressure readings for development
 export async function generateDummyData() {

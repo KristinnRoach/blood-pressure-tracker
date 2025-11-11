@@ -1,11 +1,14 @@
 export class ReadingInfoModal {
   constructor() {
     this.modal = null;
+    this.numReadings = 0;
     this.init();
+    this.isOpen = () => {
+      return this.modal.classList.contains('active');
+    };
   }
 
   init() {
-    // Create modal DOM structure
     const modalHTML = `
       <div class="modal-overlay" id="reading-modal">
         <div class="modal-content">
@@ -17,40 +20,47 @@ export class ReadingInfoModal {
       </div>
     `;
 
-    // Add modal to document body
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     this.modal = document.getElementById('reading-modal');
 
-    // Attach event listeners for close functionality
     this.attachCloseListeners();
   }
 
   attachCloseListeners() {
     // Close button click
     const closeButton = this.modal.querySelector('.modal-close');
-    closeButton.addEventListener('click', () => this.hide());
+    closeButton.addEventListener('click', () => this.close());
 
     // Click outside modal (on overlay) to close
     this.modal.addEventListener('click', (e) => {
+      if (!this.isOpen()) return;
+
       if (e.target === this.modal) {
-        this.hide();
+        this.close();
       }
     });
 
-    // ESC key to close
+    // ESC or Enter key to close
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.modal.classList.contains('active')) {
-        this.hide();
+      if (!this.isOpen()) return;
+
+      if (e.key === 'Escape' || e.key === 'Enter') {
+        if (this.modal.classList.contains('active')) {
+          this.close();
+        }
       }
     });
   }
 
-  show(readingOrReadings) {
+  open(readingOrReadings) {
     const modalBody = this.modal.querySelector('.modal-body');
 
     // Check if it's an array of readings or single reading
     const isArray = Array.isArray(readingOrReadings);
     const readings = isArray ? readingOrReadings : [readingOrReadings];
+
+    const count = isArray ? readings.length : 1;
+    this.numReadings = count;
 
     if (readings.length === 0) return;
 
@@ -66,6 +76,46 @@ export class ReadingInfoModal {
         diastolic: Math.round(this.calculateMedian(diastolicValues)),
         pulse: Math.round(this.calculateMedian(pulseValues)),
       };
+    }
+
+    // Shared date variable reused for grouped and single-reading modes.
+    // For grouped readings we use the first reading's date (date-only),
+    // and for a single reading we overwrite this with the full locale string.
+    let date = null;
+    if (readings.length > 1 && readings[0] && readings[0].date) {
+      date = new Date(readings[0].date).toLocaleDateString();
+    }
+
+    // Helper for ordinal suffixes (1st, 2nd, 3rd, 4th...)
+    const ordinalSuffix = (n) => {
+      const s = n % 100;
+      if (s >= 11 && s <= 13) return 'th';
+      switch (n % 10) {
+        case 1:
+          return 'st';
+        case 2:
+          return 'nd';
+        case 3:
+          return 'rd';
+        default:
+          return 'th';
+      }
+    };
+
+    // Build a compact one-line summary for grouped readings like
+    // "November 5th: 3 saved readings". If date is missing, just show the count.
+    let groupedSummary = null;
+    if (readings.length > 1) {
+      if (readings[0] && readings[0].date) {
+        const d = new Date(readings[0].date);
+        const month = d.toLocaleString(undefined, { month: 'long' });
+        const day = d.getDate();
+        groupedSummary = `${month} ${day}${ordinalSuffix(day)} - ${
+          readings.length
+        } saved readings: `;
+      } else {
+        groupedSummary = `${readings.length} saved readings: `;
+      }
     }
 
     // Get category for display (use median if multiple, otherwise first reading)
@@ -96,7 +146,7 @@ export class ReadingInfoModal {
     // Show median summary if multiple readings
     if (readings.length > 1) {
       html += `
-        <div class="median-label">Median</div>
+    <div class="median-label">Median</div>
         <div class="reading-main">
           <div class="reading-bp">
             <span class="${abnormalFlags.systolic ? 'abnormal' : ''}">${
@@ -108,7 +158,6 @@ export class ReadingInfoModal {
           <div class="reading-pulse ${abnormalFlags.pulse ? 'abnormal' : ''}">${
         medianReading.pulse
       } bpm</div>
-          <div class="reading-count-label">${readings.length} readings</div>
         </div>
         <div class="reading-status-details">
           <div>Systolic: <span class="${statuses.systolicClass}">${
@@ -121,11 +170,20 @@ export class ReadingInfoModal {
         statuses.pulseStatus
       }</span></div>
         </div>
+
       `;
 
       // Show individual readings in compact format
       if (readings.length > 1) {
-        html += '<div class="individual-readings">';
+        html += `<div class="individual-readings">
+                  <div style="text-align: center; margin-bottom: 1rem" class="readings-day-label">
+                    ${
+                      groupedSummary
+                        ? `<div class="reading-summary">${groupedSummary}</div>`
+                        : `<div class="reading-count-label">${readings.length} readings</div>`
+                    }
+                  </div>
+                `;
         readings.forEach((reading) => {
           const time = new Date(reading.date).toLocaleTimeString([], {
             hour: '2-digit',
@@ -155,7 +213,8 @@ export class ReadingInfoModal {
     } else {
       // Single reading - show large and clear
       const reading = readings[0];
-      const time = new Date(reading.date).toLocaleString();
+      // Overwrite shared `date` with a full localized date/time string
+      date = new Date(reading.date).toLocaleString();
       html += `
         <div class="reading-main">
           <div class="reading-bp">
@@ -168,7 +227,7 @@ export class ReadingInfoModal {
           <div class="reading-pulse ${abnormalFlags.pulse ? 'abnormal' : ''}">${
         reading.pulse
       } bpm</div>
-          <div class="reading-time-single">${time}</div>
+          <div class="reading-time-single">${date}</div>
         </div>
         <div class="reading-status-details">
           <div>Systolic: <span class="${statuses.systolicClass}">${
@@ -194,6 +253,35 @@ export class ReadingInfoModal {
 
     // Show modal by adding active class
     this.modal.classList.add('active');
+
+    // Set focus to modal for accessibility
+    this.modal.setAttribute('tabindex', '-1');
+    this.modal.focus();
+  }
+
+  // Refresh modal contents when readings change
+  updateReadings(readings) {
+    if (!this.modal || !this.isOpen()) return;
+
+    // If the modal is open, re-render with the new readings. If there
+    // are no readings, close the modal so UI stays consistent.
+    try {
+      if (Array.isArray(readings)) {
+        if (readings.length === 0) {
+          this.close();
+        } else {
+          this.open(readings);
+        }
+      } else if (readings) {
+        this.open(readings);
+      }
+    } catch (e) {
+      console.error('ReadingInfoModal.updateReadings error', e);
+    }
+  }
+
+  close() {
+    this.modal.classList.remove('active');
   }
 
   calculateMedian(numbers) {
@@ -280,10 +368,5 @@ export class ReadingInfoModal {
       pulseStatus,
       pulseClass,
     };
-  }
-
-  hide() {
-    // Hide modal by removing active class
-    this.modal.classList.remove('active');
   }
 }

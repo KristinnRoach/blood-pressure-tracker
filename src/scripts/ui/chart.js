@@ -116,7 +116,6 @@ export function initializeCharts() {
 }
 
 function createChartContainer() {
-  // Find the chart container
   const chartContainer = document.getElementById('chart-container');
   if (!chartContainer) {
     console.error('Chart container not found!');
@@ -137,8 +136,6 @@ function createChartContainer() {
       </div>
     `;
 
-  // // Insert before history section
-  // historySection.parentNode.insertBefore(chartsSection, historySection);
   return true;
 }
 
@@ -172,24 +169,15 @@ function calculateMedian(numbers) {
 
 export function updateCharts(readings) {
   console.log('Updating charts with', readings.length, 'readings');
-
-  // Handle insufficient data case
-  const insufficientDataDiv = document.getElementById('insufficient-data');
-  const chartContainer = document.querySelector('.chart-container');
-  const chartFilters = document.querySelector('.chart-filters');
+  const chartSection = document.getElementById('chart-section');
+  if (!chartSection) return;
 
   if (readings.length < 2) {
-    console.log('Insufficient data for charts');
-    insufficientDataDiv.style.display = 'block';
-    if (chartContainer) chartContainer.style.display = 'none';
-    if (chartFilters) chartFilters.style.display = 'none';
+    chartSection.style.display = 'none';
     return;
   }
 
-  // Show charts and hide insufficient data message
-  insufficientDataDiv.style.display = 'none';
-  if (chartContainer) chartContainer.style.display = 'block';
-  if (chartFilters) chartFilters.style.display = 'flex';
+  chartSection.style.display = 'block';
 
   // Group readings by date and calculate median for each day
   const readingsByDate = new Map();
