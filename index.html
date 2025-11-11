@@ -6,27 +6,46 @@
     <meta name="theme-color" content="#007bff" />
     <title>Blood Pressure Tracker</title>
     <link rel="manifest" href="/blood-pressure-tracker/assets/manifest-D732m7vu.json" />
-    <script type="module" crossorigin src="/blood-pressure-tracker/assets/index-CMXnIJ5a.js"></script>
-    <link rel="stylesheet" crossorigin href="/blood-pressure-tracker/assets/index-C2sFFa4l.css">
+    <script type="module" crossorigin src="/blood-pressure-tracker/assets/index-BxOcYE-m.js"></script>
+    <link rel="stylesheet" crossorigin href="/blood-pressure-tracker/assets/index-Csl2tDUO.css">
   </head>
   <body>
     <div class="header">
-      <h1>Blood Pressure Tracker</h1>
-      <div class="header-actions">
-        <button
-          id="theme-toggle-btn"
-          class="theme-toggle-btn"
-          aria-label="Toggle theme"
-        >
-          <span class="theme-icon">🌙</span>
-        </button>
-        <button id="install-app-btn" class="install-btn" style="display: none">
-          📱 Install App
-        </button>
-      </div>
+      <h1 id="app-title">Blood Pressure Tracker</h1>
+
+      <button id="new-reading-btn">Add new reading</button>
+
+      <button
+        id="theme-toggle-btn"
+        class="theme-toggle-btn"
+        aria-label="Toggle theme"
+      >
+        <span class="theme-icon">🌙</span>
+      </button>
+
+      <button id="install-app-btn" class="install-btn" style="display: none">
+        📱 Install App
+      </button>
     </div>
 
-    <div class="input-group">
+    <div id="chart-section" class="section">
+      <div id="chart-container" class="hidden"></div>
+    </div>
+
+    <div class="section">
+      <div id="calendar-container"></div>
+    </div>
+
+    <div class="section">
+      <h2>History</h2>
+      <div id="history-list"></div>
+    </div>
+
+  </body>
+</html>
+
+<!-- 
+    <form id="reading-form" class="input-group">
       <div class="input-with-scale">
         <input type="number" id="systolic" placeholder="Systolic" />
         <div class="visual-scale" id="systolic-scale">
@@ -66,10 +85,16 @@
         </div>
       </div>
 
-      <button onclick="addReading()">Add</button>
+      <div class="input-with-scale">
+        <input type="date" id="reading-date" aria-label="Reading date" />
+      </div>
+
+      <button type="submit">Add</button>
+
       <button
         id="dev-dummy-data-btn"
         onclick="generateDummyDataHandler()"
+        type="button"
         style="
           display: none;
           margin-left: 10px;
@@ -83,15 +108,4 @@
       >
         🧪 Add Dummy Data (DEV)
       </button>
-    </div>
-
-    <div class="section">
-      <div id="chart-container"></div>
-    </div>
-
-    <div class="section">
-      <div id="calendar-container"></div>
-    </div>
-
-  </body>
-</html>
+    </form> -->
