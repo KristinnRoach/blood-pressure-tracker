@@ -32,12 +32,28 @@ export async function deleteReadingByIdHandler(id) {
   try {
     //  if (!confirm('Delete this reading? This action cannot be undone.')) return;
 
-    await deleteReadingById(id);
+    // Update UndoRedoManager: snapshot the reading being deleted so we can restore it
+    try {
+      const { getReadingById } = await import('./storage.js');
+      const deletedReading = await getReadingById(id);
+      if (deletedReading) {
+        // clone to avoid accidental mutation
+        let snapshot;
+        try {
+          snapshot =
+            typeof structuredClone === 'function'
+              ? structuredClone(deletedReading)
+              : JSON.parse(JSON.stringify(deletedReading));
+        } catch (e) {
+          snapshot = JSON.parse(JSON.stringify(deletedReading));
+        }
+        undoRedo.set(snapshot);
+      }
+    } catch (e) {
+      console.warn('Failed to snapshot reading for undo:', e);
+    }
 
-    // Update UndoRedoManager
-    const { getReadings } = await import('./storage.js');
-    const updatedReadings = await getReadings();
-    undoRedo.set(updatedReadings);
+    await deleteReadingById(id);
 
     document.dispatchEvent(new CustomEvent('readings-updated')); // Notify all ui components to refresh
 
@@ -142,6 +158,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('reading-deleted', () => {
     if (modal && typeof modal.close === 'function') {
       if (modal.numReadings <= 1) modal.close(); // Close modal if this was the only reading
+    }
+  });
+
+  // Minimal undo via keyboard: Cmd/Ctrl+Z restores the last-popped reading by calling restoreReading
+  document.addEventListener('keydown', async (e) => {
+    // Determine modifier: metaKey on Mac, ctrlKey elsewhere
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const modifier = isMac ? e.metaKey : e.ctrlKey;
+    if (!modifier) return;
+
+    const key = e.key && e.key.toLowerCase();
+    if (key !== 'z') return;
+
+    // Prevent default browser undo
+    e.preventDefault();
+
+    try {
+      // Move manager state back
+      undoRedo.undo();
+      const popped = undoRedo.get();
+      if (!popped) return;
+
+      // If the popped item looks like a reading, restore it
+      const { restoreReading } = await import('./storage.js');
+      if (typeof restoreReading === 'function') {
+        await restoreReading(popped);
+        // Notify UI to refresh
+        document.dispatchEvent(new CustomEvent('readings-updated'));
+      } else {
+        console.warn('restoreReading not available on storage module');
+      }
+    } catch (err) {
+      console.error('Undo via keyboard failed', err);
     }
   });
 });
