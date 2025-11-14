@@ -2,6 +2,7 @@ export class ReadingInfoModal {
   constructor() {
     this.modal = null;
     this.numReadings = 0;
+    this.currentDateKey = null; // track which date the modal is showing
     this.init();
     this.isOpen = () => {
       return this.modal.classList.contains('active');
@@ -82,8 +83,12 @@ export class ReadingInfoModal {
     // For grouped readings we use the first reading's date (date-only),
     // and for a single reading we overwrite this with the full locale string.
     let date = null;
-    if (readings.length > 1 && readings[0] && readings[0].date) {
-      date = new Date(readings[0].date).toLocaleDateString();
+    if (readings[0] && readings[0].date) {
+      // store a date-only key for the modal so updates can filter to this date
+      this.currentDateKey = this.getDateKey(readings[0].date);
+      if (readings.length > 1) {
+        date = new Date(readings[0].date).toLocaleDateString();
+      }
     }
 
     // Helper for ordinal suffixes (1st, 2nd, 3rd, 4th...)
@@ -267,10 +272,21 @@ export class ReadingInfoModal {
     // are no readings, close the modal so UI stays consistent.
     try {
       if (Array.isArray(readings)) {
-        if (readings.length === 0) {
+        // If the modal is currently showing a specific date, filter incoming
+        // readings to only those matching that date. This keeps the modal
+        // focused on the date the user interacted with (e.g. added a reading).
+        let filtered = readings;
+        if (this.currentDateKey) {
+          filtered = readings.filter(
+            (r) =>
+              r && r.date && this.getDateKey(r.date) === this.currentDateKey
+          );
+        }
+
+        if (filtered.length === 0) {
           this.close();
         } else {
-          this.open(readings);
+          this.open(filtered);
         }
       } else if (readings) {
         this.open(readings);
@@ -282,6 +298,19 @@ export class ReadingInfoModal {
 
   close() {
     this.modal.classList.remove('active');
+    this.currentDateKey = null;
+  }
+
+  getDateKey(date) {
+    try {
+      const d = new Date(date);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+        2,
+        '0'
+      )}-${String(d.getDate()).padStart(2, '0')}`;
+    } catch (e) {
+      return null;
+    }
   }
 
   calculateMedian(numbers) {

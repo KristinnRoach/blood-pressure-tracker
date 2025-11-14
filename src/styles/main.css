@@ -785,12 +785,18 @@ button:hover {
   border: 2px solid var(--border-color);
 }
 
-.calendar-day:not(.empty):hover {
+.calendar-day:not(.empty):not(.future):hover {
   opacity: 0.8;
   box-shadow: 0 0 0 2px rgba(221, 221, 221, 0.196);
   transform: translateY(-4px);
   transition: all 0.2s ease;
   will-change: transform;
+}
+
+.calendar-day.future {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
 }
 
 .calendar-day:not(.empty).active {

@@ -93,10 +93,15 @@ export class Calendar {
     }
 
     // Add days of month
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(
         day
       ).padStart(2, '0')}`;
+      const isFuture = new Date(`${dateKey}T00:00:00`) > todayMidnight;
+      const futureClass = isFuture ? ' future' : '';
       const readings = this.readingsByDate.get(dateKey);
 
       if (readings && readings.length > 0) {
@@ -115,7 +120,7 @@ export class Calendar {
 
         const activeClass = this.selectedDate === dateKey ? ' active' : '';
         html += `
-          <div class="calendar-day has-reading${activeClass}" data-date="${dateKey}" style="background-color: var(--color-${categoryClass})">
+          <div class="calendar-day has-reading${activeClass}${futureClass}" data-date="${dateKey}" style="background-color: var(--color-${categoryClass})">
             <span class="day-number">${day}</span>
             ${countBadge}
           </div>
@@ -124,7 +129,7 @@ export class Calendar {
         // Always include a data-date on actual month days so they can be clicked
         const activeClass = this.selectedDate === dateKey ? ' active' : '';
         html += `
-          <div class="calendar-day${activeClass}" data-date="${dateKey}">
+          <div class="calendar-day${activeClass}${futureClass}" data-date="${dateKey}">
             <span class="day-number">${day}</span>
           </div>
         `;
@@ -184,6 +189,8 @@ export class Calendar {
     document.querySelectorAll('.calendar-day[data-date]').forEach((dayEl) => {
       dayEl.addEventListener('click', (e) => {
         const date = e.currentTarget.dataset.date;
+        // Ignore clicks on future-marked days
+        if (e.currentTarget.classList.contains('future')) return;
         this.handleDayClick(date);
       });
     });

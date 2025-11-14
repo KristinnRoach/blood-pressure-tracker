@@ -193,6 +193,12 @@ export function updateCharts(readings) {
     readingsByDate.get(dateKey).push(reading);
   });
 
+  // Require readings from at least 2 different dates to show chart
+  if (readingsByDate.size < 2) {
+    chartSection.style.display = 'none';
+    return;
+  }
+
   // Calculate median for each day and sort by date
   const dailyMedians = Array.from(readingsByDate.entries())
     .map(([dateKey, dayReadings]) => {
