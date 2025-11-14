@@ -117,9 +117,9 @@ export class ReadingInfoModal {
         const day = d.getDate();
         groupedSummary = `${month} ${day}${ordinalSuffix(day)} - ${
           readings.length
-        } saved readings: `;
+        } saved readings`;
       } else {
-        groupedSummary = `${readings.length} saved readings: `;
+        groupedSummary = `${readings.length} saved readings`;
       }
     }
 
@@ -148,80 +148,13 @@ export class ReadingInfoModal {
 
     let html = '<div class="reading-details">';
 
-    // Show median summary if multiple readings
-    if (readings.length > 1) {
-      html += `
-    <div class="median-label">Median</div>
-        <div class="reading-main">
-          <div class="reading-bp">
-            <span class="${abnormalFlags.systolic ? 'abnormal' : ''}">${
-        medianReading.systolic
-      }</span>/<span class="${abnormalFlags.diastolic ? 'abnormal' : ''}">${
-        medianReading.diastolic
-      }</span>
-          </div>
-          <div class="reading-pulse ${abnormalFlags.pulse ? 'abnormal' : ''}">${
-        medianReading.pulse
-      } bpm</div>
-        </div>
-        <div class="reading-status-details">
-          <div>Systolic: <span class="${statuses.systolicClass}">${
-        statuses.systolicStatus
-      }</span></div>
-          <div>Diastolic: <span class="${statuses.diastolicClass}">${
-        statuses.diastolicStatus
-      }</span></div>
-          <div>Pulse: <span class="${statuses.pulseClass}">${
-        statuses.pulseStatus
-      }</span></div>
-        </div>
-
-      `;
-
-      // Show individual readings in compact format
-      if (readings.length > 1) {
-        html += `<div class="individual-readings">
-                  <div style="text-align: center; margin-bottom: 1rem" class="readings-day-label">
-                    ${
-                      groupedSummary
-                        ? `<div class="reading-summary">${groupedSummary}</div>`
-                        : `<div class="reading-count-label">${readings.length} readings</div>`
-                    }
-                  </div>
-                `;
-        readings.forEach((reading) => {
-          const time = new Date(reading.date).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          });
-          const flags = this.getAbnormalFlags(
-            reading.systolic,
-            reading.diastolic,
-            reading.pulse
-          );
-          const systolicClass = flags.systolic ? 'abnormal-value' : '';
-          const diastolicClass = flags.diastolic ? 'abnormal-value' : '';
-          const pulseClass = flags.pulse ? 'abnormal-value' : '';
-
-          html += `
-            <div class="reading-item" data-id="${reading.id}">
-              <span class="reading-time">${time}</span>
-              <span class="reading-values-compact">
-                <span class="${systolicClass}">${reading.systolic}</span>/<span class="${diastolicClass}">${reading.diastolic}</span>, <span class="${pulseClass}">${reading.pulse}</span>
-              </span>
-              <button class="delete" onclick="window.deleteReadingById(${reading.id})">Delete</button>
-            </div>
-          `;
-        });
-        html += '</div>';
-      }
-    } else {
+    if (readings.length === 1) {
       // Single reading - show large and clear
       const reading = readings[0];
       // Overwrite shared `date` with a full localized date/time string
       date = new Date(reading.date).toLocaleString();
       html += `
-        <div class="reading-main">
+        <div class="reading-single">
           <div class="reading-bp">
             <span class="${abnormalFlags.systolic ? 'abnormal' : ''}">${
         reading.systolic
@@ -245,16 +178,114 @@ export class ReadingInfoModal {
         statuses.pulseStatus
       }</span></div>
         </div>
-        <div style="margin-top:12px">
-          <button class="delete" onclick="window.deleteReadingById(${
-            reading.id
-          })">Delete</button>
+          <div class="add-delete-btns">
+            <button class="add-reading-btn" type="button">Add</button>
+            <button class="delete-reading-btn" onclick="window.deleteReadingById(${
+              reading.id
+            })">Delete</button>
         </div>
+      `;
+    }
+
+    // Show individual readings in compact format
+    if (readings.length > 1) {
+      html += `<div class="individual-readings">
+                  <div class="readings-day-top">
+                    ${
+                      groupedSummary
+                        ? `<div class="readings-day-header">${groupedSummary}</div>`
+                        : `<div class="reading-count-label">${readings.length} readings</div>`
+                    }
+                    <div style="margin-top:12px">
+                      <button class="add-reading-btn" type="button">Add</button>
+                    </div>
+                  </div>
+                `;
+      readings.forEach((reading) => {
+        const time = new Date(reading.date).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        const flags = this.getAbnormalFlags(
+          reading.systolic,
+          reading.diastolic,
+          reading.pulse
+        );
+        const systolicClass = flags.systolic ? 'abnormal-value' : '';
+        const diastolicClass = flags.diastolic ? 'abnormal-value' : '';
+        const pulseClass = flags.pulse ? 'abnormal-value' : '';
+
+        html += `
+            <div class="reading-item" data-id="${reading.id}">
+              <span class="reading-time">${time}</span>
+              <span class="reading-values-compact">
+                <span class="${systolicClass}">${reading.systolic}</span>/<span class="${diastolicClass}">${reading.diastolic}</span>, <span class="${pulseClass}">${reading.pulse}</span>
+              </span>
+              <button class="delete-reading-btn" onclick="window.deleteReadingById(${reading.id})">Delete</button>
+            </div>
+          `;
+      });
+      html += '</div>';
+
+      // Separator
+      html += '<hr class="reading-separator" />';
+
+      // Show median summary if multiple readings
+      html += `
+      <div class="reading-summary-section">
+        <div class="reading-summary-label">Summary (median)</div>
+        <div class="reading-summary-content">
+        
+        <div class="reading-summary-values">
+        <div class="reading-bp">
+              <span class="${abnormalFlags.systolic ? 'abnormal' : ''}">${
+        medianReading.systolic
+      }</span>/<span class="${abnormalFlags.diastolic ? 'abnormal' : ''}">${
+        medianReading.diastolic
+      }</span>
+            </div>
+            <div class="reading-pulse ${
+              abnormalFlags.pulse ? 'abnormal' : ''
+            }">${medianReading.pulse} bpm</div>
+      </div>
+      
+      <div class="reading-status-details">
+            <div>Systolic: <span class="${statuses.systolicClass}">${
+        statuses.systolicStatus
+      }</span></div>
+            <div>Diastolic: <span class="${statuses.diastolicClass}">${
+        statuses.diastolicStatus
+      }</span></div>
+            <div>Pulse: <span class="${statuses.pulseClass}">${
+        statuses.pulseStatus
+      }</span></div>
+          </div>
+        </div>
+     </div>
       `;
     }
 
     html += '</div>';
     modalBody.innerHTML = html;
+
+    // Attach Add button handler (opens AddReadingModal prefilled with the current date)
+    const addBtn = modalBody.querySelector('.add-reading-btn');
+    if (addBtn) {
+      addBtn.addEventListener('click', async (evt) => {
+        try {
+          const { AddReadingModal } = await import('./addReadingModal.js');
+          const newModal = AddReadingModal();
+          if (newModal && typeof newModal.open === 'function') {
+            newModal.open(this.currentDateKey);
+          }
+        } catch (err) {
+          console.error(
+            'Failed to open AddReadingModal from ReadingInfoModal',
+            err
+          );
+        }
+      });
+    }
 
     // Show modal by adding active class
     this.modal.classList.add('active');
