@@ -37,7 +37,7 @@ export async function deleteReadingByIdHandler(id) {
       const { getReadingById } = await import('./storage.js');
       const deletedReading = await getReadingById(id);
       if (deletedReading) {
-        // clone to avoid accidental mutation
+        // Clone to avoid accidental mutation, push to undo stack
         let snapshot;
         try {
           snapshot =
@@ -71,12 +71,8 @@ async function updateUIReadings() {
   const { getReadings } = await import('./storage.js');
   const updatedReadings = await getReadings();
 
-  // Keep UndoRedo manager in sync with the latest readings
-  try {
-    undoRedo.set(updatedReadings);
-  } catch (e) {
-    // noop if undoRedo not ready
-  }
+  // Update snapshot without pushing to undo stack
+  undoRedo.setSnapshot(updatedReadings);
 
   if (historyList && typeof historyList.updateReadings === 'function') {
     await historyList.updateReadings(updatedReadings);
@@ -119,7 +115,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   initializeCharts();
 
   modal = new ReadingInfoModal();
-  modal.init();
 
   calendar = new Calendar('calendar-container');
   await calendar.init(modal);
@@ -163,6 +158,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Minimal undo via keyboard: Cmd/Ctrl+Z restores the last-popped reading by calling restoreReading
   document.addEventListener('keydown', async (e) => {
+    // Skip if user is typing in an input/textarea or contenteditable
+    const target = e.target;
+    if (
+      target &&
+      (target.isContentEditable ||
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT')
+    ) {
+      return;
+    }
+
     // Determine modifier: metaKey on Mac, ctrlKey elsewhere
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const modifier = isMac ? e.metaKey : e.ctrlKey;
