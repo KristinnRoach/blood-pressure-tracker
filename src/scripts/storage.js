@@ -1,6 +1,7 @@
 // Storage operations for blood pressure readings using IndexedDB with Dexie.js
 
 import Dexie from 'dexie';
+import { validateAndNormalizeReading } from './helpers/readingValidation.js';
 
 // Database schema
 class BloodPressureDB extends Dexie {
@@ -61,11 +62,16 @@ async function ensureInitialized() {
 export async function saveReading(reading) {
   await ensureInitialized();
 
-  const readingData = {
+  // Validate and normalize input (support existing callers using `date`)
+  const normalized = validateAndNormalizeReading({
     systolic: reading.systolic,
     diastolic: reading.diastolic,
     pulse: reading.pulse,
-    timestamp: new Date(reading.date),
+    timestamp: reading.timestamp ?? reading.date,
+  });
+
+  const readingData = {
+    ...normalized,
     category: null, // Will be calculated on display
     userId: null, // Single user mode for now
   };
@@ -139,9 +145,12 @@ export async function getReadingCount() {
 export async function restoreReading(reading) {
   await ensureInitialized();
 
+  // Validate and normalize before inserting into IndexedDB
+  const normalized = validateAndNormalizeReading(reading);
+
   try {
-    await db.readings.add(reading);
-    console.log('Reading restored to IndexedDB:', reading);
+    await db.readings.add(normalized);
+    console.log('Reading restored to IndexedDB:', normalized);
   } catch (error) {
     console.error('Error restoring reading:', error);
     throw error;

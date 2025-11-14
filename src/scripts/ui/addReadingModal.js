@@ -1,4 +1,4 @@
-import createComponent from '../helpers/dom/component';
+import createComponent from '../helpers/dom/component.js';
 import { saveReading } from '../storage.js';
 import { getCategory, getPulseStatus } from '../analysis/bloodPressure.js';
 
@@ -131,7 +131,6 @@ export const AddReadingModal = () =>
         }
       };
 
-      const closeHandler = () => overlay && overlay.classList.remove('active');
       const openHandler = (dateArg) => {
         if (!overlay) return;
         // Save previously focused element to restore later
@@ -158,7 +157,7 @@ export const AddReadingModal = () =>
       };
 
       const overlayClickHandler = (e) => {
-        if (e.target === overlay) closeHandler();
+        if (e.target === overlay) el.close();
       };
 
       const keyHandler = (e) => {
@@ -167,7 +166,7 @@ export const AddReadingModal = () =>
 
         // Close on Escape
         if (e.key === 'Escape') {
-          closeHandler();
+          el.close();
           return;
         }
 
@@ -200,10 +199,19 @@ export const AddReadingModal = () =>
         }
       };
 
+      // Cleanup function that closes over handlers
+      const cleanup = () => {
+        form && form.removeEventListener('submit', submitHandler);
+        closeBtn && closeBtn.removeEventListener('click', el.close);
+        cancelBtn && cancelBtn.removeEventListener('click', el.close);
+        overlay && overlay.removeEventListener('click', overlayClickHandler);
+        document.removeEventListener('keydown', keyHandler);
+      };
+
       // Attach listeners
       form && form.addEventListener('submit', submitHandler);
-      closeBtn && closeBtn.addEventListener('click', closeHandler);
-      cancelBtn && cancelBtn.addEventListener('click', closeHandler);
+      closeBtn && closeBtn.addEventListener('click', el.close);
+      cancelBtn && cancelBtn.addEventListener('click', el.close);
       overlay && overlay.addEventListener('click', overlayClickHandler);
       document.addEventListener('keydown', keyHandler);
 
@@ -234,14 +242,8 @@ export const AddReadingModal = () =>
       // Open immediately so calling AddReadingModal() shows the modal by default
       openHandler();
 
-      // Store cleanup function references on the element for onCleanup
-      el._cleanup = () => {
-        form && form.removeEventListener('submit', submitHandler);
-        closeBtn && closeBtn.removeEventListener('click', closeHandler);
-        cancelBtn && cancelBtn.removeEventListener('click', closeHandler);
-        overlay && overlay.removeEventListener('click', overlayClickHandler);
-        document.removeEventListener('keydown', keyHandler);
-      };
+      // Make cleanup available to onCleanup (called by dispose)
+      el._cleanup = cleanup;
     },
     onCleanup: (el) => {
       /* runs on dispose() */
