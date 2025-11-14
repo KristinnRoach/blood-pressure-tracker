@@ -2,8 +2,18 @@
 // Simple cache-first strategy for offline functionality
 
 const CACHE_NAME = 'bp-tracker-v5';
-const STATIC_ASSETS = ['./', './index.html'];
-const MAX_CACHE_SIZE = 50; // Maximum number of cached items
+const STATIC_ASSETS = [
+  './',
+  './index.html',
+  './manifest.json',
+  './favicon/favicon.ico',
+  './favicon/favicon-96x96.png',
+  './favicon/favicon.svg',
+  './favicon/web-app-manifest-192x192.png',
+  './favicon/web-app-manifest-512x512.png',
+  './favicon/apple-touch-icon.png',
+];
+const MAX_CACHE_SIZE = 50; // Max cached items
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
