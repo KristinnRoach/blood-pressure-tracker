@@ -714,13 +714,16 @@ button:hover {
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-sm) var(--spacing-md);
   background-color: var(--bg-secondary);
+
+  border: var(--border-color) 2px solid;
   border-radius: var(--radius-md);
 }
 
 .calendar-header h3 {
   margin: 0;
-  color: var(--text-primary);
-  font-size: 1.25rem;
+  padding: 0;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
 }
 
 .calendar-nav {
