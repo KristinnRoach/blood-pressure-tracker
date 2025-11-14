@@ -1,107 +1,97 @@
-// Main application logic
+// app.js
 
-import { saveReading } from './storage.js';
-import {
-  showStatus,
-  deleteReadingHandler,
-  deleteReadingByIdHandler,
-} from './ui.js';
-import { initializeVisualScales, clearIndicators } from './visualScales.js';
-import { initializeCharts } from './charts.js';
+import { deleteReadingById } from './storage.js';
+import { initializeVisualScales } from './ui/visualScales.js';
+import { initializeCharts } from './ui/chart.js';
 import { initializePWA, setupOfflineHandling } from './pwa.js';
-import { generateDummyData, shouldGenerateDummyData } from './dummyData.js';
-import { initTheme } from './theme.js';
-import { Calendar } from './calendar.js';
-import { ReadingInfoModal } from './modal.js';
+import {
+  generateDummyData,
+  shouldGenerateDummyData,
+} from './helpers/dummyData.js';
+import { initTheme } from './ui/theme.js';
+import { Calendar } from './ui/calendar.js';
+import { HistoryList } from './ui/historyList.js';
+import { ReadingInfoModal } from './ui/modal.js';
+import { UndoRedoManager } from './helpers/UndoRedoManager.js';
+import { AddReadingModal } from './ui/addReadingModal.js';
 
 // Create calendar and modal instances
 let calendar = null;
 let modal = null;
+let historyList = null;
+let chart = null;
+
+// Create undo / redo manager
+const undoRedo = new UndoRedoManager(null);
 
 // Make functions available globally for onclick handlers
-window.addReading = addReading;
-window.deleteReadingHandler = deleteReadingHandler;
-window.generateDummyDataHandler = generateDummyDataHandler;
 window.deleteReadingById = deleteReadingByIdHandler;
+window.generateDummyDataHandler = generateDummyDataHandler;
 
-async function addReading() {
-  console.log('Adding reading...'); // Console monitoring for testing
-
-  const sys = parseInt(document.getElementById('systolic').value);
-  const dia = parseInt(document.getElementById('diastolic').value);
-  const pulse = parseInt(document.getElementById('pulse').value);
-
-  console.log('Input values:', { sys, dia, pulse });
-
-  if (!sys || !dia || !pulse) {
-    alert('Please enter all three values');
-    console.log('Validation failed: missing values');
-    return;
-  }
-
-  const reading = {
-    systolic: sys,
-    diastolic: dia,
-    pulse: pulse,
-    date: new Date().toISOString(),
-  };
-
+export async function deleteReadingByIdHandler(id) {
   try {
-    console.log('Saving reading:', reading);
-    await saveReading(reading);
+    //  if (!confirm('Delete this reading? This action cannot be undone.')) return;
 
-    // Clear input fields
-    document.getElementById('systolic').value = '';
-    document.getElementById('diastolic').value = '';
-    document.getElementById('pulse').value = '';
-
-    // Clear visual indicators
-    clearIndicators();
-
-    console.log('Updating UI...');
-    showStatus(sys, dia, pulse);
-
-    // Refresh calendar and charts if calendar exists
-    if (calendar) {
-      await calendar.loadReadings();
-      calendar.render();
-
-      // Update charts with new data
-      const { updateCharts } = await import('./charts.js');
-      updateCharts(calendar.readings);
+    // Update UndoRedoManager: snapshot the reading being deleted so we can restore it
+    try {
+      const { getReadingById } = await import('./storage.js');
+      const deletedReading = await getReadingById(id);
+      if (deletedReading) {
+        // clone to avoid accidental mutation
+        let snapshot;
+        try {
+          snapshot =
+            typeof structuredClone === 'function'
+              ? structuredClone(deletedReading)
+              : JSON.parse(JSON.stringify(deletedReading));
+        } catch (e) {
+          snapshot = JSON.parse(JSON.stringify(deletedReading));
+        }
+        undoRedo.set(snapshot);
+      }
+    } catch (e) {
+      console.warn('Failed to snapshot reading for undo:', e);
     }
 
-    console.log('Reading added successfully');
+    await deleteReadingById(id);
+
+    document.dispatchEvent(new CustomEvent('readings-updated')); // Notify all ui components to refresh
+
+    document.dispatchEvent(
+      // Notify UI that a specific reading was deleted so modals can close if needed
+      new CustomEvent('reading-deleted', { detail: { id } })
+    );
   } catch (error) {
-    console.error('Error saving reading:', error);
-    alert('Error saving reading. Please try again.');
+    console.error('Error deleting reading by id:', error);
+    alert('Error deleting reading. Please try again.');
   }
 }
 
-async function generateDummyDataHandler() {
-  console.log('Generating dummy data...');
+async function updateUIReadings() {
+  const { getReadings } = await import('./storage.js');
+  const updatedReadings = await getReadings();
 
+  // Keep UndoRedo manager in sync with the latest readings
   try {
-    const count = await generateDummyData();
-
-    // Refresh calendar and charts if calendar exists
-    if (calendar) {
-      await calendar.loadReadings();
-      calendar.render();
-
-      // Update charts with new data
-      const { updateCharts } = await import('./charts.js');
-      updateCharts(calendar.readings);
-    }
-
-    alert(
-      `Successfully added ${count} dummy readings for development testing!`
-    );
-    console.log('Dummy data generation completed');
-  } catch (error) {
-    console.error('Error generating dummy data:', error);
-    alert('Error generating dummy data. Check console for details.');
+    undoRedo.set(updatedReadings);
+  } catch (e) {
+    // noop if undoRedo not ready
   }
+
+  if (historyList && typeof historyList.updateReadings === 'function') {
+    await historyList.updateReadings(updatedReadings);
+  }
+
+  if (calendar && typeof calendar.updateReadings === 'function') {
+    await calendar.updateReadings(updatedReadings);
+  }
+
+  if (modal && typeof modal.updateReadings === 'function') {
+    modal.updateReadings(updatedReadings);
+  }
+
+  const { updateCharts } = await import('./ui/chart.js');
+  updateCharts && updateCharts(updatedReadings);
 }
 
 // Initialize the app
@@ -128,26 +118,97 @@ document.addEventListener('DOMContentLoaded', async () => {
   initializeVisualScales();
   initializeCharts();
 
-  // Initialize modal and calendar
   modal = new ReadingInfoModal();
+  modal.init();
+
   calendar = new Calendar('calendar-container');
   await calendar.init(modal);
 
-  // Listen for external updates to readings (delete/add) so calendar and charts can refresh
-  document.addEventListener('readings-updated', async () => {
-    if (calendar) {
-      await calendar.loadReadings();
-      calendar.render();
+  historyList = new HistoryList('history-list');
+  await historyList.init();
 
-      const { updateCharts } = await import('./charts.js');
-      updateCharts(calendar.readings);
+  // Default the date picker to today. Format is YYYY-MM-DD which matches <input type="date">.
+  const readingDateInput = document.getElementById('reading-date');
+  if (readingDateInput && !readingDateInput.value) {
+    readingDateInput.value = new Date().toISOString().slice(0, 10);
+  }
+
+  await updateUIReadings(); // Fetch initial readings and update UI
+
+  let readingFormModal = null;
+
+  const newReadingBtn = document.getElementById('new-reading-btn');
+  newReadingBtn.addEventListener('click', () => {
+    // Create and open the add-reading modal; it will handle saving and dispose-on-close
+    readingFormModal = AddReadingModal();
+  });
+
+  document.addEventListener('readings-updated', async () => {
+    await updateUIReadings();
+  });
+
+  // When an individual reading is added, open the ReadingInfoModal with that reading
+  document.addEventListener('reading-added', (e) => {
+    const reading = e?.detail;
+    if (reading && modal && typeof modal.open === 'function') {
+      modal.open(reading);
     }
   });
 
-  // When a specific reading is deleted, close any open modal showing it
   document.addEventListener('reading-deleted', () => {
-    if (modal && typeof modal.hide === 'function') {
-      modal.hide();
+    if (modal && typeof modal.close === 'function') {
+      if (modal.numReadings <= 1) modal.close(); // Close modal if this was the only reading
+    }
+  });
+
+  // Minimal undo via keyboard: Cmd/Ctrl+Z restores the last-popped reading by calling restoreReading
+  document.addEventListener('keydown', async (e) => {
+    // Determine modifier: metaKey on Mac, ctrlKey elsewhere
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const modifier = isMac ? e.metaKey : e.ctrlKey;
+    if (!modifier) return;
+
+    const key = e.key && e.key.toLowerCase();
+    if (key !== 'z') return;
+
+    // Prevent default browser undo
+    e.preventDefault();
+
+    try {
+      // Move manager state back
+      undoRedo.undo();
+      const popped = undoRedo.get();
+      if (!popped) return;
+
+      // If the popped item looks like a reading, restore it
+      const { restoreReading } = await import('./storage.js');
+      if (typeof restoreReading === 'function') {
+        await restoreReading(popped);
+        // Notify UI to refresh
+        document.dispatchEvent(new CustomEvent('readings-updated'));
+      } else {
+        console.warn('restoreReading not available on storage module');
+      }
+    } catch (err) {
+      console.error('Undo via keyboard failed', err);
     }
   });
 });
+
+async function generateDummyDataHandler() {
+  console.log('Generating dummy data...');
+
+  try {
+    const count = await generateDummyData();
+
+    document.dispatchEvent(new CustomEvent('readings-updated')); // Notify all ui components to refresh
+
+    alert(
+      `Successfully added ${count} dummy readings for development testing!`
+    );
+    console.log('Dummy data generation completed');
+  } catch (error) {
+    console.error('Error generating dummy data:', error);
+    alert('Error generating dummy data. Check console for details.');
+  }
+}

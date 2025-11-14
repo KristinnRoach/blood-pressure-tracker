@@ -109,19 +109,9 @@ export async function getReadings() {
   }));
 }
 
-export async function deleteReading(index) {
+export async function getReadingById(id) {
   await ensureInitialized();
-
-  // Get all readings to find the one at the specified index
-  const readings = await getReadings();
-  if (index >= 0 && index < readings.length) {
-    const readingToDelete = readings[index];
-    await deleteReadingById(readingToDelete.id);
-    console.log(
-      'Reading deleted from IndexedDB (via index):',
-      readingToDelete.id
-    );
-  }
+  return await db.readings.get(id);
 }
 
 export async function deleteReadingById(id) {
@@ -137,6 +127,23 @@ export async function deleteReadingById(id) {
     console.log('Reading deleted from IndexedDB by id:', id);
   } catch (error) {
     console.error('Error deleting reading by id:', error);
+    throw error;
+  }
+}
+
+export async function getReadingCount() {
+  await ensureInitialized();
+  return await db.readings.count();
+}
+
+export async function restoreReading(reading) {
+  await ensureInitialized();
+
+  try {
+    await db.readings.add(reading);
+    console.log('Reading restored to IndexedDB:', reading);
+  } catch (error) {
+    console.error('Error restoring reading:', error);
     throw error;
   }
 }
