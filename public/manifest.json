@@ -1,0 +1,44 @@
+{
+  "name": "Blood Pressure Tracker",
+  "short_name": "BP Tracker",
+  "description": "Track your blood pressure readings with visual feedback and trends",
+  "start_url": "/blood-pressure-tracker/",
+  "scope": "/blood-pressure-tracker/",
+  "display": "standalone",
+  "background_color": "#aaaaaa",
+  "theme_color": "#428fe1",
+  "orientation": "portrait-primary",
+  "categories": ["health", "blood-pressure", "tracker"],
+  "icons": [
+    {
+      "src": "./favicon/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./favicon/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./favicon/favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./favicon/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./favicon/favicon.ico",
+      "sizes": "48x48 64x64",
+      "type": "image/x-icon",
+      "purpose": "any"
+    }
+  ]
+}

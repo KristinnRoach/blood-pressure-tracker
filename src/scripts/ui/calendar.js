@@ -102,6 +102,7 @@ export class Calendar {
       ).padStart(2, '0')}`;
       const isFuture = new Date(`${dateKey}T00:00:00`) > todayMidnight;
       const futureClass = isFuture ? ' future' : '';
+      const futureAttr = isFuture ? ' aria-disabled="true"' : '';
       const readings = this.readingsByDate.get(dateKey);
 
       if (readings && readings.length > 0) {
@@ -120,7 +121,7 @@ export class Calendar {
 
         const activeClass = this.selectedDate === dateKey ? ' active' : '';
         html += `
-          <div class="calendar-day has-reading${activeClass}${futureClass}" data-date="${dateKey}" style="background-color: var(--color-${categoryClass})">
+          <div class="calendar-day has-reading${activeClass}${futureClass}" data-date="${dateKey}"${futureAttr} style="background-color: var(--color-${categoryClass})">
             <span class="day-number">${day}</span>
             ${countBadge}
           </div>
@@ -129,7 +130,7 @@ export class Calendar {
         // Always include a data-date on actual month days so they can be clicked
         const activeClass = this.selectedDate === dateKey ? ' active' : '';
         html += `
-          <div class="calendar-day${activeClass}${futureClass}" data-date="${dateKey}">
+          <div class="calendar-day${activeClass}${futureClass}" data-date="${dateKey}"${futureAttr}>
             <span class="day-number">${day}</span>
           </div>
         `;
