@@ -46,6 +46,8 @@
   --filter-text-hover: whitesmoke;
 
   /* Other colors */
+  --add-bg: #28a745;
+  --add-hover: #218838;
   --delete-bg: #dc3545;
   --delete-hover: #c82333;
   --border-light: #eee;
