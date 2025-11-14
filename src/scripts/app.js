@@ -1,6 +1,11 @@
 // app.js
 
-import { deleteReadingById } from './storage.js';
+import {
+  deleteReadingById,
+  setCurrentUser,
+  clearCurrentUser,
+  getCurrentUserSync,
+} from './storage.js';
 import { initializeVisualScales } from './ui/visualScales.js';
 import { initializeCharts } from './ui/chart.js';
 import { initializePWA, setupOfflineHandling } from './pwa.js';
@@ -136,6 +141,70 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await updateUIReadings(); // Fetch initial readings and update UI
+
+  // User select dropdown
+  const userSelect = document.getElementById('user-select');
+  const addUserBtn = document.getElementById('add-user-btn');
+
+  async function populateUserSelect() {
+    const { getAllUsers } = await import('./storage.js');
+    const users = await getAllUsers();
+    const current = getCurrentUserSync();
+
+    // Clear existing options except the first one (No User)
+    while (userSelect.options.length > 1) {
+      userSelect.remove(1);
+    }
+
+    // Add existing users
+    users.forEach((user) => {
+      const option = document.createElement('option');
+      option.value = user.id;
+      option.textContent = user.username;
+      userSelect.appendChild(option);
+    });
+
+    // Set current selection
+    if (current && current.id != null) {
+      userSelect.value = current.id;
+    } else {
+      userSelect.value = '';
+    }
+  }
+
+  await populateUserSelect();
+
+  userSelect.addEventListener('change', async (e) => {
+    const value = e.target.value;
+
+    if (value === '') {
+      // No user selected
+      clearCurrentUser();
+      document.dispatchEvent(new CustomEvent('readings-updated'));
+    } else {
+      // Select existing user
+      const { getAllUsers } = await import('./storage.js');
+      const users = await getAllUsers();
+      const user = users.find((u) => u.id === parseInt(value));
+      if (user) {
+        await setCurrentUser(user.username);
+        document.dispatchEvent(new CustomEvent('readings-updated'));
+      }
+    }
+  });
+
+  addUserBtn.addEventListener('click', async () => {
+    const name = prompt('Enter username');
+    if (name && name.trim()) {
+      try {
+        await setCurrentUser(name.trim());
+        await populateUserSelect();
+        document.dispatchEvent(new CustomEvent('readings-updated'));
+      } catch (err) {
+        console.error('Failed to set current user', err);
+      }
+    }
+  });
 
   let readingFormModal = null;
 
