@@ -69,7 +69,7 @@ describe('Storage undo (delete -> restore) flow', () => {
   it('should work with UndoRedoManager (app-level undo flow)', async () => {
     const undoRedo = new UndoRedoManager(null);
     const nowIso = new Date().toISOString();
-    
+
     // Save a reading
     await saveReading({
       systolic: 130,
@@ -80,10 +80,10 @@ describe('Storage undo (delete -> restore) flow', () => {
 
     let readings = await getReadings();
     expect(readings.length).toBe(1);
-    
+
     // Simulate initial UI update
     undoRedo.setSnapshot(readings);
-    
+
     const id = readings[0].id;
     const deletedReading = await getReadingById(id);
 

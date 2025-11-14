@@ -16,6 +16,44 @@ class BloodPressureDB extends Dexie {
 
 const db = new BloodPressureDB();
 
+// Simple current-user management (no auth): store in localStorage and users table
+const CURRENT_USER_KEY = 'bpCurrentUser';
+
+async function getOrCreateUser(username) {
+  const existing = await db.users.where('username').equals(username).first();
+  if (existing) return existing;
+  const id = await db.users.add({ username, created: new Date() });
+  return { id, username, created: new Date() };
+}
+
+export function getCurrentUserSync() {
+  try {
+    const raw = localStorage.getItem(CURRENT_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function setCurrentUser(username) {
+  if (!username || typeof username !== 'string')
+    throw new Error('Username required');
+  const user = await getOrCreateUser(username.trim());
+  localStorage.setItem(
+    CURRENT_USER_KEY,
+    JSON.stringify({ id: user.id, username: user.username })
+  );
+  return user;
+}
+
+export function clearCurrentUser() {
+  localStorage.removeItem(CURRENT_USER_KEY);
+}
+
+export async function getAllUsers() {
+  return await db.users.toArray();
+}
+
 // Migration function to move localStorage data to IndexedDB
 async function migrateFromLocalStorage() {
   try {
@@ -73,7 +111,7 @@ export async function saveReading(reading) {
   const readingData = {
     ...normalized,
     category: null, // Will be calculated on display
-    userId: null, // Single user mode for now
+    userId: (getCurrentUserSync() && getCurrentUserSync().id) || null,
   };
 
   try {
@@ -102,8 +140,17 @@ export async function saveReading(reading) {
 export async function getReadings() {
   await ensureInitialized();
 
-  // Get all readings ordered by timestamp (newest first)
-  const readings = await db.readings.orderBy('timestamp').reverse().toArray();
+  const current = getCurrentUserSync();
+  let readings;
+  if (current && current.id != null) {
+    // Filter by current user
+    readings = await db.readings.where('userId').equals(current.id).toArray();
+  } else {
+    // No user logged in: show only readings with null userId
+    readings = await db.readings.filter((r) => r.userId == null).toArray();
+  }
+  // Order by timestamp desc
+  readings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   // Convert back to the format expected by the UI
   return readings.map((reading) => ({
@@ -139,6 +186,10 @@ export async function deleteReadingById(id) {
 
 export async function getReadingCount() {
   await ensureInitialized();
+  const current = getCurrentUserSync();
+  if (current && current.id != null) {
+    return await db.readings.where('userId').equals(current.id).count();
+  }
   return await db.readings.count();
 }
 
