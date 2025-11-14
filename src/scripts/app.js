@@ -37,7 +37,7 @@ export async function deleteReadingByIdHandler(id) {
       const { getReadingById } = await import('./storage.js');
       const deletedReading = await getReadingById(id);
       if (deletedReading) {
-        // Clone to avoid accidental mutation, push to undo stack
+        // Clone to avoid accidental mutation
         let snapshot;
         try {
           snapshot =
@@ -47,7 +47,10 @@ export async function deleteReadingByIdHandler(id) {
         } catch (e) {
           snapshot = JSON.parse(JSON.stringify(deletedReading));
         }
-        undoRedo.set(snapshot);
+        // Clear undo stack and set the deleted reading as current (one-level undo only)
+        undoRedo.undoStack.length = 0;
+        undoRedo.redoStack.length = 0;
+        undoRedo.current = snapshot;
       }
     } catch (e) {
       console.warn('Failed to snapshot reading for undo:', e);
@@ -71,8 +74,12 @@ async function updateUIReadings() {
   const { getReadings } = await import('./storage.js');
   const updatedReadings = await getReadings();
 
-  // Update snapshot without pushing to undo stack
-  undoRedo.setSnapshot(updatedReadings);
+  // Update snapshot only if current is not a single-reading pending undo
+  // (A single reading has `id`, `systolic`, etc.; an array does not)
+  const current = undoRedo.get();
+  if (!current || Array.isArray(current)) {
+    undoRedo.setSnapshot(updatedReadings);
+  }
 
   if (historyList && typeof historyList.updateReadings === 'function') {
     await historyList.updateReadings(updatedReadings);
@@ -182,15 +189,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
 
     try {
-      // Move manager state back
-      undoRedo.undo();
-      const popped = undoRedo.get();
-      if (!popped) return;
+      // Get the current deleted reading snapshot
+      const snapshot = undoRedo.get();
+      if (!snapshot || Array.isArray(snapshot)) return;
 
-      // If the popped item looks like a reading, restore it
+      // Restore the deleted reading
       const { restoreReading } = await import('./storage.js');
       if (typeof restoreReading === 'function') {
-        await restoreReading(popped);
+        await restoreReading(snapshot);
+        // Clear the snapshot after restoring
+        undoRedo.current = null;
         // Notify UI to refresh
         document.dispatchEvent(new CustomEvent('readings-updated'));
       } else {

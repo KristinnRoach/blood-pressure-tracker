@@ -15,6 +15,7 @@ import {
   deleteReadingById,
   restoreReading,
 } from '../storage.js';
+import { UndoRedoManager } from '../helpers/UndoRedoManager.js';
 
 describe('Storage undo (delete -> restore) flow', () => {
   beforeEach(async () => {
@@ -63,5 +64,49 @@ describe('Storage undo (delete -> restore) flow', () => {
     expect(new Date(restored.date).toISOString().slice(0, 10)).toBe(
       nowIso.slice(0, 10)
     );
+  });
+
+  it('should work with UndoRedoManager (app-level undo flow)', async () => {
+    const undoRedo = new UndoRedoManager(null);
+    const nowIso = new Date().toISOString();
+    
+    // Save a reading
+    await saveReading({
+      systolic: 130,
+      diastolic: 85,
+      pulse: 75,
+      date: nowIso,
+    });
+
+    let readings = await getReadings();
+    expect(readings.length).toBe(1);
+    
+    // Simulate initial UI update
+    undoRedo.setSnapshot(readings);
+    
+    const id = readings[0].id;
+    const deletedReading = await getReadingById(id);
+
+    // Simulate delete handler: clear stacks and set deleted reading as current
+    undoRedo.undoStack.length = 0;
+    undoRedo.redoStack.length = 0;
+    undoRedo.current = deletedReading;
+
+    await deleteReadingById(id);
+    readings = await getReadings();
+    expect(readings.length).toBe(0);
+
+    // Simulate undo: get current snapshot
+    const snapshot = undoRedo.get();
+    expect(snapshot).toBeTruthy();
+    expect(snapshot.systolic).toBe(130);
+    expect(Array.isArray(snapshot)).toBe(false);
+
+    // Restore the reading
+    await restoreReading(snapshot);
+
+    readings = await getReadings();
+    expect(readings.length).toBe(1);
+    expect(readings[0].systolic).toBe(130);
   });
 });
