@@ -107,7 +107,7 @@ export function setupInstallPrompt() {
 function showInstallOption() {
   if (isInstalled) return;
 
-  const installBtn = document.getElementById('install-app-btn');
+  const installBtn = document.getElementById('install-btn');
   if (installBtn) {
     installBtn.style.display = 'inline-block';
 
@@ -132,7 +132,7 @@ function showInstallOption() {
 
 // Hide install option
 function hideInstallOption() {
-  const installBtn = document.getElementById('install-app-btn');
+  const installBtn = document.getElementById('install-btn');
   if (installBtn) {
     installBtn.style.display = 'none';
   }
@@ -161,7 +161,7 @@ export function initializePWA() {
         console.log(
           'PWA: No install prompt detected, showing button for testing'
         );
-        const installBtn = document.getElementById('install-app-btn');
+        const installBtn = document.getElementById('install-btn');
         if (installBtn) {
           installBtn.style.display = 'inline-block';
           installBtn.textContent = '📱 Install App (Test)';

@@ -46,10 +46,10 @@
   --filter-text-hover: whitesmoke;
 
   /* Other colors */
-  --add-bg: #28a745;
-  --add-hover: #218838;
-  --delete-bg: #dc3545;
-  --delete-hover: #c82333;
+  --add-bg: #2b813f;
+  --add-hover: #21552c;
+  --delete-bg: #a4343fe9;
+  --delete-hover: #6f2a31;
   --border-light: #eee;
   --border-scale: #ddd;
   --text-muted: #666;
@@ -81,9 +81,14 @@
     --text-primary: #e0e0e0;
     --text-secondary: #b0b0b0;
     --border-color: #4a4d51;
-    --accent-color: #6badf3;
+
+    /* --accent-color: #6badf3;
     --accent-hover: #5a9de3;
-    --accent-active: #4a8dd3;
+    --accent-active: #4a8dd3; */
+
+    --accent-color: rgb(47, 97, 166);
+    --accent-hover: rgb(37, 87, 156);
+    --accent-active: rgb(27, 77, 146);
 
     --input-bg: #3a3d41;
     --input-border: #5a5d61;
@@ -130,9 +135,14 @@
   --text-primary: #e0e0e0;
   --text-secondary: #b0b0b0;
   --border-color: #4a4d51;
-  --accent-color: #4a8dd3;
+
+  /* --accent-color: #4a8dd3;
   --accent-hover: #398dd3;
-  --accent-active: #298dd3;
+  --accent-active: #298dd3; */
+
+  --accent-color: rgb(47, 97, 166);
+  --accent-hover: rgb(37, 87, 156);
+  --accent-active: rgb(27, 77, 146);
 
   --input-bg: #3a3d41;
   --input-border: #5a5d61;
