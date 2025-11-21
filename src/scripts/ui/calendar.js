@@ -73,9 +73,9 @@ export class Calendar {
 
     let html = `
       <div class="calendar-header">
-        <button class="calendar-nav" id="prev-month">&lt;</button>
+        <button class="calendar-nav-btn" id="prev-month">&lt;</button>
         <h3>${monthNames[month]} ${year}</h3>
-        <button class="calendar-nav" id="next-month">&gt;</button>
+        <button class="calendar-nav-btn" id="next-month">&gt;</button>
       </div>
       <div class="calendar-grid">
         <div class="calendar-day-header">Sun</div>

@@ -33,42 +33,51 @@
     <link rel="manifest" href="./manifest.json" />
   </head>
   <body>
-    <div class="header">
-      <h1 id="app-title">Blood Pressure Tracker</h1>
+    <div class="content-wrapper">
+      <div class="header">
+        <h1 id="app-title">Blood Pressure Tracker</h1>
 
-      <button id="new-reading-btn">Add</button>
+        <button title="Add blood pressure / pulse reading" id="new-reading-btn">
+          Add
+        </button>
 
-      <div id="user-div">
-        <select id="user-select" aria-label="Select user">
+        <select title="Select user" id="user-select" aria-label="Select user">
           <option value="">No User</option>
         </select>
-        <button id="add-user-btn">+</button>
+        <button title="Add new user" id="add-user-btn">+</button>
+
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          aria-label="Toggle theme"
+          title="Toggle light/dark theme"
+        >
+          <span class="theme-icon">🌙</span>
+        </button>
+
+        <button
+          id="install-btn"
+          aria-label="Download / Install app"
+          title="Install App"
+          class="install-btn"
+          style="display: none"
+        >
+          <span aria-hidden="true">&#8681;</span>
+        </button>
       </div>
 
-      <button
-        id="theme-toggle-btn"
-        class="theme-toggle-btn"
-        aria-label="Toggle theme"
-      >
-        <span class="theme-icon">🌙</span>
-      </button>
+      <div class="section">
+        <div id="calendar-container"></div>
+      </div>
 
-      <button id="install-app-btn" class="install-btn" style="display: none">
-        📱 Install App
-      </button>
-    </div>
+      <div id="chart-section" class="section">
+        <div id="chart-container" class="hidden"></div>
+      </div>
 
-    <div class="section">
-      <div id="calendar-container"></div>
-    </div>
-
-    <div id="chart-section" class="section">
-      <div id="chart-container" class="hidden"></div>
-    </div>
-
-    <div class="section">
-      <h2>History</h2>
-      <div id="history-list"></div>
+      <div class="section">
+        <h2>History</h2>
+        <div id="history-list"></div>
+      </div>
     </div>
 
     <script type="module" src="./scripts/app.js"></script>
