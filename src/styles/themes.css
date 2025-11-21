@@ -2,7 +2,7 @@
   /* Core colors - Light theme */
   --bg-primary: #f8f4de;
   --bg-secondary: rgba(109, 134, 143, 0.879);
-  --text-primary: #428fe1;
+  --text-primary: #000000;
   --text-secondary: #000;
   --border-color: rgba(38, 45, 52, 0.923);
   --accent-color: #428fe1;
@@ -46,10 +46,12 @@
   --filter-text-hover: whitesmoke;
 
   /* Other colors */
-  --add-bg: #2b813f;
-  --add-hover: #21552c;
-  --delete-bg: #a4343fe9;
-  --delete-hover: #6f2a31;
+  --add-bg: #2ba247;
+  --add-hover: #3b974f;
+  --delete-bg: #c22b3ae9;
+  --delete-hover: #9f303c;
+  --delete-text: #ffffff;
+
   --border-light: #eee;
   --border-scale: #ddd;
   --text-muted: #666;
@@ -69,6 +71,9 @@
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 10px;
+
+  /* Accent text shadow */
+  --text-shadow-accent: 0 1px 3px rgba(181, 181, 181, 0.209), 0 1px 0 #bdbdbd7d;
 }
 
 /* Dark theme - NOTE: Currently need to manually duplicate all vars for dark mode! (See below) */
@@ -118,16 +123,28 @@
 
     --delete-bg: #c82333;
     --delete-hover: #a71d2a;
+    --delete-text: #ececec;
+
     --border-light: #3a3d41;
     --border-scale: #4a4d51;
     --text-muted: #888;
     --offline-bg: #ffc107;
     --offline-text: #000;
+    --add-bg: #217a36;
+    --add-hover: #276c3c;
+    --color-normal: #1e7e34;
+    --color-elevated: #b38f0a;
+    --color-high1: #b35c0f;
+    --color-high2: #a12a2a;
+    --color-critical: #4b2c6f;
+    --color-low: #117a8b;
+    /* Accent text shadow for dark theme */
+    --text-shadow-accent: 0 2px 6px rgba(0, 0, 0, 0.7), 0 1px 0 #222;
   }
 }
 
 /* Duplicated below, keep these in sync until a better solution is found! */
-
+/* 
 /* Manual dark theme override - uses same variables as auto dark mode */
 :root[data-theme='dark'] {
   --bg-primary: #2a2d31;
@@ -175,4 +192,14 @@
   --text-muted: #888;
   --offline-bg: #ffc107;
   --offline-text: #000;
+  --add-bg: #217a36;
+  --add-hover: #276c3c;
+  --color-normal: #1e7e34;
+  --color-elevated: #b38f0a;
+  --color-high1: #b35c0f;
+  --color-high2: #a12a2a;
+  --color-critical: #4b2c6f;
+  --color-low: #117a8b;
+  /* Accent text shadow for dark theme */
+  --text-shadow-accent: 0 2px 6px rgba(0, 0, 0, 0.7), 0 1px 0 #222;
 }
