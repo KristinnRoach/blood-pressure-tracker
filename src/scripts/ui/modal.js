@@ -1,3 +1,6 @@
+import { getCategory, getPulseStatus } from '../analysis/bloodPressure.js';
+import { getThresholdsSync } from '../storage.js';
+
 export class ReadingInfoModal {
   constructor() {
     this.modal = null;
@@ -125,11 +128,12 @@ export class ReadingInfoModal {
 
     // Get category for display (use median if multiple, otherwise first reading)
     const displayReading = medianReading || readings[0];
-    const categoryClass = this.getCategoryClass(
+    const category = getCategory(
       displayReading.systolic,
       displayReading.diastolic
     );
-    const categoryText = this.getCategoryText(categoryClass);
+    const categoryClass = category.class;
+    const categoryText = category.text || this.getCategoryText(categoryClass);
     const categoryColor = `var(--color-${categoryClass})`;
 
     // Determine which values are abnormal
@@ -139,7 +143,7 @@ export class ReadingInfoModal {
       displayReading.pulse
     );
 
-    // Get individual statuses
+    // Get individual statuses (pulse uses analysis helper)
     const statuses = this.getIndividualStatuses(
       displayReading.systolic,
       displayReading.diastolic,
@@ -354,14 +358,23 @@ export class ReadingInfoModal {
   }
 
   getAbnormalFlags(systolic, diastolic, pulse) {
+    const thresholds = getThresholdsSync();
+    const sHigh = thresholds?.systolic?.high ?? 120;
+    const sLow = thresholds?.systolic?.low ?? 90;
+    const dHigh = thresholds?.diastolic?.high ?? 80;
+    const dLow = thresholds?.diastolic?.low ?? 60;
+    const pHigh = thresholds?.pulse?.high ?? 100;
+    const pLow = thresholds?.pulse?.low ?? 60;
+
     return {
-      systolic: systolic >= 120,
-      diastolic: diastolic >= 80,
-      pulse: pulse < 60 || pulse > 100,
+      systolic: systolic >= sHigh || systolic <= sLow,
+      diastolic: diastolic >= dHigh || diastolic <= dLow,
+      pulse: pulse < pLow || pulse > pHigh,
     };
   }
 
   getCategoryClass(systolic, diastolic) {
+    // Keep fallback behaviour for callers that still use this helper
     if (systolic >= 180 || diastolic >= 120) return 'critical';
     if (systolic >= 140 || diastolic >= 90) return 'high2';
     if (systolic >= 130 || diastolic >= 80) return 'high1';
@@ -381,51 +394,44 @@ export class ReadingInfoModal {
   }
 
   getIndividualStatuses(systolic, diastolic, pulse) {
+    const thresholds = getThresholdsSync();
+    const sHigh = thresholds?.systolic?.high ?? 140;
+    const sLow = thresholds?.systolic?.low ?? 90;
+    const dHigh = thresholds?.diastolic?.high ?? 90;
+    const dLow = thresholds?.diastolic?.low ?? 60;
+
     let systolicStatus = 'Normal';
     let systolicClass = 'status-normal';
-    if (systolic >= 180) {
-      systolicStatus = 'Critical';
-      systolicClass = 'status-critical';
-    } else if (systolic >= 140) {
+    if (systolic >= sHigh) {
       systolicStatus = 'High';
       systolicClass = 'status-high';
-    } else if (systolic >= 130) {
-      systolicStatus = 'Elevated';
-      systolicClass = 'status-elevated';
-    } else if (systolic >= 120) {
-      systolicStatus = 'Elevated';
-      systolicClass = 'status-elevated';
+    } else if (systolic <= sLow) {
+      systolicStatus = 'Low';
+      systolicClass = 'status-low';
     }
 
     let diastolicStatus = 'Normal';
     let diastolicClass = 'status-normal';
-    if (diastolic >= 120) {
-      diastolicStatus = 'Critical';
-      diastolicClass = 'status-critical';
-    } else if (diastolic >= 90) {
+    if (diastolic >= dHigh) {
       diastolicStatus = 'High';
       diastolicClass = 'status-high';
-    } else if (diastolic >= 80) {
-      diastolicStatus = 'Elevated';
-      diastolicClass = 'status-elevated';
+    } else if (diastolic <= dLow) {
+      diastolicStatus = 'Low';
+      diastolicClass = 'status-low';
     }
 
-    let pulseStatus = 'Normal';
+    const pulseStatusText = getPulseStatus(pulse);
     let pulseClass = 'status-normal';
-    if (pulse < 60) {
-      pulseStatus = 'Low';
-      pulseClass = 'status-low';
-    } else if (pulse > 100) {
-      pulseStatus = 'High';
+    if (/CRITICAL|Very High|High/i.test(pulseStatusText))
       pulseClass = 'status-high';
-    }
+    if (/Low|Very Low/i.test(pulseStatusText)) pulseClass = 'status-low';
 
     return {
       systolicStatus,
       systolicClass,
       diastolicStatus,
       diastolicClass,
-      pulseStatus,
+      pulseStatus: pulseStatusText,
       pulseClass,
     };
   }

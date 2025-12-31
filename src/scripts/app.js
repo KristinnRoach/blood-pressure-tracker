@@ -6,7 +6,10 @@ import {
   clearCurrentUser,
   getCurrentUserSync,
 } from './storage.js';
-import { initializeVisualScales } from './ui/visualScales.js';
+import {
+  initializeVisualScales,
+  setCustomThresholds,
+} from './ui/visualScales.js';
 import { initializeCharts } from './ui/chart.js';
 import { initializePWA, setupOfflineHandling } from './pwa.js';
 import {
@@ -19,6 +22,7 @@ import { HistoryList } from './ui/historyList.js';
 import { ReadingInfoModal } from './ui/modal.js';
 import { UndoRedoManager } from './helpers/UndoRedoManager.js';
 import { AddReadingModal } from './ui/addReadingModal.js';
+import { SettingsModal } from './ui/settingsModal.js';
 
 // Create calendar and modal instances
 let calendar = null;
@@ -214,6 +218,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     readingFormModal = AddReadingModal();
   });
 
+  // Settings button opens minimal settings modal
+  const settingsBtn = document.getElementById('settings-btn');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', () => {
+      SettingsModal();
+    });
+  }
+
   document.addEventListener('readings-updated', async () => {
     await updateUIReadings();
   });
@@ -224,6 +236,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (reading && modal && typeof modal.open === 'function') {
       modal.open(reading);
     }
+  });
+
+  // When thresholds change, refresh any UI that depends on categorization
+  document.addEventListener('thresholds-updated', async (e) => {
+    console.log('Thresholds updated — refreshing UI');
+    try {
+      const thresholds = e?.detail;
+      if (thresholds && typeof setCustomThresholds === 'function') {
+        setCustomThresholds(thresholds);
+      }
+    } catch (err) {
+      console.warn('Failed to apply custom thresholds', err);
+    }
+    // Notify UI components to re-render/read categories
+    document.dispatchEvent(new CustomEvent('readings-updated'));
   });
 
   document.addEventListener('reading-deleted', () => {
