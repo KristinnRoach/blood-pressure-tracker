@@ -122,10 +122,6 @@ h1 {
   transform: scale(0.95);
 }
 
-.install-btn {
-  display: none;
-}
-
 .theme-icon {
   display: flex;
   align-items: center;
@@ -175,6 +171,10 @@ h1 {
 
 #new-reading-btn:active {
   background: var(--add-hover);
+}
+
+#install-btn {
+  display: none;
 }
 
 /* Calendar header styles */
@@ -231,7 +231,7 @@ h1 {
   background-color: var(--accent-active);
 }
 
-/* Mobile header adjustments */
+/* Mobile calendar header adjustments */
 @media (min-width: 480px) {
   .calendar-header {
     padding: var(--spacing-md) var(--spacing-lg);
