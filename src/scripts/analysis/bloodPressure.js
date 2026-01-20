@@ -1,25 +1,34 @@
 // Blood pressure categorization and pulse status functions
+import { getThresholdsSync } from '../storage.js';
 
 export function getCategory(sys, dia) {
+  const thresholds = getThresholdsSync();
+  const sLow = thresholds?.systolic?.low ?? 90;
+  const sHigh = thresholds?.systolic?.high ?? 140;
+  const dLow = thresholds?.diastolic?.low ?? 60;
+  const dHigh = thresholds?.diastolic?.high ?? 90;
+
+  // Keep fixed critical boundaries for extremes
   if (sys > 180 || dia > 120) {
-    return {
-      class: 'critical',
-      text: 'CRITICALLY HIGH BP!',
-    };
+    return { class: 'critical', text: 'CRITICALLY HIGH BP!' };
   }
 
   if (sys < 70 || dia < 50) {
-    return {
-      class: 'critical',
-      text: 'CRITICALLY LOW BP!',
-    };
+    return { class: 'critical', text: 'CRITICALLY LOW BP!' };
   }
 
+  // Respect user-configured "too high" / "too low" thresholds
+  if (sys > sHigh || dia > dHigh) {
+    return { class: 'high2', text: 'High BP (custom threshold)' };
+  }
+
+  if (sys < sLow || dia < dLow) {
+    return { class: 'low', text: 'Low BP (custom threshold)' };
+  }
+
+  // Fallback to original category logic for intermediate tiers
   if (sys < 90 || dia < 60) {
-    return {
-      class: 'low',
-      text: 'Low BP',
-    };
+    return { class: 'low', text: 'Low BP' };
   }
 
   if (sys >= 140 || dia >= 90) {
@@ -38,11 +47,22 @@ export function getCategory(sys, dia) {
 }
 
 export function getPulseStatus(pulse) {
+  const thresholds = getThresholdsSync();
+  const pLow = thresholds?.pulse?.low ?? 50;
+  const pHigh = thresholds?.pulse?.high ?? 100;
+
   if (pulse < 40) return 'CRITICAL - Seek immediate medical attention';
   if (pulse < 50) return 'Very Low - Consult doctor';
-  if (pulse < 60) return 'Low';
+
+  // Custom low
+  if (pulse < pLow) return 'Low (custom threshold)';
+
   if (pulse > 150) return 'CRITICAL - Seek immediate medical attention';
   if (pulse > 120) return 'Very High - Consult doctor';
+
+  // Custom high
+  if (pulse > pHigh) return 'High (custom threshold)';
+
   if (pulse > 100) return 'High';
   return 'Normal';
 }

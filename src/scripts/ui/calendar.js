@@ -1,3 +1,5 @@
+import { getCategory } from '../analysis/bloodPressure.js';
+
 export class Calendar {
   constructor(containerId = 'calendar-container') {
     this.containerId = containerId;
@@ -108,10 +110,17 @@ export class Calendar {
       if (readings && readings.length > 0) {
         // Calculate median values for color coding
         const medianReading = this.getMedianReading(readings);
-        const categoryClass = this.getCategoryClass(
+        const category = getCategory(
           medianReading.systolic,
           medianReading.diastolic
         );
+        const categoryClass =
+          category && category.class
+            ? category.class
+            : this.getCategoryClass(
+                medianReading.systolic,
+                medianReading.diastolic
+              );
 
         // Show count if multiple readings
         const countBadge =

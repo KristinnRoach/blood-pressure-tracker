@@ -213,3 +213,63 @@ export async function clearReadings() {
   await db.readings.clear();
   console.log('All readings cleared from IndexedDB');
 }
+
+// Default thresholds used when user hasn't customized settings
+const DEFAULT_THRESHOLDS = {
+  systolic: { low: 90, high: 140 },
+  diastolic: { low: 60, high: 90 },
+  pulse: { low: 50, high: 100 },
+};
+
+// Synchronous getter for thresholds (reads from localStorage). Useful for sync callers.
+export function getThresholdsSync() {
+  try {
+    const current = getCurrentUserSync();
+    const key =
+      current && current.id != null
+        ? `bpThresholds:${current.id}`
+        : 'bpThresholds:global';
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : DEFAULT_THRESHOLDS;
+  } catch (e) {
+    console.warn('Failed to read thresholds from storage (sync)', e);
+    return DEFAULT_THRESHOLDS;
+  }
+}
+
+/**
+ * Get persisted thresholds (global). Returns defaults when none saved.
+ */
+export async function getThresholds() {
+  try {
+    const current = getCurrentUserSync();
+    const key =
+      current && current.id != null
+        ? `bpThresholds:${current.id}`
+        : 'bpThresholds:global';
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : DEFAULT_THRESHOLDS;
+  } catch (e) {
+    console.warn('Failed to read thresholds from storage', e);
+    return DEFAULT_THRESHOLDS;
+  }
+}
+
+/**
+ * Persist thresholds object in localStorage. Returns the saved object.
+ * Expected shape: { systolic: { low, high }, diastolic: { low, high }, pulse: { low, high } }
+ */
+export async function setThresholds(thresholds) {
+  try {
+    const current = getCurrentUserSync();
+    const key =
+      current && current.id != null
+        ? `bpThresholds:${current.id}`
+        : 'bpThresholds:global';
+    localStorage.setItem(key, JSON.stringify(thresholds));
+    return thresholds;
+  } catch (e) {
+    console.error('Failed to save thresholds', e);
+    throw e;
+  }
+}

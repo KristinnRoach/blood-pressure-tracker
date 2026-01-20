@@ -1,7 +1,7 @@
 // Visual feedback scales for blood pressure measurements
 
 // Scale configurations with ranges and positioning
-const scaleConfigs = {
+export const scaleConfigs = {
   systolic: {
     ranges: [
       { min: 0, max: 120, class: 'normal' },
@@ -30,6 +30,14 @@ const scaleConfigs = {
     totalRange: { min: 30, max: 200 },
   },
 };
+
+// Optional custom thresholds (set by SettingsModal). Not required for indicator positioning
+let customThresholds = null;
+
+export function setCustomThresholds(thresholds) {
+  customThresholds = thresholds;
+  // Consumers can listen for `thresholds-updated` to react if needed
+}
 
 // Calculate position percentage for a value within a scale
 function calculatePosition(value, config) {
