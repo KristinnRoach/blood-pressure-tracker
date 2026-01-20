@@ -98,7 +98,7 @@ export const AddReadingModal = () =>
               now.getHours(),
               now.getMinutes(),
               now.getSeconds(),
-              now.getMilliseconds()
+              now.getMilliseconds(),
             );
             readingDateIso = d.toISOString();
           } else {
@@ -121,7 +121,7 @@ export const AddReadingModal = () =>
           // Notify the app that readings changed and provide the added reading
           document.dispatchEvent(new CustomEvent('readings-updated'));
           document.dispatchEvent(
-            new CustomEvent('reading-added', { detail: reading })
+            new CustomEvent('reading-added', { detail: reading }),
           );
           // Close (and dispose) after successful save
           el.close && el.close();
@@ -174,8 +174,8 @@ export const AddReadingModal = () =>
         if (e.key === 'Tab') {
           const focusable = Array.from(
             overlay.querySelectorAll(
-              'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-            )
+              'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
           ).filter((el) => el.offsetParent !== null);
           if (focusable.length === 0) {
             e.preventDefault();
@@ -208,13 +208,6 @@ export const AddReadingModal = () =>
         document.removeEventListener('keydown', keyHandler);
       };
 
-      // Attach listeners
-      form && form.addEventListener('submit', submitHandler);
-      closeBtn && closeBtn.addEventListener('click', el.close);
-      cancelBtn && cancelBtn.addEventListener('click', el.close);
-      overlay && overlay.addEventListener('click', overlayClickHandler);
-      document.addEventListener('keydown', keyHandler);
-
       // Expose open/close API on the component element
       el.open = openHandler;
       el.close = () => {
@@ -238,6 +231,13 @@ export const AddReadingModal = () =>
           }
         }, 140);
       };
+
+      // Attach listeners
+      form && form.addEventListener('submit', submitHandler);
+      closeBtn && closeBtn.addEventListener('click', el.close);
+      cancelBtn && cancelBtn.addEventListener('click', el.close);
+      overlay && overlay.addEventListener('click', overlayClickHandler);
+      document.addEventListener('keydown', keyHandler);
 
       // Open immediately so calling AddReadingModal() shows the modal by default
       openHandler();
