@@ -41,7 +41,7 @@ export async function setCurrentUser(username) {
   const user = await getOrCreateUser(username.trim());
   localStorage.setItem(
     CURRENT_USER_KEY,
-    JSON.stringify({ id: user.id, username: user.username })
+    JSON.stringify({ id: user.id, username: user.username }),
   );
   return user;
 }
@@ -63,7 +63,7 @@ async function migrateFromLocalStorage() {
       console.log(
         'Migrating',
         readings.length,
-        'readings from localStorage to IndexedDB'
+        'readings from localStorage to IndexedDB',
       );
 
       // Convert old format to new format and add to IndexedDB
@@ -127,7 +127,7 @@ export async function saveReading(reading) {
       (error.inner && error.inner.name === 'QuotaExceededError')
     ) {
       alert(
-        'Unable to save: Storage quota exceeded. Try clearing browser data or use a different browser mode.'
+        'Unable to save: Storage quota exceeded. Try clearing browser data or use a different browser mode.',
       );
     } else {
       alert('Failed to save reading. Please try again.');
@@ -216,10 +216,39 @@ export async function clearReadings() {
 
 // Default thresholds used when user hasn't customized settings
 const DEFAULT_THRESHOLDS = {
-  systolic: { low: 90, high: 140 },
-  diastolic: { low: 60, high: 90 },
-  pulse: { low: 50, high: 100 },
+  systolic: { min: 90, max: 140 },
+  diastolic: { min: 60, max: 90 },
+  pulse: { min: 50, max: 100 },
 };
+
+// Normalize thresholds object to the canonical { min, max } shape.
+// Accepts legacy shapes using `low`/`high` and will fall back to defaults.
+function normalizeThresholds(raw) {
+  if (!raw || typeof raw !== 'object') return DEFAULT_THRESHOLDS;
+
+  const mapRange = (r, fallback) => {
+    if (!r || typeof r !== 'object') return fallback;
+    const min =
+      r.min !== undefined
+        ? Number(r.min)
+        : r.low !== undefined
+          ? Number(r.low)
+          : fallback.min;
+    const max =
+      r.max !== undefined
+        ? Number(r.max)
+        : r.high !== undefined
+          ? Number(r.high)
+          : fallback.max;
+    return { min, max };
+  };
+
+  return {
+    systolic: mapRange(raw.systolic, DEFAULT_THRESHOLDS.systolic),
+    diastolic: mapRange(raw.diastolic, DEFAULT_THRESHOLDS.diastolic),
+    pulse: mapRange(raw.pulse, DEFAULT_THRESHOLDS.pulse),
+  };
+}
 
 // Synchronous getter for thresholds (reads from localStorage). Useful for sync callers.
 export function getThresholdsSync() {
@@ -230,7 +259,7 @@ export function getThresholdsSync() {
         ? `bpThresholds:${current.id}`
         : 'bpThresholds:global';
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : DEFAULT_THRESHOLDS;
+    return raw ? normalizeThresholds(JSON.parse(raw)) : DEFAULT_THRESHOLDS;
   } catch (e) {
     console.warn('Failed to read thresholds from storage (sync)', e);
     return DEFAULT_THRESHOLDS;
@@ -248,7 +277,7 @@ export async function getThresholds() {
         ? `bpThresholds:${current.id}`
         : 'bpThresholds:global';
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : DEFAULT_THRESHOLDS;
+    return raw ? normalizeThresholds(JSON.parse(raw)) : DEFAULT_THRESHOLDS;
   } catch (e) {
     console.warn('Failed to read thresholds from storage', e);
     return DEFAULT_THRESHOLDS;
@@ -257,7 +286,7 @@ export async function getThresholds() {
 
 /**
  * Persist thresholds object in localStorage. Returns the saved object.
- * Expected shape: { systolic: { low, high }, diastolic: { low, high }, pulse: { low, high } }
+ * Expected shape: { systolic: { min, max }, diastolic: { min, max }, pulse: { min, max } }
  */
 export async function setThresholds(thresholds) {
   try {

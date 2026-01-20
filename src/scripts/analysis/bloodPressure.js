@@ -3,66 +3,99 @@ import { getThresholdsSync } from '../storage.js';
 
 export function getCategory(sys, dia) {
   const thresholds = getThresholdsSync();
-  const sLow = thresholds?.systolic?.low ?? 90;
-  const sHigh = thresholds?.systolic?.high ?? 140;
-  const dLow = thresholds?.diastolic?.low ?? 60;
-  const dHigh = thresholds?.diastolic?.high ?? 90;
 
-  // Keep fixed critical boundaries for extremes
-  if (sys > 180 || dia > 120) {
-    return { class: 'critical', text: 'CRITICALLY HIGH BP!' };
+  // Validate thresholds exist
+  if (
+    !thresholds ||
+    !thresholds.systolic ||
+    !thresholds.diastolic ||
+    thresholds.systolic.min == null ||
+    thresholds.systolic.max == null ||
+    thresholds.diastolic.min == null ||
+    thresholds.diastolic.max == null
+  ) {
+    console.error('Blood pressure thresholds not properly configured');
+    return { class: 'unknown', text: 'Unknown' };
   }
 
-  if (sys < 70 || dia < 50) {
+  // Single source of truth: derive all boundaries from configured thresholds
+  const sMin = Number(thresholds.systolic.min);
+  const sMax = Number(thresholds.systolic.max);
+  const dMin = Number(thresholds.diastolic.min);
+  const dMax = Number(thresholds.diastolic.max);
+
+  // Local small deltas (kept here for now; can be moved to storage later)
+  // TODO: Move these deltas (STAGE1_DELTA, ELEVATED_DELTA, CRITICAL_*_DELTA)
+  // to `storage.js` defaults so tuning is centralized and consistent.
+  const STAGE1_DELTA = 10;
+  const ELEVATED_DELTA = 20;
+  const CRITICAL_HIGH_DELTA = 40;
+  const CRITICAL_LOW_DELTA = 20;
+
+  // Critical (derive from thresholds)
+  if (sys >= sMax + CRITICAL_HIGH_DELTA || dia >= dMax + CRITICAL_HIGH_DELTA) {
+    return { class: 'critical', text: 'CRITICALLY HIGH BP!' };
+  }
+  if (sys <= sMin - CRITICAL_LOW_DELTA || dia <= dMin - CRITICAL_LOW_DELTA) {
     return { class: 'critical', text: 'CRITICALLY LOW BP!' };
   }
 
-  // Respect user-configured "too high" / "too low" thresholds
-  if (sys > sHigh || dia > dHigh) {
-    return { class: 'high2', text: 'High BP (custom threshold)' };
+  // Above / below configured thresholds (primary indicators)
+  if (sys > sMax || dia > dMax) {
+    return { class: 'high2', text: 'High BP (above threshold)' };
+  }
+  if (sys < sMin || dia < dMin) {
+    return { class: 'low', text: 'Low BP (below threshold)' };
   }
 
-  if (sys < sLow || dia < dLow) {
-    return { class: 'low', text: 'Low BP (custom threshold)' };
-  }
+  // Staging windows derived from thresholds (below the max)
+  const sStage1Low = sMax - STAGE1_DELTA;
+  const sElevatedLow = sMax - ELEVATED_DELTA;
+  const dStage1Low = dMax - STAGE1_DELTA;
+  const dElevatedLow = dMax - ELEVATED_DELTA;
 
-  // Fallback to original category logic for intermediate tiers
-  if (sys < 90 || dia < 60) {
-    return { class: 'low', text: 'Low BP' };
-  }
-
-  if (sys >= 140 || dia >= 90) {
-    return { class: 'high2', text: 'High BP: Stage 2' };
-  }
-  if ((sys >= 130 && sys <= 139) || (dia >= 80 && dia <= 89)) {
+  if ((sys >= sStage1Low && sys < sMax) || (dia >= dStage1Low && dia < dMax)) {
     return { class: 'high1', text: 'High BP: Stage 1' };
   }
-  if (sys >= 120 && sys <= 129 && dia < 80) {
+
+  if (
+    (sys >= sElevatedLow && sys < sStage1Low) ||
+    (dia >= dElevatedLow && dia < dStage1Low)
+  ) {
     return { class: 'elevated', text: 'Elevated BP' };
   }
-  if (sys >= 90 && sys < 120 && dia >= 60 && dia < 80) {
+
+  // Within configured thresholds
+  if (sys >= sMin && sys <= sMax && dia >= dMin && dia <= dMax) {
     return { class: 'normal', text: 'Normal BP' };
   }
+
   return { class: 'elevated', text: 'Check values' };
 }
 
 export function getPulseStatus(pulse) {
+  if (typeof pulse !== 'number') {
+    console.error('Invalid pulse value provided to getPulseStatus');
+    return 'Unknown';
+  }
+
   const thresholds = getThresholdsSync();
-  const pLow = thresholds?.pulse?.low ?? 50;
-  const pHigh = thresholds?.pulse?.high ?? 100;
 
-  if (pulse < 40) return 'CRITICAL - Seek immediate medical attention';
-  if (pulse < 50) return 'Very Low - Consult doctor';
+  if (
+    !thresholds ||
+    !thresholds.pulse ||
+    !thresholds.pulse.min ||
+    !thresholds.pulse.max
+  ) {
+    console.error('Pulse thresholds not properly configured');
+    return 'Unknown';
+  }
 
-  // Custom low
-  if (pulse < pLow) return 'Low (custom threshold)';
+  const pMin = thresholds.pulse.min;
+  const pMax = thresholds.pulse.max;
 
-  if (pulse > 150) return 'CRITICAL - Seek immediate medical attention';
-  if (pulse > 120) return 'Very High - Consult doctor';
+  if (pulse < pMin) return 'Low';
+  if (pulse > pMax) return 'High';
 
-  // Custom high
-  if (pulse > pHigh) return 'High (custom threshold)';
-
-  if (pulse > 100) return 'High';
   return 'Normal';
 }

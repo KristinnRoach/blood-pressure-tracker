@@ -5,7 +5,10 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
 
   max-width: 100dvw;
   height: auto;
@@ -170,7 +173,9 @@ h1 {
   background: var(--add-bg);
   text-shadow: var(--text-shadow-accent);
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), 0 1.5px 4px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.18),
+    0 1.5px 4px rgba(0, 0, 0, 0.22);
 }
 
 #new-reading-btn:hover {
@@ -1039,7 +1044,7 @@ button:hover {
     gap: 4px;
   }
   .calendar-day {
-    font-size: 8px;
+    font-size: 10px;
   }
   .calendar-day-header {
     font-size: 10px;
