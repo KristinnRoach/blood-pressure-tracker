@@ -33,6 +33,9 @@ h1 {
   width: 100%;
   max-width: 800px;
   min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .section,
@@ -42,8 +45,9 @@ h1 {
   max-width: 680px;
 }
 
-.section {
-  padding: var(--spacing-lg) var(--spacing-xl);
+.section,
+.top-bar {
+  padding: var(--spacing-md) var(--spacing-lg);
 }
 
 .top-bar {
@@ -66,34 +70,28 @@ h1 {
   gap: var(--spacing-md);
 }
 
-.top-bar button,
-.top-bar .user-management,
-.top-bar .settings-btn {
+.top-bar button {
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-.top-bar button,
-.user-management > select,
-.top-bar .settings-btn {
-  background-color: var(--accent-color);
+  background-color: transparent !important;
   color: var(--text-primary);
 
-  border: 2px solid var(--border-color);
+  border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-}
-
-.top-bar button,
-#settings-btn,
-#add-user-btn {
   height: 2rem;
   width: 2rem;
   padding: 0;
-
   font-size: 1rem;
   font-weight: 600;
+}
+
+.top-bar .user-management {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .user-management {
@@ -113,24 +111,19 @@ h1 {
   display: block;
 }
 
-.theme-toggle-btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  background-color: transparent !important;
-  border: none !important;
-
-  transition: all 0.2s;
-}
-
-.theme-toggle-btn:hover {
-  background: var(--filter-bg);
+/* Top-bar button hover and active states */
+.top-bar button:hover {
+  border: 2px solid var(--border-color);
   transform: scale(1.1);
 }
 
-.theme-toggle-btn:active {
+.top-bar button:active {
+  background: var(--accent-active);
   transform: scale(0.95);
+}
+
+.install-btn {
+  display: none;
 }
 
 .theme-icon {
@@ -141,29 +134,12 @@ h1 {
   border: none;
 }
 
-.install-btn {
-  background-color: rgb(47, 97, 166); /* #6badf3; */
-  display: none;
-  transition: background-color 0.2s;
-}
-
-.install-btn:hover,
-#settings-btn:hover,
-#add-user-btn:hover {
-  background: var(--accent-hover);
-}
-
-.install-btn:active,
-#settings-btn:active,
-#add-user-btn:active {
-  background: var(--accent-active);
-}
-
 #user-select {
-  padding: 0;
-  border: 2px solid var(--border-color);
+  padding-left: 4px;
+  padding-right: 6px;
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  background-color: var(--input-bg);
+  background-color: transparent;
   color: var(--text-primary);
   cursor: pointer;
 }
@@ -257,13 +233,6 @@ h1 {
 
 /* Mobile header adjustments */
 @media (min-width: 480px) {
-  /* Header adjustments */
-  .top-bar > * {
-    font-size: 1.2rem;
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  /* Calendar header adjustments */
   .calendar-header {
     padding: var(--spacing-md) var(--spacing-lg);
   }
@@ -1114,8 +1083,8 @@ button:hover {
   .section,
   #add-reading-section,
   .top-bar {
-    max-width: 95vw;
-    width: 95vw;
+    max-width: 95vw !important;
+    width: 95vw !important;
     min-width: 0;
   }
 }
