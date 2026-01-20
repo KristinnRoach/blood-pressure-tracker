@@ -130,7 +130,7 @@ export class ReadingInfoModal {
     const displayReading = medianReading || readings[0];
     const category = getCategory(
       displayReading.systolic,
-      displayReading.diastolic
+      displayReading.diastolic,
     );
     const categoryClass = category.class;
     const categoryText = category.text || this.getCategoryText(categoryClass);
@@ -140,14 +140,14 @@ export class ReadingInfoModal {
     const abnormalFlags = this.getAbnormalFlags(
       displayReading.systolic,
       displayReading.diastolic,
-      displayReading.pulse
+      displayReading.pulse,
     );
 
     // Get individual statuses (pulse uses analysis helper)
     const statuses = this.getIndividualStatuses(
       displayReading.systolic,
       displayReading.diastolic,
-      displayReading.pulse
+      displayReading.pulse,
     );
 
     let html = '<div class="reading-details">';
@@ -161,26 +161,26 @@ export class ReadingInfoModal {
         <div class="reading-single">
           <div class="reading-bp">
             <span class="${abnormalFlags.systolic ? 'abnormal' : ''}">${
-        reading.systolic
-      }</span>/<span class="${abnormalFlags.diastolic ? 'abnormal' : ''}">${
-        reading.diastolic
-      }</span>
+              reading.systolic
+            }</span>/<span class="${abnormalFlags.diastolic ? 'abnormal' : ''}">${
+              reading.diastolic
+            }</span>
           </div>
           <div class="reading-pulse ${abnormalFlags.pulse ? 'abnormal' : ''}">${
-        reading.pulse
-      } bpm</div>
+            reading.pulse
+          } bpm</div>
           <div class="reading-time-single">${date}</div>
         </div>
         <div class="reading-status-details">
           <div>Systolic: <span class="${statuses.systolicClass}">${
-        statuses.systolicStatus
-      }</span></div>
+            statuses.systolicStatus
+          }</span></div>
           <div>Diastolic: <span class="${statuses.diastolicClass}">${
-        statuses.diastolicStatus
-      }</span></div>
+            statuses.diastolicStatus
+          }</span></div>
           <div>Pulse: <span class="${statuses.pulseClass}">${
-        statuses.pulseStatus
-      }</span></div>
+            statuses.pulseStatus
+          }</span></div>
         </div>
           <div class="add-delete-btns">
             <button class="add-reading-btn" type="button">Add</button>
@@ -213,7 +213,7 @@ export class ReadingInfoModal {
         const flags = this.getAbnormalFlags(
           reading.systolic,
           reading.diastolic,
-          reading.pulse
+          reading.pulse,
         );
         const systolicClass = flags.systolic ? 'abnormal-value' : '';
         const diastolicClass = flags.diastolic ? 'abnormal-value' : '';
@@ -243,10 +243,10 @@ export class ReadingInfoModal {
         <div class="reading-summary-values">
         <div class="reading-bp">
               <span class="${abnormalFlags.systolic ? 'abnormal' : ''}">${
-        medianReading.systolic
-      }</span>/<span class="${abnormalFlags.diastolic ? 'abnormal' : ''}">${
-        medianReading.diastolic
-      }</span>
+                medianReading.systolic
+              }</span>/<span class="${abnormalFlags.diastolic ? 'abnormal' : ''}">${
+                medianReading.diastolic
+              }</span>
             </div>
             <div class="reading-pulse ${
               abnormalFlags.pulse ? 'abnormal' : ''
@@ -255,14 +255,14 @@ export class ReadingInfoModal {
       
       <div class="reading-status-details">
             <div>Systolic: <span class="${statuses.systolicClass}">${
-        statuses.systolicStatus
-      }</span></div>
+              statuses.systolicStatus
+            }</span></div>
             <div>Diastolic: <span class="${statuses.diastolicClass}">${
-        statuses.diastolicStatus
-      }</span></div>
+              statuses.diastolicStatus
+            }</span></div>
             <div>Pulse: <span class="${statuses.pulseClass}">${
-        statuses.pulseStatus
-      }</span></div>
+              statuses.pulseStatus
+            }</span></div>
           </div>
         </div>
      </div>
@@ -285,7 +285,7 @@ export class ReadingInfoModal {
         } catch (err) {
           console.error(
             'Failed to open AddReadingModal from ReadingInfoModal',
-            err
+            err,
           );
         }
       });
@@ -314,7 +314,7 @@ export class ReadingInfoModal {
         if (this.currentDateKey) {
           filtered = readings.filter(
             (r) =>
-              r && r.date && this.getDateKey(r.date) === this.currentDateKey
+              r && r.date && this.getDateKey(r.date) === this.currentDateKey,
           );
         }
 
@@ -341,7 +341,7 @@ export class ReadingInfoModal {
       const d = new Date(date);
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
         2,
-        '0'
+        '0',
       )}-${String(d.getDate()).padStart(2, '0')}`;
     } catch (e) {
       return null;
@@ -359,17 +359,19 @@ export class ReadingInfoModal {
 
   getAbnormalFlags(systolic, diastolic, pulse) {
     const thresholds = getThresholdsSync();
-    const sHigh = thresholds?.systolic?.high ?? 120;
-    const sLow = thresholds?.systolic?.low ?? 90;
-    const dHigh = thresholds?.diastolic?.high ?? 80;
-    const dLow = thresholds?.diastolic?.low ?? 60;
-    const pHigh = thresholds?.pulse?.high ?? 100;
-    const pLow = thresholds?.pulse?.low ?? 60;
+    const sMax = thresholds?.systolic?.max ?? 120;
+    const sMin = thresholds?.systolic?.min ?? 90;
+    const dMax = thresholds?.diastolic?.max ?? 80;
+    const dMin = thresholds?.diastolic?.min ?? 60;
+    const pMax = thresholds?.pulse?.max ?? 100;
+    const pMin = thresholds?.pulse?.min ?? 60;
 
     return {
-      systolic: systolic >= sHigh || systolic <= sLow,
-      diastolic: diastolic >= dHigh || diastolic <= dLow,
-      pulse: pulse < pLow || pulse > pHigh,
+      // Treat configured `min`/`max` as inclusive bounds for 'normal', so
+      // values strictly below `min` or strictly above `max` are abnormal.
+      systolic: systolic > sMax || systolic < sMin,
+      diastolic: diastolic > dMax || diastolic < dMin,
+      pulse: pulse < pMin || pulse > pMax,
     };
   }
 
@@ -395,27 +397,27 @@ export class ReadingInfoModal {
 
   getIndividualStatuses(systolic, diastolic, pulse) {
     const thresholds = getThresholdsSync();
-    const sHigh = thresholds?.systolic?.high ?? 140;
-    const sLow = thresholds?.systolic?.low ?? 90;
-    const dHigh = thresholds?.diastolic?.high ?? 90;
-    const dLow = thresholds?.diastolic?.low ?? 60;
+    const sMax = thresholds?.systolic?.max ?? 140;
+    const sMin = thresholds?.systolic?.min ?? 90;
+    const dMax = thresholds?.diastolic?.max ?? 90;
+    const dMin = thresholds?.diastolic?.min ?? 60;
 
     let systolicStatus = 'Normal';
     let systolicClass = 'status-normal';
-    if (systolic >= sHigh) {
+    if (systolic > sMax) {
       systolicStatus = 'High';
       systolicClass = 'status-high';
-    } else if (systolic <= sLow) {
+    } else if (systolic < sMin) {
       systolicStatus = 'Low';
       systolicClass = 'status-low';
     }
 
     let diastolicStatus = 'Normal';
     let diastolicClass = 'status-normal';
-    if (diastolic >= dHigh) {
+    if (diastolic > dMax) {
       diastolicStatus = 'High';
       diastolicClass = 'status-high';
-    } else if (diastolic <= dLow) {
+    } else if (diastolic < dMin) {
       diastolicStatus = 'Low';
       diastolicClass = 'status-low';
     }

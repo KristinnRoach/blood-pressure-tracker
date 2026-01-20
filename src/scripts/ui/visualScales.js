@@ -36,7 +36,15 @@ let customThresholds = null;
 
 export function setCustomThresholds(thresholds) {
   customThresholds = thresholds;
-  // Consumers can listen for `thresholds-updated` to react if needed
+  // Update any visible scales so the UI reflects the user's thresholds.
+  // This keeps the stored thresholds useful for consumers that call this
+  // function (for example `app.js` listens for the event and calls it).
+  try {
+    applyThresholdMarkers();
+  } catch (e) {
+    console.warn('Failed to apply custom thresholds to visual scales', e);
+  }
+  // Consumers can still listen for `thresholds-updated` to react if needed
 }
 
 // Calculate position percentage for a value within a scale
@@ -86,6 +94,9 @@ export function initializeVisualScales() {
     });
   }
 
+  // Apply any currently-set custom thresholds to the scales
+  applyThresholdMarkers();
+
   console.log('Visual scales initialized');
 }
 
@@ -100,6 +111,65 @@ export function clearIndicators() {
     const indicator = document.getElementById(id);
     if (indicator) {
       indicator.classList.remove('active');
+    }
+  });
+
+  // Also hide threshold markers if present
+  ['systolic', 'diastolic', 'pulse'].forEach((t) => {
+    const low = document.getElementById(`${t}-threshold-low`);
+    const high = document.getElementById(`${t}-threshold-high`);
+    if (low) low.style.display = 'none';
+    if (high) high.style.display = 'none';
+  });
+}
+
+// Render or update threshold marker elements inside each scale based on
+// `customThresholds`. This keeps a minimal, non-invasive visual indicator
+// of the user's configured min/max values without changing existing
+// segmentation logic.
+function applyThresholdMarkers() {
+  if (!customThresholds || typeof document === 'undefined') return;
+
+  ['systolic', 'diastolic', 'pulse'].forEach((type) => {
+    const scaleEl = document.getElementById(`${type}-scale`);
+    if (!scaleEl) return;
+
+    const config = scaleConfigs[type];
+    if (!config) return;
+
+    const lowVal = customThresholds[type] && customThresholds[type].min;
+    const highVal = customThresholds[type] && customThresholds[type].max;
+
+    const ensureMarker = (idSuffix, className) => {
+      const id = `${type}-${idSuffix}`;
+      let el = document.getElementById(id);
+      if (!el) {
+        el = document.createElement('div');
+        el.id = id;
+        el.className = `scale-threshold ${className}`;
+        // position absolute relative to scale container; styles should be
+        // provided in CSS (graceful fallback to inline left below)
+        el.setAttribute('aria-hidden', 'true');
+        scaleEl.appendChild(el);
+      }
+      return el;
+    };
+
+    const lowEl = ensureMarker('threshold-low', 'threshold-low');
+    const highEl = ensureMarker('threshold-high', 'threshold-high');
+
+    if (typeof lowVal === 'number') {
+      lowEl.style.left = `${calculatePosition(lowVal, config)}%`;
+      lowEl.style.display = '';
+    } else {
+      lowEl.style.display = 'none';
+    }
+
+    if (typeof highVal === 'number') {
+      highEl.style.left = `${calculatePosition(highVal, config)}%`;
+      highEl.style.display = '';
+    } else {
+      highEl.style.display = 'none';
     }
   });
 }
