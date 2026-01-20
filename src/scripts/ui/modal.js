@@ -424,6 +424,11 @@ export class ReadingInfoModal {
 
     const pulseStatusText = getPulseStatus(pulse);
     let pulseClass = 'status-normal';
+    // TODO: Review pulse severity handling. `getPulseStatus` currently returns
+    // simple 'Low'/'Normal'/'High'. The regex below also looks for 'Very' and
+    // 'CRITICAL' keywords which are not currently returned. Either restore
+    // granular messages in `getPulseStatus` or change this UI to derive severity
+    // from numeric pulse thresholds directly.
     if (/CRITICAL|Very High|High/i.test(pulseStatusText))
       pulseClass = 'status-high';
     if (/Low|Very Low/i.test(pulseStatusText)) pulseClass = 'status-low';

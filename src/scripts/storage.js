@@ -228,18 +228,28 @@ function normalizeThresholds(raw) {
 
   const mapRange = (r, fallback) => {
     if (!r || typeof r !== 'object') return fallback;
-    const min =
-      r.min !== undefined
-        ? Number(r.min)
-        : r.low !== undefined
-          ? Number(r.low)
-          : fallback.min;
-    const max =
-      r.max !== undefined
-        ? Number(r.max)
-        : r.high !== undefined
-          ? Number(r.high)
-          : fallback.max;
+    const toNumber = (v) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    };
+
+    const candidateMin =
+      r.min != null ? toNumber(r.min) : r.low != null ? toNumber(r.low) : null;
+    const candidateMax =
+      r.max != null
+        ? toNumber(r.max)
+        : r.high != null
+          ? toNumber(r.high)
+          : null;
+
+    const min = candidateMin !== null ? candidateMin : fallback.min;
+    const max = candidateMax !== null ? candidateMax : fallback.max;
+
+    // Ensure sensible ordering
+    if (min >= max) {
+      return fallback;
+    }
+
     return { min, max };
   };
 

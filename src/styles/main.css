@@ -659,11 +659,13 @@ button:hover {
 /* Tighter layout adjustments specifically for SettingsModal */
 .add-reading-modal .modal-content {
   max-width: 520px; /* constrain to match inner content */
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
 }
 
 .add-reading-modal .modal-body {
-  padding: 0;
+  padding-top: 2rem;
+  display: flex;
+  justify-content: center;
 }
 
 .settings-section h3 {
@@ -684,33 +686,15 @@ button:hover {
   color: var(--text-primary);
 }
 
-.add-reading-modal .slider-values {
-  margin-top: 6px;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-}
-
-.add-reading-modal .modal-body {
-  display: flex;
-  justify-content: center;
-}
-
 .add-reading-modal .settings-section {
   max-width: fit-content;
   margin: 0 auto;
 }
 
-/* Increase touch area and spacing for modal-close in settings */
-.add-reading-modal .modal-close {
-  width: 40px;
-  height: 40px;
-  font-size: 30px;
-}
-
 .modal-close {
   position: absolute;
-  top: var(--spacing-md);
-  right: var(--spacing-md);
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
   background: transparent;
   border: none;
   font-size: 28px;
