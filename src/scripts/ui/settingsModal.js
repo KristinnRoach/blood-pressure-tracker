@@ -243,7 +243,6 @@ export const SettingsModal = () =>
       };
 
       const cleanup = () => {
-        form && form.removeEventListener('submit', submitHandler);
         closeBtn && closeBtn.removeEventListener('click', el.close);
         // cancelBtn removed — nothing to remove
         overlay && overlay.removeEventListener('click', overlayClickHandler);
