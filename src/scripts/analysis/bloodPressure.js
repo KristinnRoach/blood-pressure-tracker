@@ -2,6 +2,13 @@
 import { getThresholdsSync } from '../storage.js';
 
 export function getCategory(sys, dia) {
+  sys = Number(sys);
+  dia = Number(dia);
+  if (!Number.isFinite(sys) || !Number.isFinite(dia)) {
+    console.error('Invalid blood pressure values');
+    return { class: 'unknown', text: 'Unknown' };
+  }
+
   const thresholds = getThresholdsSync();
 
   // Validate thresholds exist

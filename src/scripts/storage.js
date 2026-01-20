@@ -234,15 +234,11 @@ function normalizeThresholds(raw) {
     };
 
     const candidateMin =
-      r.min !== undefined
-        ? toNumber(r.min)
-        : r.low !== undefined
-          ? toNumber(r.low)
-          : null;
+      r.min != null ? toNumber(r.min) : r.low != null ? toNumber(r.low) : null;
     const candidateMax =
-      r.max !== undefined
+      r.max != null
         ? toNumber(r.max)
-        : r.high !== undefined
+        : r.high != null
           ? toNumber(r.high)
           : null;
 
