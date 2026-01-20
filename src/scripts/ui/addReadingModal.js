@@ -80,11 +80,17 @@ export const AddReadingModal = () =>
         try {
           // Read values from the form inside the modal
           const get = (sel) => overlay.querySelector(sel);
-          const sysVal = parseInt(get('#systolic')?.value);
-          const diaVal = parseInt(get('#diastolic')?.value);
-          const pulseVal = parseInt(get('#pulse')?.value);
-          if (!sysVal || !diaVal || !pulseVal) {
-            alert('Please enter systolic, diastolic and pulse values');
+          const sysVal = Number(get('#systolic')?.value);
+          const diaVal = Number(get('#diastolic')?.value);
+          const pulseVal = Number(get('#pulse')?.value);
+          if (
+            !Number.isFinite(sysVal) ||
+            !Number.isFinite(diaVal) ||
+            !Number.isFinite(pulseVal)
+          ) {
+            alert(
+              'Please enter valid numbers for systolic, diastolic and pulse.',
+            );
             return;
           }
 
