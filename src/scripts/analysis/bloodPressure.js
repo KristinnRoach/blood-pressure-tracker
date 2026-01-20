@@ -19,10 +19,22 @@ export function getCategory(sys, dia) {
   }
 
   // Single source of truth: derive all boundaries from configured thresholds
-  const sMin = Number(thresholds.systolic.min);
-  const sMax = Number(thresholds.systolic.max);
-  const dMin = Number(thresholds.diastolic.min);
-  const dMax = Number(thresholds.diastolic.max);
+  let sMin = Number(thresholds.systolic.min);
+  let sMax = Number(thresholds.systolic.max);
+  let dMin = Number(thresholds.diastolic.min);
+  let dMax = Number(thresholds.diastolic.max);
+
+  // Defensive: if values are non-finite or inverted, fall back to sensible defaults
+  if (!Number.isFinite(sMin) || !Number.isFinite(sMax) || sMin >= sMax) {
+    console.warn('Invalid systolic thresholds; falling back to defaults');
+    sMin = 90;
+    sMax = 140;
+  }
+  if (!Number.isFinite(dMin) || !Number.isFinite(dMax) || dMin >= dMax) {
+    console.warn('Invalid diastolic thresholds; falling back to defaults');
+    dMin = 60;
+    dMax = 90;
+  }
 
   // Local small deltas (kept here for now; can be moved to storage later)
   // TODO: Move these deltas (STAGE1_DELTA, ELEVATED_DELTA, CRITICAL_*_DELTA)
@@ -94,6 +106,13 @@ export function getPulseStatus(pulse) {
   const pMin = thresholds.pulse.min;
   const pMax = thresholds.pulse.max;
 
+  // TODO: Review pulse severity messaging.
+  // Current behaviour returns simple 'Low' / 'Normal' / 'High'.
+  // The UI (`modal.js`) currently looks for 'Very Low' / 'Very High' / 'CRITICAL'
+  // keywords to apply more severe styling. Either restore those more
+  // granular strings here (derived from numeric deltas), or update the UI
+  // to derive severity classes directly from numeric values. See issue
+  // to centralize decision and ensure consistent UX.
   if (pulse < pMin) return 'Low';
   if (pulse > pMax) return 'High';
 
