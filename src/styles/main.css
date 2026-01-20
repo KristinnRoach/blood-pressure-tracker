@@ -69,16 +69,6 @@ h1 {
   justify-content: center;
 }
 
-#app-title {
-  font-size: 1.2em;
-  font-weight: 800;
-  color: var(--text-primary);
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .header button,
 .header .user-management,
 .header .settings-btn {
@@ -246,10 +236,6 @@ h1 {
   .header > * {
     font-size: 1.2rem;
     padding: var(--spacing-sm) var(--spacing-md);
-  }
-  #app-title {
-    font-size: 1.4rem;
-    font-weight: 600;
   }
 
   /* Calendar header adjustments */
@@ -1105,9 +1091,5 @@ button:hover {
     max-width: 95vw;
     width: 95vw;
     min-width: 0;
-  }
-
-  #app-title {
-    display: none;
   }
 }
