@@ -1,7 +1,7 @@
 // Blood Pressure Tracker Service Worker
 // Simple cache-first strategy for offline functionality
 
-const CACHE_NAME = 'bp-tracker-v5';
+const CACHE_NAME = 'bp-tracker-__BUILD_TIME__';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -30,8 +30,8 @@ self.addEventListener('install', (event) => {
             cache.add(url).catch((error) => {
               console.warn('Service Worker: Failed to cache', url, error);
               return null;
-            })
-          )
+            }),
+          ),
         );
       })
       .then(() => {
@@ -41,7 +41,7 @@ self.addEventListener('install', (event) => {
       })
       .catch((error) => {
         console.error('Service Worker: Installation failed', error);
-      })
+      }),
   );
 });
 
@@ -59,14 +59,14 @@ self.addEventListener('activate', (event) => {
               console.log('Service Worker: Deleting old cache', cacheName);
               return caches.delete(cacheName);
             }
-          })
+          }),
         );
       })
       .then(() => {
         console.log('Service Worker: Activation complete');
         // Take control of all pages immediately
         return self.clients.claim();
-      })
+      }),
   );
 });
 
@@ -97,7 +97,7 @@ self.addEventListener('fetch', (event) => {
           if (response && response.status === 200) {
             console.log(
               'Service Worker: Fetched fresh HTML from network',
-              event.request.url
+              event.request.url,
             );
             // Cache the fresh HTML
             const responseToCache = response.clone();
@@ -111,13 +111,13 @@ self.addEventListener('fetch', (event) => {
         .catch((error) => {
           console.log(
             'Service Worker: Network failed, serving cached HTML',
-            event.request.url
+            event.request.url,
           );
           // Fallback to cache for offline
           return caches.match(event.request).then((cachedResponse) => {
             return cachedResponse || caches.match('./index.html');
           });
-        })
+        }),
     );
   } else {
     // Cache first for assets (CSS, JS, images)
@@ -126,14 +126,14 @@ self.addEventListener('fetch', (event) => {
         if (cachedResponse) {
           console.log(
             'Service Worker: Serving asset from cache',
-            event.request.url
+            event.request.url,
           );
           return cachedResponse;
         }
 
         console.log(
           'Service Worker: Fetching asset from network',
-          event.request.url
+          event.request.url,
         );
         return fetch(event.request)
           .then((response) => {
@@ -164,7 +164,7 @@ self.addEventListener('fetch', (event) => {
             console.error('Service Worker: Asset fetch failed', error);
             throw error;
           });
-      })
+      }),
     );
   }
 });
@@ -180,7 +180,7 @@ self.addEventListener('message', (event) => {
     console.log('Service Worker: Clearing all caches');
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cacheName) => caches.delete(cacheName))
+        cacheNames.map((cacheName) => caches.delete(cacheName)),
       );
     });
   }
