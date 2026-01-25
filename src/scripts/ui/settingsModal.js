@@ -242,8 +242,11 @@ export const SettingsModal = () =>
       const openHandler = () => {
         el._previouslyFocused = document.activeElement;
         overlay.classList.add('active');
-        const first = overlay.querySelector('input');
-        first && first.focus();
+        // Focus first visible, focusable element (exclude hidden file input)
+        const firstFocusable = overlay.querySelector(
+          'button:not([disabled]), input:not([type="file"]):not([style*="display: none"])',
+        );
+        firstFocusable && firstFocusable.focus();
       };
 
       // Data management handlers

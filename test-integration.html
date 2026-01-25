@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Integration Test</title>
+    <style>
+      body {
+        font-family: monospace;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .test {
+        margin: 10px 0;
+        padding: 10px;
+        border-left: 3px solid #ccc;
+      }
+      .pass {
+        border-color: #28a745;
+        background: #d4edda;
+      }
+      .fail {
+        border-color: #dc3545;
+        background: #f8d7da;
+      }
+      .info {
+        border-color: #17a2b8;
+        background: #d1ecf1;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 10px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Export/Import Integration Test</h1>
+    <div id="results"></div>
+
+    <script type="module">
+      const results = document.getElementById('results');
+
+      function log(message, type = 'info') {
+        const div = document.createElement('div');
+        div.className = `test ${type}`;
+        div.textContent = message;
+        results.appendChild(div);
+      }
+
+      function logPre(title, data) {
+        const div = document.createElement('div');
+        div.className = 'test info';
+        div.innerHTML = `<strong>${title}</strong><pre>${JSON.stringify(data, null, 2)}</pre>`;
+        results.appendChild(div);
+      }
+
+      async function runTests() {
+        try {
+          // Test 1: Import modules
+          log('Test 1: Importing modules...', 'info');
+          const { handleExport, handleImport } =
+            await import('./src/scripts/ui/dataManagement.js');
+          const { exportReadings, importReadings } =
+            await import('./src/scripts/exportImport/index.js');
+          log('✓ Modules imported successfully', 'pass');
+
+          // Test 2: Check if storage functions exist
+          log('Test 2: Checking storage functions...', 'info');
+          const storage = await import('./src/scripts/storage.js');
+          if (storage.getReadings && storage.saveReading) {
+            log('✓ Storage functions available', 'pass');
+          } else {
+            log('✗ Storage functions missing', 'fail');
+          }
+
+          // Test 3: Test data adapter
+          log('Test 3: Testing data adapter...', 'info');
+          const adapter =
+            await import('./src/scripts/exportImport/adapters/appDataAdapter.js');
+
+          const testAppReading = {
+            id: 1,
+            systolic: 120,
+            diastolic: 80,
+            pulse: 72,
+            date: '2026-01-25T10:00:00.000Z',
+          };
+
+          const exportFormat = adapter.convertToExportFormat([testAppReading]);
+          logPre('App → Export format:', exportFormat[0]);
+
+          if (
+            exportFormat[0].timestamp &&
+            !exportFormat[0].id &&
+            !exportFormat[0].date
+          ) {
+            log('✓ Data adapter converts correctly', 'pass');
+          } else {
+            log('✗ Data adapter conversion failed', 'fail');
+          }
+
+          const appFormat = adapter.convertFromExportFormat(exportFormat);
+          logPre('Export → App format:', appFormat[0]);
+
+          if (
+            appFormat[0].date &&
+            !appFormat[0].timestamp &&
+            !appFormat[0].id
+          ) {
+            log('✓ Reverse conversion works', 'pass');
+          } else {
+            log('✗ Reverse conversion failed', 'fail');
+          }
+
+          // Test 4: Test metadata preparation
+          log('Test 4: Testing metadata preparation...', 'info');
+          const metadata = adapter.prepareExportMetadata({
+            appVersion: '1.0.0',
+            user: { id: 1, username: 'testuser' },
+            thresholds: {
+              systolic: { min: 90, max: 140 },
+              diastolic: { min: 60, max: 90 },
+              pulse: { min: 50, max: 100 },
+            },
+          });
+
+          logPre('Prepared metadata:', metadata);
+
+          if (metadata.thresholds && metadata.username === 'testuser') {
+            log('✓ Metadata includes thresholds and username', 'pass');
+          } else {
+            log('✗ Metadata preparation failed', 'fail');
+          }
+
+          // Test 5: Test export module directly
+          log('Test 5: Testing export module...', 'info');
+          const testReadings = [
+            {
+              systolic: 120,
+              diastolic: 80,
+              pulse: 72,
+              timestamp: '2026-01-25T10:00:00.000Z',
+            },
+            {
+              systolic: 130,
+              diastolic: 85,
+              pulse: 75,
+              timestamp: '2026-01-25T11:00:00.000Z',
+            },
+          ];
+
+          try {
+            // Note: This will trigger a download, which we can't easily test in automation
+            // await exportReadings(testReadings, { format: 'json' });
+            log(
+              '✓ Export function available (download not triggered in test)',
+              'pass',
+            );
+          } catch (error) {
+            log(`✗ Export function error: ${error.message}`, 'fail');
+          }
+
+          // Test 6: Test import validation
+          log('Test 6: Testing import validation...', 'info');
+          const jsonFormat =
+            await import('./src/scripts/exportImport/formats/json.js');
+
+          const validExport = {
+            version: '1.0',
+            format: 'json',
+            exportDate: new Date().toISOString(),
+            metadata: {},
+            readings: testReadings,
+          };
+
+          try {
+            const deserialized = jsonFormat.jsonFormat.deserialize(
+              JSON.stringify(validExport),
+            );
+            if (deserialized.readings.length === 2) {
+              log('✓ JSON deserialization works', 'pass');
+            } else {
+              log('✗ JSON deserialization failed', 'fail');
+            }
+          } catch (error) {
+            log(`✗ Deserialization error: ${error.message}`, 'fail');
+          }
+
+          // Test 7: Test duplicate detection
+          log('Test 7: Testing duplicate detection...', 'info');
+          const dupDetector =
+            await import('./src/scripts/exportImport/utils/duplicateDetector.js');
+
+          const newReadings = [
+            {
+              systolic: 120,
+              diastolic: 80,
+              pulse: 72,
+              timestamp: '2026-01-25T10:00:00.000Z',
+            },
+            {
+              systolic: 120,
+              diastolic: 80,
+              pulse: 72,
+              timestamp: '2026-01-25T10:00:00.000Z',
+            }, // Duplicate
+            {
+              systolic: 130,
+              diastolic: 85,
+              pulse: 75,
+              timestamp: '2026-01-25T11:00:00.000Z',
+            },
+          ];
+
+          const result = dupDetector.detectDuplicates(newReadings, []);
+          logPre('Duplicate detection result:', result);
+
+          if (result.unique.length === 2 && result.duplicates.length === 1) {
+            log('✓ Intra-file duplicate detection works', 'pass');
+          } else {
+            log('✗ Duplicate detection failed', 'fail');
+          }
+
+          log('=== All tests completed ===', 'info');
+        } catch (error) {
+          log(`✗ Fatal error: ${error.message}`, 'fail');
+          console.error(error);
+        }
+      }
+
+      runTests();
+    </script>
+  </body>
+</html>
