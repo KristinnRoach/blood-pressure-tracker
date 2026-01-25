@@ -29,12 +29,14 @@ export function generateFilename(prefix, extension) {
  * @throws {Error} If download fails
  */
 export function downloadFile(content, filename, mimeType) {
+  let url = null;
+
   try {
     // Create a Blob from the content
     const blob = new Blob([content], { type: mimeType });
 
     // Create an object URL for the Blob
-    const url = URL.createObjectURL(blob);
+    url = URL.createObjectURL(blob);
 
     // Create a temporary anchor element and trigger download
     const anchor = document.createElement('a');
@@ -46,13 +48,16 @@ export function downloadFile(content, filename, mimeType) {
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
-
+  } catch (error) {
+    const message = (error && error.message) || String(error);
+    throw new Error(`Failed to download file: ${message}`);
+  } finally {
     // Clean up the object URL after a short delay
     // (immediate cleanup can prevent download in some browsers)
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 100);
-  } catch (error) {
-    throw new Error(`Failed to download file: ${error.message}`);
+    if (url) {
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 100);
+    }
   }
 }

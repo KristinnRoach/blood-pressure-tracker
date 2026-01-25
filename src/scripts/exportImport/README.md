@@ -272,7 +272,7 @@ Tests include:
 
 ## Module Structure
 
-```
+```text
 exportImport/
 ├── index.js              # Main API
 ├── formats/

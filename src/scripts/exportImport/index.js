@@ -111,6 +111,10 @@ export async function importReadings(file, options = {}) {
     // Get format handler
     const handler = getFormat(format);
 
+    if (!handler) {
+      throw new Error(`Unknown format: ${format}`);
+    }
+
     // Read file content
     const content = await readFileContent(file);
 
@@ -135,7 +139,8 @@ export async function importReadings(file, options = {}) {
 
     // Detect duplicates if enabled
     let finalReadings = validReadings;
-    if (skipDuplicates && existingReadings.length > 0) {
+    if (skipDuplicates) {
+      // Always run duplicate detection to catch intra-file duplicates
       const { unique, duplicates } = detectDuplicates(
         validReadings,
         existingReadings,
