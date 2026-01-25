@@ -262,13 +262,19 @@ export const SettingsModal = () =>
           const result = await handleExport();
 
           if (result.success) {
-            showFeedback(result.message, 'success');
+            // Show success in button, no blocking alert
+            exportBtn.textContent = '✓ Exported!';
+            setTimeout(() => {
+              exportBtn.textContent = '📤 Export Data';
+              exportBtn.disabled = false;
+            }, 2000);
           } else {
             showFeedback(result.message, 'error');
+            exportBtn.disabled = false;
+            exportBtn.textContent = '📤 Export Data';
           }
         } catch (error) {
           showFeedback(`Export failed: ${error.message}`, 'error');
-        } finally {
           exportBtn.disabled = false;
           exportBtn.textContent = '📤 Export Data';
         }
