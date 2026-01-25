@@ -985,11 +985,11 @@ button:hover {
   border: 2px solid var(--border-light);
   border-radius: var(--radius-sm);
 
-  width: clamp(20px, 6dvw, 80px);
+  width: 100%;
   aspect-ratio: 1 / 1;
 
   padding: var(--spacing-xs);
-  margin: 0;
+  margin: 0 auto;
 
   cursor: pointer;
 }
