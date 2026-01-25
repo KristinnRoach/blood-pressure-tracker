@@ -16,7 +16,11 @@ export function validateReading(reading) {
   const errors = [];
 
   // Check if reading is an object
-  if (typeof reading !== 'object' || reading === null) {
+  if (
+    typeof reading !== 'object' ||
+    reading === null ||
+    Array.isArray(reading)
+  ) {
     return { valid: false, errors: ['Reading must be an object'] };
   }
 

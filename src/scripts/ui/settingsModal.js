@@ -1,5 +1,6 @@
 import createComponent from '../helpers/dom/component.js';
 import { getThresholds, setThresholds } from '../storage.js';
+import { handleExport, handleImport, showFeedback } from './dataManagement.js';
 
 const template = `
   <div class="modal-overlay" id="settings-modal">
@@ -32,6 +33,21 @@ const template = `
               <two-thumb-slider id="pulse-slider" min="30" max="200" step="1" minimum-gap="1"></two-thumb-slider>
             </div>
 
+          </section>
+
+          <section class="settings-section">
+            <h3>Data Management</h3>
+            <p class="section-description">Export your data for backup or import previously exported data.</p>
+            
+            <div class="data-management-buttons">
+              <button type="button" id="export-data-btn" class="secondary-btn">
+                📤 Export Data
+              </button>
+              <button type="button" id="import-data-btn" class="secondary-btn">
+                📥 Import Data
+              </button>
+              <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            </div>
           </section>
 
           <!-- Auto-save on slider change; buttons removed -->
@@ -226,9 +242,75 @@ export const SettingsModal = () =>
       const openHandler = () => {
         el._previouslyFocused = document.activeElement;
         overlay.classList.add('active');
-        const first = overlay.querySelector('input');
-        first && first.focus();
+        // Focus first visible, focusable element (exclude hidden file input)
+        const firstFocusable = overlay.querySelector(
+          'button:not([disabled]), input:not([type="file"]):not([style*="display: none"])',
+        );
+        firstFocusable && firstFocusable.focus();
       };
+
+      // Data management handlers
+      const exportBtn = overlay.querySelector('#export-data-btn');
+      const importBtn = overlay.querySelector('#import-data-btn');
+      const fileInput = overlay.querySelector('#import-file-input');
+
+      const handleExportClick = async () => {
+        try {
+          exportBtn.disabled = true;
+          exportBtn.textContent = '⏳ Exporting...';
+
+          const result = await handleExport();
+
+          if (result.success) {
+            showFeedback(result.message, 'success');
+          } else {
+            showFeedback(result.message, 'error');
+          }
+        } catch (error) {
+          showFeedback(`Export failed: ${error.message}`, 'error');
+        } finally {
+          exportBtn.disabled = false;
+          exportBtn.textContent = '📤 Export Data';
+        }
+      };
+
+      const handleImportClick = () => {
+        // Trigger file input click
+        fileInput.click();
+      };
+
+      const handleFileSelect = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+          importBtn.disabled = true;
+          importBtn.textContent = '⏳ Importing...';
+
+          const result = await handleImport(file);
+
+          if (result.success) {
+            showFeedback(result.message, 'success');
+
+            // Refresh the UI by dispatching a custom event
+            document.dispatchEvent(new CustomEvent('readings-updated'));
+          } else {
+            showFeedback(result.message, 'error');
+          }
+        } catch (error) {
+          showFeedback(`Import failed: ${error.message}`, 'error');
+        } finally {
+          importBtn.disabled = false;
+          importBtn.textContent = '📥 Import Data';
+          // Reset file input
+          fileInput.value = '';
+        }
+      };
+
+      // Attach data management event listeners
+      exportBtn && exportBtn.addEventListener('click', handleExportClick);
+      importBtn && importBtn.addEventListener('click', handleImportClick);
+      fileInput && fileInput.addEventListener('change', handleFileSelect);
 
       const overlayClickHandler = (e) => {
         if (e.target === overlay) el.close();
@@ -247,6 +329,15 @@ export const SettingsModal = () =>
         // cancelBtn removed — nothing to remove
         overlay && overlay.removeEventListener('click', overlayClickHandler);
         document.removeEventListener('keydown', keyHandler);
+
+        // Remove data management listeners
+        const exportBtn = overlay.querySelector('#export-data-btn');
+        const importBtn = overlay.querySelector('#import-data-btn');
+        const fileInput = overlay.querySelector('#import-file-input');
+        exportBtn && exportBtn.removeEventListener('click', handleExportClick);
+        importBtn && importBtn.removeEventListener('click', handleImportClick);
+        fileInput && fileInput.removeEventListener('change', handleFileSelect);
+
         // remove slider listeners if any
         if (el._sliderListeners && Array.isArray(el._sliderListeners)) {
           el._sliderListeners.forEach(({ node, handler }) => {

@@ -78,6 +78,7 @@ import { detectDuplicates } from './utils/duplicateDetector.js';
  * @property {number} failed - Number of invalid readings
  * @property {string[]} errors - Array of error messages
  * @property {Array} readings - Valid, non-duplicate readings ready to save
+ * @property {Object} metadata - Metadata from import file (thresholds, username, etc.)
  *
  * @example
  * const result = await importReadings(file, {
@@ -96,6 +97,7 @@ export async function importReadings(file, options = {}) {
     failed: 0,
     errors: [],
     readings: [],
+    metadata: {}, // Add metadata to result
   };
 
   try {
@@ -110,6 +112,10 @@ export async function importReadings(file, options = {}) {
 
     // Get format handler
     const handler = getFormat(format);
+
+    if (!handler) {
+      throw new Error(`Unknown format: ${format}`);
+    }
 
     // Read file content
     const content = await readFileContent(file);
@@ -135,7 +141,8 @@ export async function importReadings(file, options = {}) {
 
     // Detect duplicates if enabled
     let finalReadings = validReadings;
-    if (skipDuplicates && existingReadings.length > 0) {
+    if (skipDuplicates) {
+      // Always run duplicate detection to catch intra-file duplicates
       const { unique, duplicates } = detectDuplicates(
         validReadings,
         existingReadings,
@@ -146,6 +153,7 @@ export async function importReadings(file, options = {}) {
 
     result.imported = finalReadings.length;
     result.readings = finalReadings;
+    result.metadata = metadata || {}; // Include metadata in result
     result.success = true;
 
     return result;
