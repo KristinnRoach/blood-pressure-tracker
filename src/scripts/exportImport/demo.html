@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Export/Import Module Demo</title>
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+
+      h1 {
+        color: #333;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+      }
+
+      .section {
+        margin: 30px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin: 5px;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      input[type='file'] {
+        margin: 10px 0;
+      }
+
+      .output {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 15px;
+        font-family: monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .success {
+        color: #28a745;
+        font-weight: bold;
+      }
+
+      .error {
+        color: #dc3545;
+        font-weight: bold;
+      }
+
+      .info {
+        color: #17a2b8;
+      }
+
+      .sample-data {
+        background: white;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>📊 Export/Import Module Demo</h1>
+
+    <p>
+      This demo shows the export/import module working in isolation, without any
+      app dependencies.
+    </p>
+
+    <!-- Sample Data Section -->
+    <div class="section">
+      <h2>1. Sample Data</h2>
+      <p>Current readings in memory:</p>
+      <div class="sample-data">
+        <div id="readingsCount">0 readings</div>
+      </div>
+      <button onclick="generateSampleData()">Generate Sample Readings</button>
+      <button onclick="clearReadings()">Clear Readings</button>
+    </div>
+
+    <!-- Export Section -->
+    <div class="section">
+      <h2>2. Export Readings</h2>
+      <p>Export the current readings to a JSON file:</p>
+      <button onclick="exportData()" id="exportBtn" disabled>
+        Export to JSON
+      </button>
+      <div class="output" id="exportOutput"></div>
+    </div>
+
+    <!-- Import Section -->
+    <div class="section">
+      <h2>3. Import Readings</h2>
+      <p>Import readings from a previously exported JSON file:</p>
+      <input
+        type="file"
+        id="fileInput"
+        accept=".json"
+        onchange="importData(event)"
+      />
+      <div class="output" id="importOutput"></div>
+    </div>
+
+    <!-- Error Handling Demo -->
+    <div class="section">
+      <h2>4. Error Handling Demo</h2>
+      <p>Test error handling with invalid data:</p>
+      <button onclick="testInvalidJSON()">Test Invalid JSON</button>
+      <button onclick="testInvalidReadings()">Test Invalid Readings</button>
+      <button onclick="testDuplicates()">Test Duplicate Detection</button>
+      <div class="output" id="errorOutput"></div>
+    </div>
+
+    <script type="module">
+      import {
+        exportReadings,
+        importReadings,
+        getSupportedFormats,
+      } from './index.js';
+
+      // Store readings in memory for demo
+      let currentReadings = [];
+
+      // Make functions available globally
+      window.exportReadings = exportReadings;
+      window.importReadings = importReadings;
+      window.currentReadings = currentReadings;
+
+      // Generate sample data
+      window.generateSampleData = function () {
+        const count = 10;
+        currentReadings = [];
+
+        for (let i = 0; i < count; i++) {
+          const date = new Date();
+          date.setHours(date.getHours() - i);
+
+          currentReadings.push({
+            systolic: 110 + Math.floor(Math.random() * 30),
+            diastolic: 70 + Math.floor(Math.random() * 20),
+            pulse: 60 + Math.floor(Math.random() * 30),
+            timestamp: date.toISOString(),
+          });
+        }
+
+        updateReadingsCount();
+        document.getElementById('exportBtn').disabled = false;
+        log('exportOutput', `✓ Generated ${count} sample readings`, 'success');
+      };
+
+      // Clear readings
+      window.clearReadings = function () {
+        currentReadings = [];
+        updateReadingsCount();
+        document.getElementById('exportBtn').disabled = true;
+        log('exportOutput', 'Readings cleared', 'info');
+      };
+
+      // Export data
+      window.exportData = async function () {
+        try {
+          await exportReadings(currentReadings, {
+            format: 'json',
+            metadata: {
+              appVersion: '1.0.0-demo',
+              source: 'demo-page',
+            },
+          });
+          log(
+            'exportOutput',
+            '✓ Export successful! Check your downloads folder.',
+            'success',
+          );
+        } catch (error) {
+          log('exportOutput', `✗ Export failed: ${error.message}`, 'error');
+        }
+      };
+
+      // Import data
+      window.importData = async function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+          const result = await importReadings(file, {
+            format: 'json',
+            skipDuplicates: true,
+            existingReadings: currentReadings,
+          });
+
+          if (result.success) {
+            // Add imported readings to current readings
+            currentReadings.push(...result.readings);
+            updateReadingsCount();
+
+            const summary = [
+              `✓ Import successful!`,
+              `Total in file: ${result.totalReadings}`,
+              `Imported: ${result.imported}`,
+              `Skipped (duplicates): ${result.skipped}`,
+              `Failed (invalid): ${result.failed}`,
+            ];
+
+            if (result.errors.length > 0) {
+              summary.push(`\nErrors:\n${result.errors.join('\n')}`);
+            }
+
+            log('importOutput', summary.join('\n'), 'success');
+          } else {
+            log(
+              'importOutput',
+              `✗ Import failed:\n${result.errors.join('\n')}`,
+              'error',
+            );
+          }
+        } catch (error) {
+          log('importOutput', `✗ Import failed: ${error.message}`, 'error');
+        }
+
+        // Reset file input
+        event.target.value = '';
+      };
+
+      // Test invalid JSON
+      window.testInvalidJSON = async function () {
+        const invalidFile = new File(['{ invalid json }'], 'invalid.json', {
+          type: 'application/json',
+        });
+
+        try {
+          const result = await importReadings(invalidFile);
+          log(
+            'errorOutput',
+            `Result: ${JSON.stringify(result, null, 2)}`,
+            'info',
+          );
+        } catch (error) {
+          log(
+            'errorOutput',
+            `✓ Correctly caught error: ${error.message}`,
+            'success',
+          );
+        }
+      };
+
+      // Test invalid readings
+      window.testInvalidReadings = async function () {
+        const invalidData = {
+          version: '1.0',
+          format: 'json',
+          exportDate: new Date().toISOString(),
+          metadata: {},
+          readings: [
+            {
+              systolic: 120,
+              diastolic: 80,
+              pulse: 72,
+              timestamp: '2026-01-25T10:00:00.000Z',
+            },
+            {
+              systolic: 'invalid',
+              diastolic: 80,
+              pulse: 72,
+              timestamp: '2026-01-25T11:00:00.000Z',
+            },
+            {
+              systolic: 500,
+              diastolic: 80,
+              pulse: 72,
+              timestamp: '2026-01-25T12:00:00.000Z',
+            },
+          ],
+        };
+
+        const file = new File(
+          [JSON.stringify(invalidData)],
+          'invalid-readings.json',
+          { type: 'application/json' },
+        );
+
+        const result = await importReadings(file);
+        log(
+          'errorOutput',
+          `✓ Validation working:\nImported: ${result.imported}\nFailed: ${result.failed}\nErrors:\n${result.errors.join('\n')}`,
+          'success',
+        );
+      };
+
+      // Test duplicate detection
+      window.testDuplicates = async function () {
+        if (currentReadings.length === 0) {
+          log('errorOutput', '✗ Generate sample data first!', 'error');
+          return;
+        }
+
+        // Create a file with duplicate readings
+        const duplicateData = {
+          version: '1.0',
+          format: 'json',
+          exportDate: new Date().toISOString(),
+          metadata: {},
+          readings: [...currentReadings, ...currentReadings], // Duplicate all readings
+        };
+
+        const file = new File(
+          [JSON.stringify(duplicateData)],
+          'duplicates.json',
+          { type: 'application/json' },
+        );
+
+        const result = await importReadings(file, {
+          skipDuplicates: true,
+          existingReadings: currentReadings,
+        });
+
+        log(
+          'errorOutput',
+          `✓ Duplicate detection working:\nTotal in file: ${result.totalReadings}\nImported: ${result.imported}\nSkipped: ${result.skipped}`,
+          'success',
+        );
+      };
+
+      // Helper functions
+      function updateReadingsCount() {
+        document.getElementById('readingsCount').textContent =
+          `${currentReadings.length} readings`;
+      }
+
+      function log(elementId, message, type = 'info') {
+        const output = document.getElementById(elementId);
+        output.textContent = message;
+        output.className = `output ${type}`;
+      }
+
+      // Initialize
+      updateReadingsCount();
+      log(
+        'exportOutput',
+        'Ready to export. Generate sample data first.',
+        'info',
+      );
+      log('importOutput', 'Ready to import. Select a JSON file.', 'info');
+      log('errorOutput', 'Click buttons above to test error handling.', 'info');
+
+      // Show supported formats
+      console.log('Supported formats:', getSupportedFormats());
+    </script>
+  </body>
+</html>
