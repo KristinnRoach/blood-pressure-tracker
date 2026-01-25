@@ -41,7 +41,7 @@ h1 {
 .section,
 .top-bar {
   margin: 0 auto var(--spacing-2xl) auto;
-  width: 60dvw;
+  width: 95%;
   max-width: 680px;
 }
 
@@ -59,7 +59,7 @@ h1 {
   padding: var(--spacing-xl) 0 0 0;
   gap: var(--spacing-lg);
 
-  width: 60dvw;
+  width: 95%;
   max-width: 680px;
 }
 
@@ -142,7 +142,7 @@ h1 {
 
 #add-reading-section {
   margin: 0 auto var(--spacing-2xl) auto;
-  width: 60dvw;
+  width: 95%;
   max-width: 680px;
 }
 
@@ -1113,13 +1113,10 @@ button:hover {
   margin-top: var(--spacing-md);
 }
 
-@media (max-width: 600px) {
-  .content-wrapper,
+@media (min-width: 600px) {
   .section,
-  #add-reading-section,
-  .top-bar {
-    max-width: 95vw !important;
-    width: 95vw !important;
-    min-width: 0;
+  .top-bar,
+  #add-reading-section {
+    width: 90%;
   }
 }
