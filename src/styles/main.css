@@ -979,7 +979,7 @@ button:hover {
 
   background-color: var(--bg-primary);
   color: var(--text-secondary);
-  font-size: 1.25rem;
+  font-size: clamp(0.875rem, 2.5vw, 1.25rem);
   font-weight: 500;
 
   border: 2px solid var(--border-light);
@@ -1042,9 +1042,6 @@ button:hover {
   .calendar-grid {
     gap: 4px;
   }
-  .calendar-day {
-    font-size: 10px;
-  }
   .calendar-day-header {
     font-size: 10px;
     padding: var(--spacing-xs);
@@ -1067,7 +1064,7 @@ button:hover {
   background-color: rgba(0, 0, 0, 0.6);
   color: #dee;
 
-  font-size: 10px;
+  font-size: 0.52em;
   padding: 2px 4px;
   border-radius: var(--radius-sm);
   font-weight: bold;
