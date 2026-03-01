@@ -21,7 +21,7 @@ Chart.register(
   LineController,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 let combinedChart = null;
@@ -184,7 +184,7 @@ export function updateCharts(readings) {
   readings.forEach((reading) => {
     const date = new Date(reading.date);
     const dateKey = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
+      date.getMonth() + 1,
     ).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
     if (!readingsByDate.has(dateKey)) {
