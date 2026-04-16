@@ -40,14 +40,11 @@ h1 {
 
 .section,
 .top-bar {
-  margin: 0 auto var(--spacing-xl) auto;
+  margin: 0 auto;
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
   width: clamp(90%, 95%, 100%);
   max-width: 680px;
-}
-
-.section,
-.top-bar {
-  padding: var(--spacing-md) var(--spacing-lg);
 }
 
 .top-bar {
@@ -141,7 +138,8 @@ h1 {
 }
 
 #add-reading-section {
-  margin: 0 auto var(--spacing-2xl) auto;
+  margin: 0 auto;
+  margin-bottom: var(--spacing-xl);
   width: 95%;
   max-width: 680px;
 }
