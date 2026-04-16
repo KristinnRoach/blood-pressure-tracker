@@ -31,6 +31,11 @@ export function initializeCharts() {
   // Create chart containers if they don't exist
   createChartContainer();
 
+  const chartTextColor =
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--text-secondary')
+      .trim() || '#666';
+
   // Initialize combined chart
   const chartCtx = document.getElementById('chart-canvas').getContext('2d');
   combinedChart = new Chart(chartCtx, {
@@ -97,12 +102,18 @@ export function initializeCharts() {
           type: 'linear',
           display: true,
           position: 'right',
+          ticks: {
+            color: chartTextColor,
+          },
           title: {
             display: false,
           },
         },
         x: {
           display: true,
+          ticks: {
+            color: chartTextColor,
+          },
           title: {
             display: false,
           },

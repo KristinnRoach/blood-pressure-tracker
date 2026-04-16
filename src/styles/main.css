@@ -40,8 +40,8 @@ h1 {
 
 .section,
 .top-bar {
-  margin: 0 auto var(--spacing-2xl) auto;
-  width: 95%;
+  margin: 0 auto var(--spacing-xl) auto;
+  width: clamp(90%, 95%, 100%);
   max-width: 680px;
 }
 
@@ -465,34 +465,18 @@ button:hover {
 
 /* Chart styles */
 
-.chart-container {
-  position: relative;
-
-  min-height: 300px;
-  height: 40dvh;
-  max-height: 400px;
+.chart-container,
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  height: clamp(250px, 30vh, 500px);
   width: 100%;
-
-  margin-bottom: var(--spacing-xl);
-  padding: var(--spacing-md);
-
-  border: none;
-  border-radius: var(--radius-xl);
-  border: 2px solid var(--border-color);
-
-  /* background-color: var(--bg-primary); */
-  background-color: red;
-  border: 2px solid red;
-
-  color: var(--text-primary);
 }
 
 .chart-canvas-wrapper {
-  position: relative;
-  min-height: 300px;
-  height: 40dvh;
-  max-height: 400px;
-  margin-top: var(--spacing-md);
+  width: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 #chart-canvas {
@@ -501,26 +485,27 @@ button:hover {
 
 .chart-filters {
   display: flex;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
-  flex-wrap: wrap;
+  justify-content: space-evenly;
+  gap: 1rem;
 }
 
 .filter-label {
+  display: inline-flex;
   cursor: pointer;
-  font-size: 14px;
+  font-size: clamp(0.75rem, 1rem, 1.5rem);
+  font-weight: 400;
   color: var(--filter-text);
   background: var(--filter-bg);
-  padding: 6px 12px;
+  padding: var(--spacing-xs) var(--spacing-sm);
   border: 2px solid var(--filter-border);
   border-radius: var(--radius-lg);
+  -webkit-user-select: none;
   user-select: none;
   transition: all 0.2s ease;
 }
 
 .filter-label.active {
   background: var(--filter-bg-active);
-  font-weight: 500;
 }
 
 .filter-label:hover {
@@ -533,18 +518,6 @@ button:hover {
   padding: 40px var(--spacing-xl);
   color: var(--text-muted);
   font-style: italic;
-}
-
-@media (max-width: 768px) {
-  .chart-container {
-    min-height: 300px;
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .chart-filters {
-    justify-content: center;
-    gap: var(--spacing-lg);
-  }
 }
 
 /* PWA-specific styles */
@@ -953,10 +926,6 @@ button:hover {
 }
 
 /* calendar-grid styles (calendar-header is above) */
-
-#calendar-container {
-  padding: 0.25rem;
-}
 
 .calendar-grid {
   display: grid;

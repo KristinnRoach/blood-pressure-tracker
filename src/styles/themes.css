@@ -1,60 +1,60 @@
 :root {
-  /* Core colors - Light theme */
-  --bg-primary: #f8f4de;
-  --bg-secondary: rgba(109, 134, 143, 0.879);
-  --text-primary: #000000;
-  --text-secondary: #000;
-  --border-color: rgba(38, 45, 52, 0.923);
-  --accent-color: #428fe1;
-  --accent-hover: #0056b3;
-  --accent-active: #004085;
+  /* Core colors - Dark theme */
+  --bg-primary: #2a2d31;
+  --bg-secondary: #1a1d21;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --border-color: #4a4d51;
+  --accent-color: rgb(47, 97, 166, 0.75);
+  --accent-hover: rgb(37, 87, 156, 0.75);
+  --accent-active: rgb(27, 77, 146, 0.75);
 
   /* Input colors */
-  --input-bg: #fbf9ed;
-  --input-border: #000000;
+  --input-bg: #3a3d41;
+  --input-border: #5a5d61;
 
-  /* Category colors (shared across themes) */
-  --color-normal: #28a745;
-  --color-elevated: #ffc107;
-  --color-high1: #fd7e14;
-  --color-high2: #dc3545;
-  --color-critical: #6f42c1;
-  --color-low: #17a2b8;
+  /* Category colors */
+  --color-normal: #1e7e34;
+  --color-elevated: #b38f0a;
+  --color-high1: #b35c0f;
+  --color-high2: #a12a2a;
+  --color-critical: #4b2c6f;
+  --color-low: #117a8b;
 
-  /* Category background colors for status */
-  --bg-normal: #d4edda;
-  --bg-elevated: #fff3cd;
-  --bg-high1: #f8d7da;
-  --bg-high2: #f5c2c7;
-  --bg-critical: #842029;
-  --bg-low: #d1ecf1;
+  /* Category background colors */
+  --bg-normal: #1a3a1f;
+  --bg-elevated: #3a3520;
+  --bg-high1: #3a1f1f;
+  --bg-high2: #3a1a1f;
+  --bg-critical: #4a1a1f;
+  --bg-low: #1a2f3a;
 
-  /* Category text colors for status */
-  --text-normal: #155724;
-  --text-elevated: #856404;
-  --text-high1: #721c24;
-  --text-high2: #842029;
-  --text-critical: white;
-  --text-low: #0c5460;
+  /* Category text colors */
+  --text-normal: #5fd175;
+  --text-elevated: #ffd54f;
+  --text-high1: #ff8a80;
+  --text-high2: #ff6b6b;
+  --text-critical: #ffcdd2;
+  --text-low: #4dd0e1;
 
   /* Filter colors */
-  --filter-bg: #bec3c9;
-  --filter-bg-active: var(--accent-color);
-  --filter-bg-hover: #6badf379;
-  --filter-border: rgba(45, 49, 53, 0.923);
-  --filter-text: #000000;
-  --filter-text-hover: whitesmoke;
+  --filter-bg: rgba(54, 59, 66, 0.96);
+  --filter-bg-active: rgba(46, 85, 132, 0.5);
+  --filter-bg-hover: rgba(93, 127, 168, 0.5);
+  --filter-border: rgba(108, 114, 122, 0.82);
+  --filter-text: rgba(231, 233, 235, 0.96);
+  --filter-text-hover: rgba(244, 247, 251, 0.98);
 
   /* Other colors */
-  --add-bg: #2ba247;
-  --add-hover: #3b974f;
-  --delete-bg: #c22b3ae9;
-  --delete-hover: #9f303c;
-  --delete-text: #ffffff;
+  --add-bg: #217a36;
+  --add-hover: #276c3c;
+  --delete-bg: #c82333;
+  --delete-hover: #a71d2a;
+  --delete-text: #ececec;
 
-  --border-light: #eee;
-  --border-scale: #ddd;
-  --text-muted: #666;
+  --border-light: #3a3d41;
+  --border-scale: #4a4d51;
+  --text-muted: #888;
   --offline-bg: #ffc107;
   --offline-text: #000;
 
@@ -74,133 +74,116 @@
 
   /* Accent text shadow */
   --text-shadow-subtle: 0 1px 2px rgba(3, 3, 3, 0.533), 0 1px 0 #12121293;
-  --text-shadow-accent: 0 1px 3px rgba(181, 181, 181, 0.209), 0 1px 0 #bdbdbd7d;
+  --text-shadow-accent: 0 2px 6px rgba(0, 0, 0, 0.7), 0 1px 0 #222;
 }
 
-/* Dark theme - NOTE: Currently need to manually duplicate all vars for dark mode! (See below) */
+/* Light theme when preferred by system and not manually overridden */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --bg-primary: #f8f4de;
+    --bg-secondary: rgba(109, 134, 143, 0.879);
+    --text-primary: #000000;
+    --text-secondary: #000;
+    --border-color: rgba(38, 45, 52, 0.923);
+    --accent-color: #428fe1;
+    --accent-hover: #0056b3;
+    --accent-active: #004085;
 
-/* applies when system prefers dark OR when manually set */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --bg-primary: #2a2d31;
-    --bg-secondary: #1a1d21;
-    --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0;
-    --border-color: #4a4d51;
+    --input-bg: #fbf9ed;
+    --input-border: #000000;
 
-    /* --accent-color: #6badf3;
-    --accent-hover: #5a9de3;
-    --accent-active: #4a8dd3; */
+    --color-normal: #28a745;
+    --color-elevated: #ffc107;
+    --color-high1: #fd7e14;
+    --color-high2: #dc3545;
+    --color-critical: #6f42c1;
+    --color-low: #17a2b8;
 
-    --accent-color: rgb(47, 97, 166);
-    --accent-hover: rgb(37, 87, 156);
-    --accent-active: rgb(27, 77, 146);
+    --bg-normal: #d4edda;
+    --bg-elevated: #fff3cd;
+    --bg-high1: #f8d7da;
+    --bg-high2: #f5c2c7;
+    --bg-critical: #842029;
+    --bg-low: #d1ecf1;
 
-    --input-bg: #3a3d41;
-    --input-border: #5a5d61;
+    --text-normal: #155724;
+    --text-elevated: #856404;
+    --text-high1: #721c24;
+    --text-high2: #842029;
+    --text-critical: white;
+    --text-low: #0c5460;
 
-    /* Category background colors adjusted for dark theme */
-    --bg-normal: #1a3a1f;
-    --bg-elevated: #3a3520;
-    --bg-high1: #3a1f1f;
-    --bg-high2: #3a1a1f;
-    --bg-critical: #4a1a1f;
-    --bg-low: #1a2f3a;
+    --filter-bg: rgba(221, 227, 234, 0.95);
+    --filter-bg-active: rgba(107, 152, 211, 0.88);
+    --filter-bg-hover: rgba(155, 181, 209, 0.48);
+    --filter-border: rgba(45, 49, 53, 0.58);
+    --filter-text: rgba(29, 39, 48, 0.96);
+    --filter-text-hover: rgba(245, 247, 250, 0.98);
 
-    /* Category text colors adjusted for dark theme */
-    --text-normal: #5fd175;
-    --text-elevated: #ffd54f;
-    --text-high1: #ff8a80;
-    --text-high2: #ff6b6b;
-    --text-critical: #ffcdd2;
-    --text-low: #4dd0e1;
+    --add-bg: #2ba247;
+    --add-hover: #3b974f;
+    --delete-bg: #c22b3ae9;
+    --delete-hover: #9f303c;
+    --delete-text: #ffffff;
 
-    --filter-bg: #3a3d41;
-    --filter-bg-active: var(--accent-color);
-    --filter-bg-hover: #4a8dd3;
-    --filter-border: #5a5d61;
-    --filter-text: #e0e0e0;
-    --filter-text-hover: #ffffff;
-
-    --delete-bg: #c82333;
-    --delete-hover: #a71d2a;
-    --delete-text: #ececec;
-
-    --border-light: #3a3d41;
-    --border-scale: #4a4d51;
-    --text-muted: #888;
-    --offline-bg: #ffc107;
-    --offline-text: #000;
-    --add-bg: #217a36;
-    --add-hover: #276c3c;
-    --color-normal: #1e7e34;
-    --color-elevated: #b38f0a;
-    --color-high1: #b35c0f;
-    --color-high2: #a12a2a;
-    --color-critical: #4b2c6f;
-    --color-low: #117a8b;
-    /* Accent text shadow for dark theme */
-    --text-shadow-accent: 0 2px 6px rgba(0, 0, 0, 0.7), 0 1px 0 #222;
+    --border-light: #eee;
+    --border-scale: #ddd;
+    --text-muted: #666;
+    --text-shadow-accent:
+      0 1px 3px rgba(181, 181, 181, 0.209), 0 1px 0 #bdbdbd7d;
   }
 }
 
-/* Duplicated below, keep these in sync until a better solution is found! */
-/* 
-/* Manual dark theme override - uses same variables as auto dark mode */
-:root[data-theme='dark'] {
-  --bg-primary: #2a2d31;
-  --bg-secondary: #1a1d21;
-  --text-primary: #e0e0e0;
-  --text-secondary: #b0b0b0;
-  --border-color: #4a4d51;
+/* Manual light override - same values as auto light mode */
+:root[data-theme='light'] {
+  --bg-primary: #f8f4de;
+  --bg-secondary: rgba(109, 134, 143, 0.879);
+  --text-primary: #000000;
+  --text-secondary: #000;
+  --border-color: rgba(38, 45, 52, 0.923);
+  --accent-color: #428fe1;
+  --accent-hover: #0056b3;
+  --accent-active: #004085;
 
-  /* --accent-color: #4a8dd3;
-  --accent-hover: #398dd3;
-  --accent-active: #298dd3; */
+  --input-bg: #fbf9ed;
+  --input-border: #000000;
 
-  --accent-color: rgb(47, 97, 166);
-  --accent-hover: rgb(37, 87, 156);
-  --accent-active: rgb(27, 77, 146);
+  --color-normal: #28a745;
+  --color-elevated: #ffc107;
+  --color-high1: #fd7e14;
+  --color-high2: #dc3545;
+  --color-critical: #6f42c1;
+  --color-low: #17a2b8;
 
-  --input-bg: #3a3d41;
-  --input-border: #5a5d61;
+  --bg-normal: #d4edda;
+  --bg-elevated: #fff3cd;
+  --bg-high1: #f8d7da;
+  --bg-high2: #f5c2c7;
+  --bg-critical: #842029;
+  --bg-low: #d1ecf1;
 
-  --bg-normal: #1a3a1f;
-  --bg-elevated: #3a3520;
-  --bg-high1: #3a1f1f;
-  --bg-high2: #3a1a1f;
-  --bg-critical: #4a1a1f;
-  --bg-low: #1a2f3a;
+  --text-normal: #155724;
+  --text-elevated: #856404;
+  --text-high1: #721c24;
+  --text-high2: #842029;
+  --text-critical: white;
+  --text-low: #0c5460;
 
-  --text-normal: #5fd175;
-  --text-elevated: #ffd54f;
-  --text-high1: #ff8a80;
-  --text-high2: #ff6b6b;
-  --text-critical: #ffcdd2;
-  --text-low: #4dd0e1;
+  --filter-bg: rgba(221, 227, 234, 0.95);
+  --filter-bg-active: rgba(107, 152, 211, 0.88);
+  --filter-bg-hover: rgba(155, 181, 209, 0.48);
+  --filter-border: rgba(45, 49, 53, 0.58);
+  --filter-text: rgba(29, 39, 48, 0.96);
+  --filter-text-hover: rgba(245, 247, 250, 0.98);
 
-  --filter-bg: #3a3d41;
-  --filter-bg-active: var(--accent-color);
-  --filter-bg-hover: #4a8dd3;
-  --filter-border: #5a5d61;
-  --filter-text: #e0e0e0;
-  --filter-text-hover: #ffffff;
+  --add-bg: #2ba247;
+  --add-hover: #3b974f;
+  --delete-bg: #c22b3ae9;
+  --delete-hover: #9f303c;
+  --delete-text: #ffffff;
 
-  --delete-bg: #c82333;
-  --delete-hover: #a71d2a;
-  --border-light: #3a3d41;
-  --border-scale: #4a4d51;
-  --text-muted: #888;
-  --offline-bg: #ffc107;
-  --offline-text: #000;
-  --add-bg: #217a36;
-  --add-hover: #276c3c;
-  --color-normal: #1e7e34;
-  --color-elevated: #b38f0a;
-  --color-high1: #b35c0f;
-  --color-high2: #a12a2a;
-  --color-critical: #4b2c6f;
-  --color-low: #117a8b;
-  /* Accent text shadow for dark theme */
-  --text-shadow-accent: 0 2px 6px rgba(0, 0, 0, 0.7), 0 1px 0 #222;
+  --border-light: #eee;
+  --border-scale: #ddd;
+  --text-muted: #666;
+  --text-shadow-accent: 0 1px 3px rgba(181, 181, 181, 0.209), 0 1px 0 #bdbdbd7d;
 }
