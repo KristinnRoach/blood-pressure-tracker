@@ -1,4 +1,4 @@
-import createComponent from '../helpers/dom/component.js';
+import createComponent from '@kidlib/create-component';
 import { saveReading } from '../storage.js';
 import { getCategory, getPulseStatus } from '../analysis/bloodPressure.js';
 
@@ -60,8 +60,10 @@ const template = `
     </div>
   </div>`;
 
-export const AddReadingModal = () =>
-  createComponent({
+export const AddReadingModal = () => {
+  let modal = null;
+
+  modal = createComponent({
     initialProps: { systolic: '', diastolic: '', pulse: '', date: '' },
     template,
     // handlers: { onSubmit },
@@ -251,10 +253,11 @@ export const AddReadingModal = () =>
       // Make cleanup available to onCleanup (called by dispose)
       el._cleanup = cleanup;
     },
-    onCleanup: (el) => {
-      /* runs on dispose() */
-      if (el && typeof el._cleanup === 'function') el._cleanup();
+    onCleanup: () => {
+      if (modal && typeof modal._cleanup === 'function') modal._cleanup();
     },
     autoAppend: true, // Optional: default true
     preserveInputState: true, // Optional: default true
   });
+  return modal;
+};
