@@ -4,12 +4,6 @@ import { saveReading } from '../storage.js';
 
 // Generate realistic dummy blood pressure readings for development
 export async function generateDummyData() {
-  // Only run in development environment
-  if (import.meta.env.PROD) {
-    console.log('Dummy data generation skipped in production');
-    return;
-  }
-
   console.log('Generating dummy blood pressure readings for development...');
 
   const dummyReadings = [
@@ -62,7 +56,7 @@ export async function generateDummyData() {
     }
 
     console.log(
-      `Successfully generated ${dummyReadings.length} dummy readings`
+      `Successfully generated ${dummyReadings.length} dummy readings`,
     );
     return dummyReadings.length;
   } catch (error) {
