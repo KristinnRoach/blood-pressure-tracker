@@ -464,11 +464,19 @@ button:hover {
 /* Chart styles */
 
 .chart-container,
-.calendar-container {
+.calendar-container,
+#history-list {
   display: flex;
   flex-direction: column;
-  height: clamp(250px, 30vh, 500px);
+  gap: var(--spacing-sm);
+  height: clamp(300px, 30vh, 500px);
   width: 100%;
+  overflow: hidden;
+}
+
+/* allow y scroll for #history-list  */
+#history-list {
+  overflow-y: auto;
 }
 
 .chart-canvas-wrapper {
@@ -490,7 +498,7 @@ button:hover {
 .filter-label {
   display: inline-flex;
   cursor: pointer;
-  font-size: clamp(0.75rem, 1rem, 1.5rem);
+  font-size: clamp(0.5rem, 0.9rem, 1.1rem);
   font-weight: 400;
   color: var(--filter-text);
   background: var(--filter-bg);

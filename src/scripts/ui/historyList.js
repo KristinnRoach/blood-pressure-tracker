@@ -2,6 +2,8 @@
 
 import { getCategory, getPulseStatus } from '../analysis/bloodPressure.js';
 
+const MAX_NUM_READINGS_TO_RENDER = 50;
+
 export class HistoryList {
   constructor(containerId = 'history-list') {
     const container = document.getElementById(containerId);
@@ -28,7 +30,14 @@ export class HistoryList {
       return;
     }
 
-    this.containerEl.innerHTML = updatedReadings
+    const numReadings = Math.min(
+      updatedReadings.length,
+      MAX_NUM_READINGS_TO_RENDER,
+    );
+
+    const readingsToShow = updatedReadings.slice(-numReadings).reverse();
+
+    this.containerEl.innerHTML = readingsToShow
       .map((reading) => {
         const date = new Date(reading.date);
         const category = getCategory(reading.systolic, reading.diastolic);
@@ -37,8 +46,8 @@ export class HistoryList {
           <div class="entry">
             <div>
               <strong>${reading.systolic}/${reading.diastolic}</strong> mmHg, ${
-          reading.pulse
-        } bpm (${pulseStatus})<br>
+                reading.pulse
+              } bpm (${pulseStatus})<br>
               <small>${date.toLocaleDateString()} ${date.toLocaleTimeString()}</small>
             </div>
             <button class="delete" onclick="window.deleteReadingById(${

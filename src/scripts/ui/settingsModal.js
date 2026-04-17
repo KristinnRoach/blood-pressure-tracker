@@ -332,8 +332,11 @@ export const SettingsModal = () => {
         }
       };
 
+      const closeBtnHandler = () => el.close && el.close();
+
       const cleanup = () => {
-        closeBtn && closeBtn.removeEventListener('click', el.close);
+        closeBtn &&
+          closeBtn.removeEventListener('click', closeBtnHandler);
         // cancelBtn removed — nothing to remove
         overlay && overlay.removeEventListener('click', overlayClickHandler);
         document.removeEventListener('keydown', keyHandler);
@@ -364,7 +367,7 @@ export const SettingsModal = () => {
       // No submit button — auto-save on slider change
       // Fix close button: ensure we call the element's close method when clicked
       closeBtn &&
-        closeBtn.addEventListener('click', () => el.close && el.close());
+        closeBtn.addEventListener('click', closeBtnHandler);
       overlay && overlay.addEventListener('click', overlayClickHandler);
       document.addEventListener('keydown', keyHandler);
 
