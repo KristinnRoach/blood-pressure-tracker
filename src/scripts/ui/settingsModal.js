@@ -1,4 +1,4 @@
-import createComponent from '../helpers/dom/component.js';
+import createComponent from '@kidlib/create-component';
 import { getThresholds, setThresholds } from '../storage.js';
 import { handleExport, handleImport, showFeedback } from './dataManagement.js';
 
@@ -56,8 +56,10 @@ const template = `
     </div>
   </div>`;
 
-export const SettingsModal = () =>
-  createComponent({
+export const SettingsModal = () => {
+  let modal = null;
+
+  modal = createComponent({
     initialProps: {},
     template,
     parent: document.body,
@@ -392,9 +394,11 @@ export const SettingsModal = () =>
 
       el._cleanup = cleanup;
     },
-    onCleanup: (el) => {
-      if (el && typeof el._cleanup === 'function') el._cleanup();
+    onCleanup: () => {
+      if (modal && typeof modal._cleanup === 'function') modal._cleanup();
     },
     autoAppend: true,
     preserveInputState: true,
   });
+  return modal;
+};
