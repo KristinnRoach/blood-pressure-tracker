@@ -71,7 +71,7 @@ export async function deleteReadingByIdHandler(id) {
 
     document.dispatchEvent(
       // Notify UI that a specific reading was deleted so modals can close if needed
-      new CustomEvent('reading-deleted', { detail: { id } })
+      new CustomEvent('reading-deleted', { detail: { id } }),
     );
   } catch (error) {
     console.error('Error deleting reading by id:', error);
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await updateUIReadings(); // Fetch initial readings and update UI
 
   // User select dropdown
-  const userSelect = document.getElementById('user-select');
+  const userSelect = document.getElementById('select-user');
   const addUserBtn = document.getElementById('add-user-btn');
 
   async function populateUserSelect() {
@@ -315,7 +315,7 @@ async function generateDummyDataHandler() {
     document.dispatchEvent(new CustomEvent('readings-updated')); // Notify all ui components to refresh
 
     alert(
-      `Successfully added ${count} dummy readings for development testing!`
+      `Successfully added ${count} dummy readings for development testing!`,
     );
     console.log('Dummy data generation completed');
   } catch (error) {

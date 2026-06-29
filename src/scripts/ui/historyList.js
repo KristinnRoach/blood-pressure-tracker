@@ -26,7 +26,7 @@ export class HistoryList {
     if (!this.containerEl) return;
 
     if (updatedReadings.length === 0) {
-      this.containerEl.innerHTML = '<p>No readings yet</p>';
+      this.containerEl.innerHTML = '<p class="empty">No readings yet</p>';
       return;
     }
 

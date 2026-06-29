@@ -46,8 +46,8 @@ select {
   /* font-family: monospace; */
   font-variant: small-caps;
 
-  font-size: clamp(1rem, 2.2svw, 1.8rem);
-  letter-spacing: 0.03em;
+  font-size: clamp(1.1rem, 2.25svw, 1.8rem);
+  letter-spacing: 0.05em;
   text-shadow: var(--text-shadow-accent);
 }
 
@@ -84,9 +84,11 @@ h3 {
 
 .filter-label {
   font-variant: small-caps;
-  font-size: clamp(0.75rem, 1.1rem, 1.25rem);
+  font-size: clamp(0.75rem, 0.9rem, 1.2rem);
   color: var(--filter-text);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  /* border-color: rgb(25, 25, 25) !important; */
 }
 
 /* Main spacing / positioning for responsive layout */
@@ -191,7 +193,7 @@ h3 {
   border: none;
 }
 
-#user-select {
+#select-user {
   padding-left: 4px;
   padding-right: 6px;
   border: 1px solid var(--border-color);
@@ -505,19 +507,38 @@ button {
 
 /* Chart styles */
 
-.chart-container,
-#history-list {
+.chart-container {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  height: clamp(100%, 30svh, 40svh);
+  height: 30svh;
+  min-height: fit-content;
+  max-height: 30svh;
+
   width: 100%;
   overflow: hidden;
 }
 
-/* allow y scroll for #history-list  */
+.history-title {
+  margin-top: -1rem;
+}
+
 #history-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  height: fit-content;
+  min-height: 100px;
+  max-height: 26svh;
+  width: 100%;
   overflow-y: auto;
+}
+
+#history-list > .empty {
+  font-size: 1rem;
+  line-height: 1.5;
+  place-self: center;
+  padding: 1rem;
 }
 
 .chart-canvas-wrapper {
@@ -975,6 +996,13 @@ button {
 }
 
 /* calendar-grid styles (calendar-header is above) */
+
+#calendar-container {
+  height: 30svh;
+  min-height: fit-content;
+  max-height: 30svh;
+  width: 100%;
+}
 
 .calendar-grid {
   display: grid;
