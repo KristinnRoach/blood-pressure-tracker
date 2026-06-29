@@ -8,13 +8,19 @@ export class Calendar {
     this.readings = [];
     this.readingsByDate = new Map();
     this.modal = null;
-    this.selectedDate = null;
+    const today = new Date();
+    this.selectedDate = `${today.getFullYear()}-${String(
+      today.getMonth() + 1,
+    ).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   }
 
   async init(modal) {
     this.modal = modal;
+
+    console.warn(this.selectedDate);
     await this.loadReadings();
     this.render();
+    console.warn(this.selectedDate);
   }
 
   async loadReadings(readingsOverride = null) {
@@ -31,7 +37,7 @@ export class Calendar {
     this.readings.forEach((reading) => {
       const date = new Date(reading.date);
       const dateKey = `${date.getFullYear()}-${String(
-        date.getMonth() + 1
+        date.getMonth() + 1,
       ).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
       // Push reading into array for this date
@@ -100,7 +106,7 @@ export class Calendar {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(
-        day
+        day,
       ).padStart(2, '0')}`;
       const isFuture = new Date(`${dateKey}T00:00:00`) > todayMidnight;
       const futureClass = isFuture ? ' future' : '';
@@ -112,14 +118,14 @@ export class Calendar {
         const medianReading = this.getMedianReading(readings);
         const category = getCategory(
           medianReading.systolic,
-          medianReading.diastolic
+          medianReading.diastolic,
         );
         const categoryClass =
           category && category.class
             ? category.class
             : this.getCategoryClass(
                 medianReading.systolic,
-                medianReading.diastolic
+                medianReading.diastolic,
               );
 
         // Show count if multiple readings
@@ -206,6 +212,9 @@ export class Calendar {
     });
   }
 
+  /**
+   * @param {string} dateKey - date string in 'YYYY-MM-DD' format (from data-date attribute)
+   */
   async handleDayClick(dateKey) {
     const readings = this.readingsByDate.get(dateKey);
     console.log('handleDayClick', dateKey, readings, this.modal);
@@ -251,7 +260,7 @@ export class Calendar {
     this.currentMonth = new Date(
       this.currentMonth.getFullYear(),
       this.currentMonth.getMonth() + 1,
-      1
+      1,
     );
     this.render();
   }
@@ -260,7 +269,7 @@ export class Calendar {
     this.currentMonth = new Date(
       this.currentMonth.getFullYear(),
       this.currentMonth.getMonth() - 1,
-      1
+      1,
     );
     this.render();
   }

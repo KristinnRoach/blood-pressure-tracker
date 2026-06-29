@@ -1025,10 +1025,9 @@ button {
 
 @media (hover: hover) {
   .calendar-day:not(.empty):not(.future):hover {
-    opacity: 0.8;
     box-shadow: 0 0 0 2px rgba(221, 221, 221, 0.196);
     transform: translateY(-4px);
-    transition: all 0.2s ease;
+    transition: all 0.15s ease-out;
     will-change: transform;
   }
 }
