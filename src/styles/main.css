@@ -40,22 +40,53 @@ select {
   font-size: 16px;
 }
 
-h1 {
-  font-size: 18px;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  border-radius: var(--radius-xl);
-  border: 2px solid var(--border-color);
+/* Responsive font sizes */
+
+#new-reading-btn {
+  /* font-family: monospace; */
+  font-variant: small-caps;
+
+  font-size: clamp(1rem, 2.2svw, 1.8rem);
+  letter-spacing: 0.03em;
+  text-shadow: var(--text-shadow-accent);
+}
+
+h2 {
+  /* font-family: monospace; */
+  font-variant: small-caps;
+  font-size: clamp(1rem, 3.5svw, 2rem);
+  letter-spacing: 0.05em;
+  text-shadow: var(--text-shadow-accent);
+  text-align: center;
+  padding: var(--spacing-md);
+  border-bottom: 2px solid rgba(75, 75, 75, 0.368);
 }
 
 h3 {
+  /* font-family: monospace; */
+  font-variant: small-caps;
   font-size: clamp(1rem, 3.5svw, 2rem);
+  letter-spacing: 0.5em;
+  text-shadow: var(--text-shadow-accent);
 }
 
-#new-reading-btn {
-  font-size: clamp(1rem, 2.2svw, 1.8rem);
-  font-weight: 300;
-  text-shadow: var(--text-shadow-accent);
+.calendar-day-header {
+  /* font-family: monospace; */
+  font-variant: small-caps;
+  font-size: clamp(1rem, 2svw, 1.5rem);
+}
+
+.calendar-day {
+  /* font-family: monospace; */
+  font-size: clamp(1rem, 3.5svw, 2rem);
+  line-height: 1.5;
+}
+
+.filter-label {
+  font-variant: small-caps;
+  font-size: clamp(0.75rem, 1.1rem, 1.25rem);
+  color: var(--filter-text);
+  letter-spacing: 0.03em;
 }
 
 /* Main spacing / positioning for responsive layout */
@@ -76,7 +107,7 @@ h3 {
   margin-bottom: var(--spacing-xl);
   padding: var(--spacing-lg);
   width: clamp(90%, 95%, 100%);
-  /* max-width: 680px; */
+  max-width: 680px;
 }
 
 .top-bar {
@@ -114,7 +145,6 @@ h3 {
   width: 2rem;
   padding: 0;
   font-size: 1rem;
-  font-weight: 600;
 }
 
 .top-bar .user-management {
@@ -509,11 +539,8 @@ button {
 .filter-label {
   display: inline-flex;
   cursor: pointer;
-  font-size: clamp(0.5rem, 0.9rem, 1.1rem);
-  font-weight: 400;
-  color: var(--filter-text);
   background: var(--filter-bg);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 2px 8px;
   border: 2px solid var(--filter-border);
   border-radius: var(--radius-lg);
   -webkit-user-select: none;
@@ -663,7 +690,6 @@ button {
 
 .add-reading-modal label {
   display: block;
-  font-weight: 600;
   margin-bottom: 6px;
   color: var(--text-primary);
 }
@@ -963,7 +989,6 @@ button {
   text-align: center;
   place-content: center;
   color: var(--text-secondary);
-  font-weight: 500;
   letter-spacing: 0.05em;
 }
 
@@ -972,14 +997,9 @@ button {
   align-items: center;
   justify-content: center;
 
-  font-size: clamp(1rem, 3.5svw, 2.5rem);
-  font-weight: 400;
-  line-height: 1.5;
-
   width: 100%;
   aspect-ratio: 1.5 / 1;
 
-  text-align: center;
   place-self: center;
 
   background-color: var(--bg-primary);
@@ -998,7 +1018,6 @@ button {
 
 .calendar-day.has-reading {
   cursor: pointer;
-  font-weight: 600;
   color: var(--text-primary);
 
   border: 2px solid var(--border-color);
@@ -1026,10 +1045,6 @@ button {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   transform: translateY(-4px);
   transition: all 0.15s ease;
-}
-
-.calendar-day.active .day-number {
-  font-weight: 800;
 }
 
 .day-number {
