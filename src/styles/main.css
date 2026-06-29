@@ -141,9 +141,11 @@ h3 {
 }
 
 /* Top-bar button hover and active states */
-.top-bar button:hover {
-  border: 2px solid var(--border-color);
-  transform: scale(1.1);
+@media (hover: hover) {
+  .top-bar button:hover {
+    border: 2px solid var(--border-color);
+    transform: scale(1.1);
+  }
 }
 
 .top-bar button:active {
@@ -191,8 +193,10 @@ h3 {
     0 1.5px 4px rgba(0, 0, 0, 0.22);
 }
 
-#new-reading-btn:hover {
-  background: var(--add-hover);
+@media (hover: hover) {
+  #new-reading-btn:hover {
+    background: var(--add-hover);
+  }
 }
 
 #new-reading-btn:active {
@@ -239,8 +243,10 @@ h3 {
   padding: 0.25rem 0.75rem;
 }
 
-.calendar-nav:hover {
-  background-color: var(--accent-hover);
+@media (hover: hover) {
+  .calendar-nav:hover {
+    background-color: var(--accent-hover);
+  }
 }
 
 .calendar-nav:active {
@@ -368,8 +374,10 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background: var(--accent-hover);
+@media (hover: hover) {
+  button:hover {
+    background: var(--accent-hover);
+  }
 }
 
 .status {
@@ -446,8 +454,10 @@ button:hover {
 .add-reading-btn {
   background: var(--add-bg);
 }
-.add-reading-btn:hover {
-  background: var(--add-hover);
+@media (hover: hover) {
+  .add-reading-btn:hover {
+    background: var(--add-hover);
+  }
 }
 
 .delete-reading-btn,
@@ -456,9 +466,11 @@ button:hover {
   background: var(--delete-bg);
 }
 
-.delete-reading-btn:hover,
-.delete:hover {
-  background: var(--delete-hover);
+@media (hover: hover) {
+  .delete-reading-btn:hover,
+  .delete:hover {
+    background: var(--delete-hover);
+  }
 }
 
 /* Chart styles */
@@ -513,9 +525,11 @@ button:hover {
   background: var(--filter-bg-active);
 }
 
-.filter-label:hover {
-  color: var(--filter-text-hover);
-  background: var(--filter-bg-hover);
+@media (hover: hover) {
+  .filter-label:hover {
+    color: var(--filter-text-hover);
+    background: var(--filter-bg-hover);
+  }
 }
 
 .insufficient-data {
@@ -684,9 +698,11 @@ button:hover {
   min-width: 140px;
 }
 
-.secondary-btn:hover:not(:disabled) {
-  background: var(--bg-tertiary);
-  border-color: var(--accent-color);
+@media (hover: hover) {
+  .secondary-btn:hover:not(:disabled) {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-color);
+  }
 }
 
 .secondary-btn:disabled {
@@ -713,9 +729,11 @@ button:hover {
   transition: color 0.2s;
 }
 
-.modal-close:hover {
-  color: var(--accent-color);
-  background: transparent;
+@media (hover: hover) {
+  .modal-close:hover {
+    color: var(--accent-color);
+    background: transparent;
+  }
 }
 
 .modal-body {
@@ -986,12 +1004,14 @@ button:hover {
   border: 2px solid var(--border-color);
 }
 
-.calendar-day:not(.empty):not(.future):hover {
-  opacity: 0.8;
-  box-shadow: 0 0 0 2px rgba(221, 221, 221, 0.196);
-  transform: translateY(-4px);
-  transition: all 0.2s ease;
-  will-change: transform;
+@media (hover: hover) {
+  .calendar-day:not(.empty):not(.future):hover {
+    opacity: 0.8;
+    box-shadow: 0 0 0 2px rgba(221, 221, 221, 0.196);
+    transform: translateY(-4px);
+    transition: all 0.2s ease;
+    will-change: transform;
+  }
 }
 
 .calendar-day.future {
