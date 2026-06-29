@@ -9,7 +9,7 @@ const template = `
       <div class="modal-body">
         <form id="reading-form" class="input-group">
           <div class="input-with-scale">
-            <input type="number" id="systolic" placeholder="Systolic" />
+            <input type="number" inputmode="numeric" id="systolic" placeholder="Systolic" min="50" max="300" step="1" placeholder="120" />
             <div class="visual-scale" id="systolic-scale">
               <div class="scale-track">
                 <div class="scale-segment normal"></div>
@@ -23,7 +23,7 @@ const template = `
           </div>
 
           <div class="input-with-scale">
-            <input type="number" id="diastolic" placeholder="Diastolic" />
+            <input type="number" inputmode="numeric" id="diastolic" placeholder="Diastolic" min="30" max="200" step="1" placeholder="80" />
             <div class="visual-scale" id="diastolic-scale">
               <div class="scale-track">
                 <div class="scale-segment normal"></div>
@@ -36,7 +36,7 @@ const template = `
           </div>
 
           <div class="input-with-scale">
-            <input type="number" id="pulse" placeholder="Pulse" />
+            <input type="number" inputmode="numeric" id="pulse" placeholder="Pulse" min="20" max="250" step="1" placeholder="72" />
             <div class="visual-scale" id="pulse-scale">
               <div class="scale-track">
                 <div class="scale-segment low"></div>
