@@ -1,7 +1,7 @@
 // Blood Pressure Tracker Service Worker
 // Simple cache-first strategy for offline functionality
 
-const CACHE_NAME = 'bp-tracker-1782741196260';
+const CACHE_NAME = 'bp-tracker-1782747882249';
 const STATIC_ASSETS = [
   './',
   './index.html',
