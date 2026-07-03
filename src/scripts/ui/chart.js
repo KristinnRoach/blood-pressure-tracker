@@ -26,6 +26,8 @@ Chart.register(
 
 let combinedChart = null;
 let currentReadings = [];
+let allReadings = [];
+let selectedRangeDays = 90;
 
 export function initializeCharts() {
   // Create chart containers if they don't exist
@@ -124,6 +126,7 @@ export function initializeCharts() {
 
   // Set up filter event listeners
   setupFilterListeners();
+  setupRangeListeners();
 }
 
 function createChartContainer() {
@@ -138,6 +141,12 @@ function createChartContainer() {
         <span class="filter-label active" data-dataset="0">Systolic</span>
         <span class="filter-label active" data-dataset="1">Diastolic</span>
         <span class="filter-label active" data-dataset="2">Pulse</span>
+      </div>
+      <div class="chart-range-filters" aria-label="Chart time period">
+        <button type="button" class="range-filter-label" data-range-days="30">30d</button>
+        <button type="button" class="range-filter-label active" data-range-days="90">90d</button>
+        <button type="button" class="range-filter-label" data-range-days="365">1y</button>
+        <button type="button" class="range-filter-label" data-range-days="">All</button>
       </div>
       <div id="insufficient-data" class="insufficient-data" style="display: none;">
         <p>Add at least 2 readings to see trend charts</p>
@@ -169,6 +178,21 @@ function setupFilterListeners() {
   });
 }
 
+function setupRangeListeners() {
+  const labels = document.querySelectorAll('.range-filter-label');
+  labels.forEach((label) => {
+    label.addEventListener('click', (e) => {
+      selectedRangeDays = e.target.dataset.rangeDays
+        ? Number(e.target.dataset.rangeDays)
+        : null;
+
+      labels.forEach((currentLabel) => currentLabel.classList.remove('active'));
+      e.target.classList.add('active');
+      updateCharts(allReadings);
+    });
+  });
+}
+
 function calculateMedian(numbers) {
   if (numbers.length === 0) return 0;
   const sorted = [...numbers].sort((a, b) => a - b);
@@ -178,8 +202,29 @@ function calculateMedian(numbers) {
     : sorted[mid];
 }
 
+function getDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    '0',
+  )}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function filterDailyMedians(dailyMedians) {
+  if (!selectedRangeDays || dailyMedians.length === 0) return dailyMedians;
+
+  const lastDate = new Date(
+    `${dailyMedians[dailyMedians.length - 1].date}T00:00:00`,
+  );
+  const cutoff = new Date(lastDate);
+  cutoff.setDate(cutoff.getDate() - selectedRangeDays + 1);
+
+  const cutoffKey = getDateKey(cutoff);
+  return dailyMedians.filter((reading) => reading.date >= cutoffKey);
+}
+
 export function updateCharts(readings) {
   console.log('Updating charts with', readings.length, 'readings');
+  allReadings = readings;
   const chartSection = document.getElementById('chart-section');
   if (!chartSection) return;
 
@@ -194,9 +239,7 @@ export function updateCharts(readings) {
   const readingsByDate = new Map();
   readings.forEach((reading) => {
     const date = new Date(reading.date);
-    const dateKey = `${date.getFullYear()}-${String(
-      date.getMonth() + 1,
-    ).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const dateKey = getDateKey(date);
 
     if (!readingsByDate.has(dateKey)) {
       readingsByDate.set(dateKey, []);
@@ -211,20 +254,22 @@ export function updateCharts(readings) {
   }
 
   // Calculate median for each day and sort by date
-  const dailyMedians = Array.from(readingsByDate.entries())
-    .map(([dateKey, dayReadings]) => {
-      const systolicValues = dayReadings.map((r) => r.systolic);
-      const diastolicValues = dayReadings.map((r) => r.diastolic);
-      const pulseValues = dayReadings.map((r) => r.pulse);
+  const dailyMedians = filterDailyMedians(
+    Array.from(readingsByDate.entries())
+      .map(([dateKey, dayReadings]) => {
+        const systolicValues = dayReadings.map((r) => r.systolic);
+        const diastolicValues = dayReadings.map((r) => r.diastolic);
+        const pulseValues = dayReadings.map((r) => r.pulse);
 
-      return {
-        date: dateKey,
-        systolic: Math.round(calculateMedian(systolicValues)),
-        diastolic: Math.round(calculateMedian(diastolicValues)),
-        pulse: Math.round(calculateMedian(pulseValues)),
-      };
-    })
-    .sort((a, b) => a.date.localeCompare(b.date));
+        return {
+          date: dateKey,
+          systolic: Math.round(calculateMedian(systolicValues)),
+          diastolic: Math.round(calculateMedian(diastolicValues)),
+          pulse: Math.round(calculateMedian(pulseValues)),
+        };
+      })
+      .sort((a, b) => a.date.localeCompare(b.date)),
+  );
 
   // Store for tooltip access
   currentReadings = dailyMedians;
