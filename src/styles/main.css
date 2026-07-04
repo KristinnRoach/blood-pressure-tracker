@@ -559,8 +559,8 @@ button {
 
 .chart-range-filters {
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
+  justify-content: space-evenly;
+  gap: 1rem;
 }
 
 .filter-label,

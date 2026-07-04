@@ -142,17 +142,17 @@ function createChartContainer() {
         <span class="filter-label active" data-dataset="1">Diastolic</span>
         <span class="filter-label active" data-dataset="2">Pulse</span>
       </div>
-      <div class="chart-range-filters" aria-label="Chart time period">
-        <button type="button" class="range-filter-label" data-range-days="30">30d</button>
-        <button type="button" class="range-filter-label active" data-range-days="90">90d</button>
-        <button type="button" class="range-filter-label" data-range-days="365">1y</button>
-        <button type="button" class="range-filter-label" data-range-days="">All</button>
-      </div>
       <div id="insufficient-data" class="insufficient-data" style="display: none;">
         <p>Add at least 2 readings to see trend charts</p>
       </div>
       <div class="chart-canvas-wrapper">
         <canvas id="chart-canvas"></canvas>
+      </div>
+      <div class="chart-range-filters" aria-label="Chart time period">
+        <button type="button" class="range-filter-label" data-range-days="30">30 days</button>
+        <button type="button" class="range-filter-label active" data-range-days="90">3 months</button>
+        <button type="button" class="range-filter-label" data-range-days="365">1 year</button>
+        <button type="button" class="range-filter-label" data-range-days="">All time</button>
       </div>
     `;
 
