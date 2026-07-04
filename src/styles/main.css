@@ -568,10 +568,14 @@ button {
   display: inline-flex;
   cursor: pointer;
   background: var(--filter-bg);
-  color: inherit;
+  background: transparent;
+  color: #ccc;
   font: inherit;
+  font-size: small;
+  font-weight: 300;
+  margin: 0;
   padding: 2px 8px;
-  border: 2px solid var(--filter-border);
+  border: none;
   border-radius: var(--radius-lg);
   appearance: none;
   -webkit-user-select: none;
@@ -581,7 +585,9 @@ button {
 
 .filter-label.active,
 .range-filter-label.active {
+  color: white;
   background: var(--filter-bg-active);
+  border: 1px solid var(--filter-border);
 }
 
 .range-filter-label:disabled {
