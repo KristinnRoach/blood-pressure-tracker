@@ -271,6 +271,11 @@ export function updateCharts(readings) {
       .sort((a, b) => a.date.localeCompare(b.date)),
   );
 
+  if (dailyMedians.length < 2) {
+    chartSection.style.display = 'none';
+    return;
+  }
+
   // Store for tooltip access
   currentReadings = dailyMedians;
 
@@ -295,9 +300,6 @@ export function updateCharts(readings) {
 
   // Update combined chart
   if (combinedChart) {
-    // Store daily medians for tooltip access
-    currentReadings = dailyMedians;
-
     combinedChart.data.labels = labels;
     combinedChart.data.datasets[0].data = systolicData;
     combinedChart.data.datasets[1].data = diastolicData;
