@@ -27,7 +27,7 @@ Chart.register(
 let combinedChart = null;
 let currentReadings = [];
 let allReadings = [];
-let selectedRangeDays = 90;
+let selectedRangeDays = 30;
 
 export function initializeCharts() {
   // Create chart containers if they don't exist
@@ -149,10 +149,10 @@ function createChartContainer() {
         <canvas id="chart-canvas"></canvas>
       </div>
       <div class="chart-range-filters" aria-label="Chart time period">
-        <button type="button" class="range-filter-label" data-range-days="30">30 days</button>
-        <button type="button" class="range-filter-label active" data-range-days="90">3 months</button>
-        <button type="button" class="range-filter-label" data-range-days="365">1 year</button>
-        <button type="button" class="range-filter-label" data-range-days="">All time</button>
+        <button type="button" class="range-filter-label" data-range-days="7">Week</button>
+        <button type="button" class="range-filter-label active" data-range-days="30">Month</button>
+        <button type="button" class="range-filter-label" data-range-days="365">Year</button>
+        <button type="button" class="range-filter-label" data-range-days="">All</button>
       </div>
     `;
 
