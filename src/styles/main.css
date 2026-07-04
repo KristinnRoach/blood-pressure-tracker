@@ -584,9 +584,14 @@ button {
   background: var(--filter-bg-active);
 }
 
+.range-filter-label:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 @media (hover: hover) {
   .filter-label:hover,
-  .range-filter-label:hover {
+  .range-filter-label:not(:disabled):hover {
     color: var(--filter-text-hover);
     background: var(--filter-bg-hover);
   }

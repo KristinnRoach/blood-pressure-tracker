@@ -209,17 +209,46 @@ function getDateKey(date) {
   )}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-function filterDailyMedians(dailyMedians) {
-  if (!selectedRangeDays || dailyMedians.length === 0) return dailyMedians;
+function filterDailyMedians(dailyMedians, rangeDays = selectedRangeDays) {
+  if (!rangeDays || dailyMedians.length === 0) return dailyMedians;
 
   const lastDate = new Date(
     `${dailyMedians[dailyMedians.length - 1].date}T00:00:00`,
   );
   const cutoff = new Date(lastDate);
-  cutoff.setDate(cutoff.getDate() - selectedRangeDays + 1);
+  cutoff.setDate(cutoff.getDate() - rangeDays + 1);
 
   const cutoffKey = getDateKey(cutoff);
   return dailyMedians.filter((reading) => reading.date >= cutoffKey);
+}
+
+function isRangeAvailable(dailyMedians, rangeDays) {
+  if (!rangeDays) return dailyMedians.length >= 2;
+
+  return filterDailyMedians(dailyMedians, rangeDays).length >= 2;
+}
+
+function updateRangeAvailability(dailyMedians) {
+  const labels = document.querySelectorAll('.range-filter-label');
+  labels.forEach((label) => {
+    const rangeDays = label.dataset.rangeDays
+      ? Number(label.dataset.rangeDays)
+      : null;
+
+    label.disabled = !isRangeAvailable(dailyMedians, rangeDays);
+  });
+
+  if (!isRangeAvailable(dailyMedians, selectedRangeDays)) {
+    const fallback = Array.from(labels).find((label) => !label.disabled);
+    if (!fallback) return;
+
+    selectedRangeDays = fallback.dataset.rangeDays
+      ? Number(fallback.dataset.rangeDays)
+      : null;
+
+    labels.forEach((label) => label.classList.remove('active'));
+    fallback.classList.add('active');
+  }
 }
 
 export function updateCharts(readings) {
@@ -254,22 +283,23 @@ export function updateCharts(readings) {
   }
 
   // Calculate median for each day and sort by date
-  const dailyMedians = filterDailyMedians(
-    Array.from(readingsByDate.entries())
-      .map(([dateKey, dayReadings]) => {
-        const systolicValues = dayReadings.map((r) => r.systolic);
-        const diastolicValues = dayReadings.map((r) => r.diastolic);
-        const pulseValues = dayReadings.map((r) => r.pulse);
+  const allDailyMedians = Array.from(readingsByDate.entries())
+    .map(([dateKey, dayReadings]) => {
+      const systolicValues = dayReadings.map((r) => r.systolic);
+      const diastolicValues = dayReadings.map((r) => r.diastolic);
+      const pulseValues = dayReadings.map((r) => r.pulse);
 
-        return {
-          date: dateKey,
-          systolic: Math.round(calculateMedian(systolicValues)),
-          diastolic: Math.round(calculateMedian(diastolicValues)),
-          pulse: Math.round(calculateMedian(pulseValues)),
-        };
-      })
-      .sort((a, b) => a.date.localeCompare(b.date)),
-  );
+      return {
+        date: dateKey,
+        systolic: Math.round(calculateMedian(systolicValues)),
+        diastolic: Math.round(calculateMedian(diastolicValues)),
+        pulse: Math.round(calculateMedian(pulseValues)),
+      };
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  updateRangeAvailability(allDailyMedians);
+  const dailyMedians = filterDailyMedians(allDailyMedians);
 
   if (dailyMedians.length < 2) {
     chartSection.style.display = 'none';
