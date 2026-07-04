@@ -557,24 +557,36 @@ button {
   gap: 1rem;
 }
 
-.filter-label {
+.chart-range-filters {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 1rem;
+}
+
+.filter-label,
+.range-filter-label {
   display: inline-flex;
   cursor: pointer;
   background: var(--filter-bg);
+  color: inherit;
+  font: inherit;
   padding: 2px 8px;
   border: 2px solid var(--filter-border);
   border-radius: var(--radius-lg);
+  appearance: none;
   -webkit-user-select: none;
   user-select: none;
   transition: all 0.2s ease;
 }
 
-.filter-label.active {
+.filter-label.active,
+.range-filter-label.active {
   background: var(--filter-bg-active);
 }
 
 @media (hover: hover) {
-  .filter-label:hover {
+  .filter-label:hover,
+  .range-filter-label:hover {
     color: var(--filter-text-hover);
     background: var(--filter-bg-hover);
   }
