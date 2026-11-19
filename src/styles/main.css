@@ -785,6 +785,19 @@ button {
   margin-bottom: var(--spacing-md);
 }
 
+.settings-section label.inline-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.inline-checkbox input {
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+
 .data-management-buttons {
   display: flex;
   gap: var(--spacing-sm);

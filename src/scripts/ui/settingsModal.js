@@ -56,7 +56,7 @@ const template = `
               </button>
               <input type="file" id="import-file-input" accept=".json" style="display: none;">
             </div>
-            <label class="section-description">
+            <label class="section-description inline-checkbox">
               <input type="checkbox" id="import-apply-settings">
               Also apply threshold settings from the imported file
             </label>
