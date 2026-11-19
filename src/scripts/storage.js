@@ -223,7 +223,7 @@ const DEFAULT_THRESHOLDS = {
 
 // Normalize thresholds object to the canonical { min, max } shape.
 // Accepts legacy shapes using `low`/`high` and will fall back to defaults.
-function normalizeThresholds(raw) {
+export function normalizeThresholds(raw) {
   if (!raw || typeof raw !== 'object') return DEFAULT_THRESHOLDS;
 
   const mapRange = (r, fallback) => {

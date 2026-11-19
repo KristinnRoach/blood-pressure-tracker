@@ -16,6 +16,8 @@ import {
   getReadings,
   saveReading,
   getThresholds,
+  setThresholds,
+  normalizeThresholds,
   getCurrentUserSync,
 } from '../storage.js';
 
@@ -115,8 +117,20 @@ export async function handleImport(file) {
       }
     }
 
-    // Extract settings from metadata (for future use)
+    // Apply imported thresholds to the current user.
+    // ponytail: username is not applied; switching/renaming users on import is a separate decision
     const settings = extractImportSettings(importResult.metadata || {});
+    if (settings.thresholds) {
+      try {
+        const thresholds = normalizeThresholds(settings.thresholds);
+        await setThresholds(thresholds);
+        document.dispatchEvent(
+          new CustomEvent('thresholds-updated', { detail: thresholds }),
+        );
+      } catch (error) {
+        console.warn('Failed to apply imported thresholds', error);
+      }
+    }
 
     // Build result message
     const parts = [`Imported ${savedCount} readings`];
