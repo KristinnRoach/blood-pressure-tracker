@@ -56,6 +56,10 @@ const template = `
               </button>
               <input type="file" id="import-file-input" accept=".json" style="display: none;">
             </div>
+            <label class="section-description">
+              <input type="checkbox" id="import-apply-settings">
+              Also apply threshold settings from the imported file
+            </label>
           </section>
 
           <section class="settings-section" id="auto-backup-section" hidden>
@@ -315,7 +319,10 @@ export const SettingsModal = () => {
           importBtn.disabled = true;
           importBtn.textContent = '⏳ Importing...';
 
-          const result = await handleImport(file);
+          const result = await handleImport(file, {
+            applySettings: overlay.querySelector('#import-apply-settings')
+              ?.checked,
+          });
 
           if (result.success) {
             showFeedback(result.message, 'success');

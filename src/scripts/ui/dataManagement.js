@@ -97,7 +97,7 @@ export async function handleExport() {
  * @property {string[]} errors - Array of error messages
  * @property {Object} settings - Extracted settings from import (thresholds, username)
  */
-export async function handleImport(file) {
+export async function handleImport(file, { applySettings = false } = {}) {
   try {
     // Fetch existing readings for duplicate detection
     const existingAppReadings = await getReadings();
@@ -137,7 +137,7 @@ export async function handleImport(file) {
     // Apply imported thresholds to the current user.
     // ponytail: username is not applied; switching/renaming users on import is a separate decision
     const settings = extractImportSettings(importResult.metadata || {});
-    if (settings.thresholds) {
+    if (applySettings && settings.thresholds) {
       try {
         const thresholds = normalizeThresholds(settings.thresholds);
         await setThresholds(thresholds);
