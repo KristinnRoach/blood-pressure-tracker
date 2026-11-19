@@ -30,14 +30,27 @@ let currentReadings = [];
 let allReadings = [];
 let selectedRangeDays = 30;
 
+function getChartColors() {
+  const styles = getComputedStyle(document.documentElement);
+  return {
+    text: styles.getPropertyValue('--text-secondary').trim(),
+    pulse: styles.getPropertyValue('--chart-pulse').trim(),
+  };
+}
+
+function updateChartTheme() {
+  const colors = getChartColors();
+  combinedChart.options.scales.x.ticks.color = colors.text;
+  combinedChart.options.scales.y.ticks.color = colors.text;
+  combinedChart.data.datasets[2].borderColor = colors.pulse;
+  combinedChart.update('none');
+}
+
 export function initializeCharts() {
   // Create chart containers if they don't exist
   createChartContainer();
 
-  const chartTextColor =
-    getComputedStyle(document.documentElement)
-      .getPropertyValue('--text-secondary')
-      .trim() || '#666';
+  const colors = getChartColors();
 
   // Initialize combined chart
   const chartCtx = document.getElementById('chart-canvas').getContext('2d');
@@ -65,7 +78,7 @@ export function initializeCharts() {
         {
           label: 'Pulse',
           data: [],
-          borderColor: '#28a745',
+          borderColor: colors.pulse,
           backgroundColor: 'rgba(40, 167, 69, 0.1)',
           tension: 0.1,
           hidden: false,
@@ -106,7 +119,7 @@ export function initializeCharts() {
           display: true,
           position: 'right',
           ticks: {
-            color: chartTextColor,
+            color: colors.text,
           },
           title: {
             display: false,
@@ -115,7 +128,7 @@ export function initializeCharts() {
         x: {
           display: true,
           ticks: {
-            color: chartTextColor,
+            color: colors.text,
           },
           title: {
             display: false,
@@ -124,6 +137,7 @@ export function initializeCharts() {
       },
     },
   });
+  document.addEventListener('theme-change', updateChartTheme);
 
   // Set up filter event listeners
   setupFilterListeners();
@@ -333,6 +347,7 @@ export function updateCharts(readings) {
 
 export function destroyCharts() {
   if (combinedChart) {
+    document.removeEventListener('theme-change', updateChartTheme);
     combinedChart.destroy();
     combinedChart = null;
   }

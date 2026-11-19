@@ -137,7 +137,7 @@ export class Calendar {
 
         const activeClass = this.selectedDate === dateKey ? ' active' : '';
         html += `
-          <button class="calendar-day has-reading${activeClass}${futureClass}" ${buttonAttrs} style="background-color: var(--color-${categoryClass})">
+          <button class="calendar-day has-reading${activeClass}${futureClass}" ${buttonAttrs} data-category="${categoryClass}" style="background-color: var(--color-${categoryClass})">
             <span class="day-number">${day}</span>
             ${countBadge}
           </button>

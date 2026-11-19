@@ -32,6 +32,7 @@ function applyTheme(theme) {
 
   // Save preference
   localStorage.setItem(THEME_KEY, theme);
+  document.dispatchEvent(new Event('theme-change'));
 }
 
 // Toggle between light and dark

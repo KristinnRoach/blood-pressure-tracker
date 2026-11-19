@@ -368,7 +368,8 @@ input {
   top: 0;
   width: 3px;
   height: 12px;
-  background: var(--text-secondary);
+  background: var(--scale-indicator, var(--text-secondary));
+  box-shadow: var(--scale-indicator-shadow, none);
   border-radius: 1px;
   opacity: 0;
   transition: all 0.2s ease;
@@ -400,7 +401,7 @@ input {
 button {
   padding: var(--spacing-md) calc(var(--spacing-md) + 2px);
   background: var(--accent-color);
-  color: var(--text-primary);
+  color: var(--button-text);
   border-radius: var(--radius-sm);
   border: 2px solid var(--border-color);
   cursor: pointer;
@@ -567,9 +568,8 @@ button {
 .range-filter-label {
   display: inline-flex;
   cursor: pointer;
-  background: var(--filter-bg);
   background: transparent;
-  color: #ccc;
+  color: var(--filter-text-inactive);
   font: inherit;
   font-size: small;
   font-weight: 300;
@@ -585,7 +585,7 @@ button {
 
 .filter-label.active,
 .range-filter-label.active {
-  color: white;
+  color: var(--filter-text-active);
   background: var(--filter-bg-active);
   border: 1px solid var(--filter-border);
 }
@@ -915,7 +915,7 @@ button {
 }
 
 .reading-bp .abnormal {
-  color: var(--color-high2);
+  color: var(--text-high2);
 }
 
 .reading-pulse {
@@ -925,7 +925,7 @@ button {
 }
 
 .reading-pulse.abnormal {
-  color: var(--color-high2);
+  color: var(--text-high2);
 }
 
 .reading-count-label {
@@ -956,27 +956,27 @@ button {
 }
 
 .status-normal {
-  color: var(--color-normal);
+  color: var(--text-normal);
   font-weight: 600;
 }
 
 .status-elevated {
-  color: var(--color-elevated);
+  color: var(--text-elevated);
   font-weight: 600;
 }
 
 .status-high {
-  color: var(--color-high2);
+  color: var(--text-high2);
   font-weight: 600;
 }
 
 .status-critical {
-  color: var(--color-critical);
+  color: var(--status-critical-text);
   font-weight: 700;
 }
 
 .status-low {
-  color: var(--color-low);
+  color: var(--text-low);
   font-weight: 600;
 }
 
@@ -1034,7 +1034,7 @@ button {
 }
 
 .abnormal-value {
-  color: var(--color-high2);
+  color: var(--text-high2);
   font-weight: 700;
 }
 
@@ -1095,7 +1095,7 @@ button {
   background-color: var(--bg-primary);
   color: var(--text-secondary);
   text-shadow: var(--text-shadow-subtle);
-  border: 2px solid var(--border-light);
+  border: 2px solid var(--calendar-day-border, var(--border-light));
   border-radius: var(--radius-sm);
 
   cursor: pointer;
@@ -1108,9 +1108,15 @@ button {
 
 .calendar-day.has-reading {
   cursor: pointer;
-  color: var(--text-primary);
-
   border: 2px solid var(--border-color);
+}
+
+.calendar-day.has-reading:not([data-category='unknown']) {
+  color: var(--calendar-reading-text);
+}
+
+.calendar-day.has-reading[data-category='elevated'] {
+  color: var(--calendar-elevated-text);
 }
 
 @media (hover: hover) {
@@ -1129,14 +1135,14 @@ button {
 }
 
 .calendar-day:not(.empty).active {
-  outline: 2px solid #b0b0b0;
+  outline: 2px solid var(--calendar-active-outline);
   background-color: var(--bg-secondary);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   transition: all 0.15s ease;
 }
 
 .calendar-day[data-date]:focus-visible {
-  outline: 2px solid currentColor;
+  outline: 2px solid var(--text-primary);
   outline-offset: 2px;
 }
 
@@ -1155,9 +1161,6 @@ button {
   position: absolute;
   top: 2px;
   right: 2px;
-
-  color: #ddd;
-  text-shadow: var(--text-shadow-subtle);
 
   font-size: 0.52em;
   padding: 2px 4px;

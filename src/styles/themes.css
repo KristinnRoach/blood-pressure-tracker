@@ -1,10 +1,13 @@
 :root {
+  color-scheme: dark;
+
   /* Core colors - Dark theme */
   --bg-primary: #2a2d31;
   --bg-secondary: #1a1d21;
   --text-primary: #fafafa;
   --text-secondary: #eaeaea;
   --border-color: #4a4d51;
+  --button-text: var(--text-primary);
   --accent-color: rgb(47, 97, 166, 0.75);
   --accent-hover: rgb(37, 87, 156, 0.75);
   --accent-active: rgb(27, 77, 146, 0.75);
@@ -36,14 +39,21 @@
   --text-high2: #ff6b6b;
   --text-critical: #ffcdd2;
   --text-low: #4dd0e1;
+  --status-critical-text: var(--text-critical);
 
   /* Filter colors */
-  --filter-bg: rgba(54, 59, 66, 0.96);
+  --filter-text-inactive: #ccc;
+  --filter-text-active: white;
   --filter-bg-active: rgba(46, 85, 132, 0.5);
   --filter-bg-hover: rgba(93, 127, 168, 0.5);
   --filter-border: rgba(108, 114, 122, 0.82);
   --filter-text: rgba(231, 233, 235, 0.96);
   --filter-text-hover: rgba(244, 247, 251, 0.98);
+
+  --calendar-reading-text: var(--text-primary);
+  --calendar-elevated-text: #1a1d21;
+  --calendar-active-outline: #b0b0b0;
+  --chart-pulse: #28a745;
 
   /* Other colors */
   --add-bg: #217a36;
@@ -79,25 +89,29 @@
 
 /* Light theme when preferred by system and not manually overridden */
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+
     --bg-primary: #f8f4de;
-    --bg-secondary: rgba(109, 134, 143, 0.879);
-    --text-primary: #000000;
-    --text-secondary: #000;
-    --border-color: rgba(38, 45, 52, 0.923);
-    --accent-color: #428fe1;
-    --accent-hover: #0056b3;
+    --bg-secondary: #dce4e7;
+    --bg-tertiary: #d1e0ee;
+    --text-primary: #141414;
+    --text-secondary: #141414;
+    --border-color: #65717a;
+    --button-text: #fff;
+    --accent-color: #185a9d;
+    --accent-hover: #134a81;
     --accent-active: #004085;
 
     --input-bg: #fbf9ed;
-    --input-border: #000000;
+    --input-border: var(--border-color);
 
-    --color-normal: #28a745;
-    --color-elevated: #ffc107;
-    --color-high1: #fd7e14;
-    --color-high2: #dc3545;
-    --color-critical: #6f42c1;
-    --color-low: #17a2b8;
+    --color-normal: #155e2e;
+    --color-elevated: #725300;
+    --color-high1: #8c410c;
+    --color-high2: #a32435;
+    --color-critical: #62369a;
+    --color-low: #08616e;
 
     --bg-normal: #d4edda;
     --bg-elevated: #fff3cd;
@@ -107,53 +121,67 @@
     --bg-low: #d1ecf1;
 
     --text-normal: #155724;
-    --text-elevated: #856404;
+    --text-elevated: var(--color-elevated);
     --text-high1: #721c24;
     --text-high2: #842029;
     --text-critical: white;
     --text-low: #0c5460;
+    --status-critical-text: var(--color-critical);
 
-    --filter-bg: rgba(221, 227, 234, 0.95);
-    --filter-bg-active: rgba(107, 152, 211, 0.88);
-    --filter-bg-hover: rgba(155, 181, 209, 0.48);
-    --filter-border: rgba(45, 49, 53, 0.58);
-    --filter-text: rgba(29, 39, 48, 0.96);
-    --filter-text-hover: rgba(245, 247, 250, 0.98);
+    --filter-bg-active: var(--accent-color);
+    --filter-bg-hover: #d1e0ee;
+    --filter-border: var(--accent-color);
+    --filter-text: #1d2730;
+    --filter-text-inactive: #4a535b;
+    --filter-text-active: #fff;
+    --filter-text-hover: var(--filter-text);
 
-    --add-bg: #2ba247;
-    --add-hover: #3b974f;
-    --delete-bg: #c22b3ae9;
-    --delete-hover: #9f303c;
-    --delete-text: #ffffff;
+    --calendar-reading-text: #fff;
+    --calendar-day-border: var(--border-color);
+    --calendar-elevated-text: var(--calendar-reading-text);
+    --calendar-active-outline: #134a81;
+    --chart-pulse: #1a7735;
 
-    --border-light: #eee;
-    --border-scale: #ddd;
-    --text-muted: #666;
-    --text-shadow-accent:
-      0 1px 3px rgba(181, 181, 181, 0.209), 0 1px 0 #bdbdbd7d;
+    --add-bg: #23723a;
+    --add-hover: #1b5d30;
+    --delete-bg: #ae2639;
+    --delete-hover: #842029;
+    --delete-text: #fff;
+
+    --border-light: #c3cbd0;
+    --border-scale: var(--border-color);
+    --scale-indicator: #fff;
+    --scale-indicator-shadow: 0 0 0 1px #141414;
+    --text-muted: #4a535b;
+    --text-shadow-subtle: none;
+    --text-shadow-accent: none;
   }
 }
 
-/* Manual light override - same values as auto light mode */
+/* Manual light override uses the same palette as system light mode. */
 :root[data-theme='light'] {
+  color-scheme: light;
+
   --bg-primary: #f8f4de;
-  --bg-secondary: rgba(109, 134, 143, 0.879);
-  --text-primary: #000000;
+  --bg-secondary: #dce4e7;
+  --bg-tertiary: #d1e0ee;
+  --text-primary: #141414;
   --text-secondary: #141414;
-  --border-color: rgba(38, 45, 52, 0.923);
-  --accent-color: #428fe1;
-  --accent-hover: #0056b3;
+  --border-color: #65717a;
+  --button-text: #fff;
+  --accent-color: #185a9d;
+  --accent-hover: #134a81;
   --accent-active: #004085;
 
   --input-bg: #fbf9ed;
-  --input-border: #000000;
+  --input-border: var(--border-color);
 
-  --color-normal: #28a745;
-  --color-elevated: #ffc107;
-  --color-high1: #fd7e14;
-  --color-high2: #dc3545;
-  --color-critical: #6f42c1;
-  --color-low: #17a2b8;
+  --color-normal: #155e2e;
+  --color-elevated: #725300;
+  --color-high1: #8c410c;
+  --color-high2: #a32435;
+  --color-critical: #62369a;
+  --color-low: #08616e;
 
   --bg-normal: #d4edda;
   --bg-elevated: #fff3cd;
@@ -163,27 +191,38 @@
   --bg-low: #d1ecf1;
 
   --text-normal: #155724;
-  --text-elevated: #856404;
+  --text-elevated: var(--color-elevated);
   --text-high1: #721c24;
   --text-high2: #842029;
   --text-critical: white;
   --text-low: #0c5460;
+  --status-critical-text: var(--color-critical);
 
-  --filter-bg: rgba(221, 227, 234, 0.95);
-  --filter-bg-active: rgba(107, 152, 211, 0.88);
-  --filter-bg-hover: rgba(155, 181, 209, 0.48);
-  --filter-border: rgba(45, 49, 53, 0.58);
-  --filter-text: rgba(29, 39, 48, 0.96);
-  --filter-text-hover: rgba(245, 247, 250, 0.98);
+  --filter-bg-active: var(--accent-color);
+  --filter-bg-hover: #d1e0ee;
+  --filter-border: var(--accent-color);
+  --filter-text: #1d2730;
+  --filter-text-inactive: #4a535b;
+  --filter-text-active: #fff;
+  --filter-text-hover: var(--filter-text);
 
-  --add-bg: #2ba247;
-  --add-hover: #3b974f;
-  --delete-bg: #c22b3ae9;
-  --delete-hover: #9f303c;
-  --delete-text: #ffffff;
+  --calendar-reading-text: #fff;
+  --calendar-day-border: var(--border-color);
+  --calendar-elevated-text: var(--calendar-reading-text);
+  --calendar-active-outline: #134a81;
+  --chart-pulse: #1a7735;
 
-  --border-light: #eee;
-  --border-scale: #ddd;
-  --text-muted: #666;
-  --text-shadow-accent: 0 1px 3px rgba(181, 181, 181, 0.209), 0 1px 0 #bdbdbd7d;
+  --add-bg: #23723a;
+  --add-hover: #1b5d30;
+  --delete-bg: #ae2639;
+  --delete-hover: #842029;
+  --delete-text: #fff;
+
+  --border-light: #c3cbd0;
+  --border-scale: var(--border-color);
+  --scale-indicator: #fff;
+  --scale-indicator-shadow: 0 0 0 1px #141414;
+  --text-muted: #4a535b;
+  --text-shadow-subtle: none;
+  --text-shadow-accent: none;
 }
