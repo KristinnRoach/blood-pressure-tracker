@@ -2,12 +2,6 @@
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, it, expect } from 'vitest';
 
-// Provide a minimal localStorage shim used by storage.js migration logic
-global.localStorage = global.localStorage || {
-  getItem: () => null,
-  removeItem: () => {},
-};
-
 import {
   saveReading,
   getReadings,
