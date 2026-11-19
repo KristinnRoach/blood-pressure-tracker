@@ -1,6 +1,13 @@
 import createComponent from '@kidlib/create-component';
 import { getThresholds, setThresholds } from '../storage.js';
 import { handleExport, handleImport, showFeedback } from './dataManagement.js';
+import {
+  isAutoBackupSupported,
+  getBackupStatus,
+  chooseBackupDir,
+  regrantBackupPermission,
+  disableAutoBackup,
+} from '../autoBackup.js';
 
 const template = `
   <div class="modal-overlay" id="settings-modal">
@@ -47,6 +54,22 @@ const template = `
                 📥 Import Data
               </button>
               <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            </div>
+            <label class="section-description inline-checkbox">
+              <input type="checkbox" id="import-apply-settings">
+              Also apply threshold settings from the imported file
+            </label>
+          </section>
+
+          <section class="settings-section" id="auto-backup-section" hidden>
+            <h3>Auto Backup</h3>
+            <p class="section-description">Save a backup file to a folder you choose whenever your data changes.</p>
+            <p class="section-description" id="auto-backup-status" role="status"></p>
+
+            <div class="data-management-buttons">
+              <button type="button" id="backup-choose-btn" class="secondary-btn">Choose folder</button>
+              <button type="button" id="backup-regrant-btn" class="secondary-btn" hidden>Allow backups</button>
+              <button type="button" id="backup-off-btn" class="secondary-btn" hidden>Turn off</button>
             </div>
           </section>
 
@@ -295,7 +318,10 @@ export const SettingsModal = () => {
           importBtn.disabled = true;
           importBtn.textContent = '⏳ Importing...';
 
-          const result = await handleImport(file);
+          const result = await handleImport(file, {
+            applySettings: overlay.querySelector('#import-apply-settings')
+              ?.checked,
+          });
 
           if (result.success) {
             showFeedback(result.message, 'success');
@@ -314,6 +340,49 @@ export const SettingsModal = () => {
           fileInput.value = '';
         }
       };
+
+      // Auto backup (Chromium only; section stays hidden elsewhere)
+      if (isAutoBackupSupported()) {
+        const section = overlay.querySelector('#auto-backup-section');
+        const statusEl = overlay.querySelector('#auto-backup-status');
+        const chooseBtn = overlay.querySelector('#backup-choose-btn');
+        const regrantBtn = overlay.querySelector('#backup-regrant-btn');
+        const offBtn = overlay.querySelector('#backup-off-btn');
+
+        let renderId = 0; // drop results from older, slower renders
+        const renderBackup = async () => {
+          const id = ++renderId;
+          const { status, name } = await getBackupStatus();
+          if (id !== renderId) return;
+          statusEl.textContent =
+            status === 'on'
+              ? `On, saving to "${name}".`
+              : status === 'needs-permission'
+                ? `Paused: allow access to "${name}" to resume.`
+                : 'Off.';
+          chooseBtn.textContent =
+            status === 'off' ? 'Choose folder' : 'Change folder';
+          regrantBtn.hidden = status !== 'needs-permission';
+          offBtn.hidden = status === 'off';
+        };
+
+        const run = (fn) => async () => {
+          try {
+            await fn();
+          } catch (error) {
+            if (error?.name !== 'AbortError') {
+              showFeedback(`Auto backup failed: ${error.message}`, 'error');
+            }
+          }
+          await renderBackup();
+        };
+
+        chooseBtn.addEventListener('click', run(chooseBackupDir));
+        regrantBtn.addEventListener('click', run(regrantBackupPermission));
+        offBtn.addEventListener('click', run(disableAutoBackup));
+        section.hidden = false;
+        renderBackup().catch((e) => console.warn('Auto backup status failed', e));
+      }
 
       // Attach data management event listeners
       exportBtn && exportBtn.addEventListener('click', handleExportClick);

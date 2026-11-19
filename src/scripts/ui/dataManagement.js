@@ -6,6 +6,7 @@
  */
 
 import { exportReadings, importReadings } from '../exportImport/index.js';
+import { jsonFormat } from '../exportImport/formats/json.js';
 import {
   convertToExportFormat,
   convertFromExportFormat,
@@ -20,6 +21,22 @@ import {
   normalizeThresholds,
   getCurrentUserSync,
 } from '../storage.js';
+
+/**
+ * Build the same JSON content as a manual export, without downloading it.
+ * @returns {Promise<string>}
+ */
+export async function buildBackupJson(user = getCurrentUserSync()) {
+  const metadata = prepareExportMetadata({
+    appVersion: '1.0.0',
+    user,
+    thresholds: await getThresholds(user),
+  });
+  return jsonFormat.serialize(
+    convertToExportFormat(await getReadings(user)),
+    metadata,
+  );
+}
 
 /**
  * Handle export operation
@@ -80,7 +97,7 @@ export async function handleExport() {
  * @property {string[]} errors - Array of error messages
  * @property {Object} settings - Extracted settings from import (thresholds, username)
  */
-export async function handleImport(file) {
+export async function handleImport(file, { applySettings = false } = {}) {
   try {
     // Fetch existing readings for duplicate detection
     const existingAppReadings = await getReadings();
@@ -120,7 +137,7 @@ export async function handleImport(file) {
     // Apply imported thresholds to the current user.
     // ponytail: username is not applied; switching/renaming users on import is a separate decision
     const settings = extractImportSettings(importResult.metadata || {});
-    if (settings.thresholds) {
+    if (applySettings && settings.thresholds) {
       try {
         const thresholds = normalizeThresholds(settings.thresholds);
         await setThresholds(thresholds);
