@@ -34,7 +34,7 @@ export async function getBackupStatus() {
 export async function chooseBackupDir() {
   const dir = await window.showDirectoryPicker({ id: 'bp-backup', ...RW });
   await db.kv.put(dir, DIR_KEY);
-  await runBackup();
+  await enqueueBackup();
   return dir;
 }
 
@@ -42,7 +42,7 @@ export async function chooseBackupDir() {
 export async function regrantBackupPermission() {
   const dir = await getBackupDir();
   if (!dir || (await dir.requestPermission(RW)) !== 'granted') return false;
-  return runBackup();
+  return enqueueBackup();
 }
 
 export const disableAutoBackup = () => db.kv.delete(DIR_KEY);
@@ -68,6 +68,13 @@ export async function runBackup(user = getCurrentUserSync()) {
 const timers = new Map();
 let queue = Promise.resolve();
 
+// All backup runs go through here. Resolves with runBackup's result; never rejects the queue.
+function enqueueBackup(user = getCurrentUserSync()) {
+  const run = queue.then(() => runBackup(user));
+  queue = run.catch((e) => console.warn('Auto backup failed', e));
+  return run;
+}
+
 export function scheduleBackup() {
   if (!isAutoBackupSupported()) return;
   const user = getCurrentUserSync();
@@ -77,9 +84,7 @@ export function scheduleBackup() {
     key,
     setTimeout(() => {
       timers.delete(key);
-      queue = queue
-        .then(() => runBackup(user))
-        .catch((e) => console.warn('Auto backup failed', e));
+      enqueueBackup(user).catch(() => {}); // already logged by the queue
     }, 1000),
   );
 }
