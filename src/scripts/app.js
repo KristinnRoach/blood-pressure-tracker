@@ -66,7 +66,7 @@ export async function deleteReadingByIdHandler(id) {
   }
 }
 
-async function updateUIReadings() {
+async function updateUIReadings(addedReading) {
   const updatedReadings = await getReadings();
 
   // Update snapshot only if current is not a single-reading pending undo
@@ -78,6 +78,7 @@ async function updateUIReadings() {
 
   historyList.updateReadings(updatedReadings);
   calendar.updateReadings(updatedReadings);
+  if (addedReading) modal.open(addedReading);
   modal.updateReadings(updatedReadings);
   updateCharts(updatedReadings);
 }
@@ -192,11 +193,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // When an individual reading is added, open the ReadingInfoModal with that reading
-  document.addEventListener('reading-added', (e) => {
-    const reading = e?.detail;
-    if (reading && modal && typeof modal.open === 'function') {
-      modal.open(reading);
-    }
+  document.addEventListener('reading-added', async (e) => {
+    await updateUIReadings(e.detail);
   });
 
   // When thresholds change, refresh any UI that depends on categorization

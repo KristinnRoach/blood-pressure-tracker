@@ -3,20 +3,33 @@ export const readingDialogTag =
     ? 'dialog'
     : 'div';
 
-export function configureReadingDialog(dialog, onClose) {
-  const firstControl = dialog.querySelector('[autofocus]');
+export function configureReadingDialog(
+  dialog,
+  { onClose, canDismiss } = {},
+) {
+  const legacy = readingDialogTag === 'div';
+  let invoker;
+  const close = () => {
+    if (!legacy) {
+      dialog.close();
+    } else if (dialog.hasAttribute('open')) {
+      dialog.removeAttribute('open');
+      invoker?.focus();
+      onClose?.();
+    }
+  };
+  const dismiss = () => {
+    if (!canDismiss || canDismiss()) close();
+  };
 
-  if (readingDialogTag === 'div') {
+  if (legacy) {
     dialog.classList.add('modal-overlay', 'legacy-reading-dialog');
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-modal', 'true');
-    let invoker;
 
-    dialog.addEventListener('click', (event) => {
-      if (event.target === dialog) close();
-    });
+    attachBackdropDismiss(dialog, dialog.querySelector('.modal-content'), dismiss);
     dialog.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') close();
+      if (event.key === 'Escape') dismiss();
       if (event.key !== 'Tab') return;
 
       const controls = dialog.querySelectorAll(
@@ -33,43 +46,56 @@ export function configureReadingDialog(dialog, onClose) {
       }
     });
 
-    function close() {
-      if (!dialog.hasAttribute('open')) return;
-      dialog.removeAttribute('open');
-      invoker?.focus();
-      onClose?.();
-    }
-
     return {
       open() {
         invoker = document.activeElement;
         dialog.setAttribute('open', '');
-        firstControl.focus();
+        dialog.querySelector('[autofocus]').focus();
       },
       close,
+      dismiss,
     };
   }
 
   if (!('closedBy' in HTMLDialogElement.prototype)) {
-    const outside = ({ clientX, clientY }) => {
-      const { left, right, top, bottom } = dialog.getBoundingClientRect();
-      return (
-        clientX < left || clientX > right || clientY < top || clientY > bottom
-      );
-    };
-    let pressedOutside = false;
-    dialog.addEventListener('pointerdown', (event) => {
-      pressedOutside = outside(event);
-    });
-    dialog.addEventListener('pointerup', (event) => {
-      if (pressedOutside && outside(event)) dialog.close();
-      pressedOutside = false;
+    attachBackdropDismiss(dialog, dialog, dismiss);
+  }
+
+  if (canDismiss) {
+    dialog.addEventListener('cancel', (event) => {
+      if (!canDismiss()) event.preventDefault();
     });
   }
 
   if (onClose) dialog.addEventListener('close', onClose);
   return {
     open: () => dialog.showModal(),
-    close: () => dialog.close(),
+    close,
+    dismiss,
   };
+}
+
+function attachBackdropDismiss(dialog, panel, dismiss) {
+  const outside = ({ clientX, clientY }) => {
+    const { left, right, top, bottom } = panel.getBoundingClientRect();
+    return (
+      clientX < left || clientX > right || clientY < top || clientY > bottom
+    );
+  };
+  let backdropPointer = null;
+
+  dialog.addEventListener('pointerdown', (event) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    backdropPointer = outside(event) ? event.pointerId : null;
+    // A backdrop press should not move focus out of the panel.
+    if (backdropPointer !== null) event.preventDefault();
+  });
+  dialog.addEventListener('pointerup', (event) => {
+    if (event.pointerId !== backdropPointer) return;
+    backdropPointer = null;
+    if (outside(event)) dismiss();
+  });
+  dialog.addEventListener('pointercancel', (event) => {
+    if (event.pointerId === backdropPointer) backdropPointer = null;
+  });
 }

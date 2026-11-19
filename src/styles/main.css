@@ -708,7 +708,11 @@ button {
   overflow: visible;
 }
 
-.reading-dialog:modal,
+.reading-dialog:modal {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
 .reading-dialog .modal-content {
   overscroll-behavior: contain;
 }

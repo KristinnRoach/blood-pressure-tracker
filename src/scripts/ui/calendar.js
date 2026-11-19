@@ -1,5 +1,6 @@
 import { getCategory } from '../analysis/bloodPressure.js';
 import { calculateMedian } from '../helpers/calculateMedian.js';
+import { getLocalDateKey } from '../helpers/localDate.js';
 import { AddReadingModal } from './addReadingModal.js';
 
 export class Calendar {
@@ -8,10 +9,7 @@ export class Calendar {
     this.currentMonth = new Date();
     this.readingsByDate = new Map();
     this.modal = modal;
-    const today = new Date();
-    this.selectedDate = `${today.getFullYear()}-${String(
-      today.getMonth() + 1,
-    ).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    this.selectedDate = getLocalDateKey(this.currentMonth);
     this.container.addEventListener('click', (event) => {
       const button = event.target.closest('button');
       if (!button || button.disabled) return;
@@ -27,13 +25,14 @@ export class Calendar {
   }
 
   updateReadings(readings) {
+    const focusedDate = this.container.querySelector(
+      'button[data-date]:focus',
+    )?.dataset.date;
+
     // Group readings by date (YYYY-MM-DD format) - store arrays of readings
     this.readingsByDate = new Map();
     readings.forEach((reading) => {
-      const date = new Date(reading.date);
-      const dateKey = `${date.getFullYear()}-${String(
-        date.getMonth() + 1,
-      ).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const dateKey = getLocalDateKey(new Date(reading.date));
 
       // Push reading into array for this date
       if (!this.readingsByDate.has(dateKey)) {
@@ -42,6 +41,11 @@ export class Calendar {
       this.readingsByDate.get(dateKey).push(reading);
     });
     this.render();
+    if (focusedDate) {
+      this.container
+        .querySelector(`button[data-date="${focusedDate}"]`)
+        ?.focus();
+    }
   }
 
   render() {
