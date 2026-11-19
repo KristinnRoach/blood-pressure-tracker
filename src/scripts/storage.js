@@ -137,10 +137,9 @@ export async function saveReading(reading) {
   }
 }
 
-export async function getReadings() {
+export async function getReadings(current = getCurrentUserSync()) {
   await ensureInitialized();
 
-  const current = getCurrentUserSync();
   let readings;
   if (current && current.id != null) {
     // Filter by current user
@@ -279,9 +278,8 @@ export function getThresholdsSync() {
 /**
  * Get persisted thresholds (global). Returns defaults when none saved.
  */
-export async function getThresholds() {
+export async function getThresholds(current = getCurrentUserSync()) {
   try {
-    const current = getCurrentUserSync();
     const key =
       current && current.id != null
         ? `bpThresholds:${current.id}`

@@ -22,11 +22,12 @@ export function backupFileName(user) {
   return `bp-backup-${user.id}-${safe}.json`;
 }
 
-/** @returns {Promise<'off'|'needs-permission'|'on'>} */
+/** @returns {Promise<{status: 'off'|'needs-permission'|'on', name?: string}>} */
 export async function getBackupStatus() {
   const dir = await getBackupDir();
-  if (!dir) return 'off';
-  return (await dir.queryPermission(RW)) === 'granted' ? 'on' : 'needs-permission';
+  if (!dir) return { status: 'off' };
+  const granted = (await dir.queryPermission(RW)) === 'granted';
+  return { status: granted ? 'on' : 'needs-permission', name: dir.name };
 }
 
 /** Must be called from a user gesture (shows the folder picker). */
@@ -46,28 +47,39 @@ export async function regrantBackupPermission() {
 
 export const disableAutoBackup = () => db.kv.delete(DIR_KEY);
 
-export async function writeBackup(dir) {
-  const file = await dir.getFileHandle(backupFileName(getCurrentUserSync()), {
-    create: true,
-  });
+// The user is resolved once so the filename and data always match.
+export async function writeBackup(dir, user = getCurrentUserSync()) {
+  const file = await dir.getFileHandle(backupFileName(user), { create: true });
   const writable = await file.createWritable();
-  await writable.write(await buildBackupJson());
+  await writable.write(await buildBackupJson(user));
   await writable.close();
 }
 
 /** Writes a backup if enabled and permitted. Returns true when a file was written. */
-export async function runBackup() {
+export async function runBackup(user = getCurrentUserSync()) {
   const dir = await getBackupDir();
   if (!dir || (await dir.queryPermission(RW)) !== 'granted') return false;
-  await writeBackup(dir);
+  await writeBackup(dir, user);
   return true;
 }
 
-let timer = null;
+// One debounce timer per user (a user switch must not drop the previous user's backup),
+// and writes run one at a time so an older snapshot can't finish last.
+const timers = new Map();
+let queue = Promise.resolve();
+
 export function scheduleBackup() {
   if (!isAutoBackupSupported()) return;
-  clearTimeout(timer);
-  timer = setTimeout(() => {
-    runBackup().catch((e) => console.warn('Auto backup failed', e));
-  }, 1000);
+  const user = getCurrentUserSync();
+  const key = user?.id ?? 'default';
+  clearTimeout(timers.get(key));
+  timers.set(
+    key,
+    setTimeout(() => {
+      timers.delete(key);
+      queue = queue
+        .then(() => runBackup(user))
+        .catch((e) => console.warn('Auto backup failed', e));
+    }, 1000),
+  );
 }

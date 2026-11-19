@@ -3,7 +3,6 @@ import { getThresholds, setThresholds } from '../storage.js';
 import { handleExport, handleImport, showFeedback } from './dataManagement.js';
 import {
   isAutoBackupSupported,
-  getBackupDir,
   getBackupStatus,
   chooseBackupDir,
   regrantBackupPermission,
@@ -350,9 +349,11 @@ export const SettingsModal = () => {
         const regrantBtn = overlay.querySelector('#backup-regrant-btn');
         const offBtn = overlay.querySelector('#backup-off-btn');
 
+        let renderId = 0; // drop results from older, slower renders
         const renderBackup = async () => {
-          const status = await getBackupStatus();
-          const name = (await getBackupDir())?.name;
+          const id = ++renderId;
+          const { status, name } = await getBackupStatus();
+          if (id !== renderId) return;
           statusEl.textContent =
             status === 'on'
               ? `On, saving to "${name}".`

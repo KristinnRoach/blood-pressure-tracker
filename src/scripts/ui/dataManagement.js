@@ -26,14 +26,14 @@ import {
  * Build the same JSON content as a manual export, without downloading it.
  * @returns {Promise<string>}
  */
-export async function buildBackupJson() {
+export async function buildBackupJson(user = getCurrentUserSync()) {
   const metadata = prepareExportMetadata({
     appVersion: '1.0.0',
-    user: getCurrentUserSync(),
-    thresholds: await getThresholds(),
+    user,
+    thresholds: await getThresholds(user),
   });
   return jsonFormat.serialize(
-    convertToExportFormat(await getReadings()),
+    convertToExportFormat(await getReadings(user)),
     metadata,
   );
 }
