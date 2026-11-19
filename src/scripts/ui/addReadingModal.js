@@ -1,15 +1,17 @@
-import createComponent from '@kidlib/create-component';
 import { saveReading } from '../storage.js';
-import { getCategory, getPulseStatus } from '../analysis/bloodPressure.js';
+import { getCategory } from '../analysis/bloodPressure.js';
+import { configureReadingDialog, readingDialogTag } from './readingDialog.js';
+import { initializeVisualScales } from './visualScales.js';
 
 const template = `
-  <div class="modal-overlay" id="add-reading-modal">
+  <${readingDialogTag} class="reading-dialog add-reading-modal" id="add-reading-modal" aria-label="Add reading" closedby="any">
     <div class="modal-content">
-      <button class="modal-close" aria-label="Close modal">&times;</button>
+      <button type="button" class="modal-close" aria-label="Close add reading">&times;</button>
       <div class="modal-body">
         <form id="reading-form" class="input-group">
           <div class="input-with-scale">
-            <input type="number" inputmode="numeric" id="systolic" placeholder="Systolic" min="50" max="300" step="1" placeholder="120" />
+            <label for="systolic">Systolic</label>
+            <input type="number" inputmode="numeric" id="systolic" min="50" max="300" step="1" autofocus />
             <div class="visual-scale" id="systolic-scale">
               <div class="scale-track">
                 <div class="scale-segment normal"></div>
@@ -23,7 +25,8 @@ const template = `
           </div>
 
           <div class="input-with-scale">
-            <input type="number" inputmode="numeric" id="diastolic" placeholder="Diastolic" min="30" max="200" step="1" placeholder="80" />
+            <label for="diastolic">Diastolic</label>
+            <input type="number" inputmode="numeric" id="diastolic" min="30" max="200" step="1" />
             <div class="visual-scale" id="diastolic-scale">
               <div class="scale-track">
                 <div class="scale-segment normal"></div>
@@ -36,7 +39,8 @@ const template = `
           </div>
 
           <div class="input-with-scale">
-            <input type="number" inputmode="numeric" id="pulse" placeholder="Pulse" min="20" max="250" step="1" placeholder="72" />
+            <label for="pulse">Pulse</label>
+            <input type="number" inputmode="numeric" id="pulse" min="20" max="250" step="1" />
             <div class="visual-scale" id="pulse-scale">
               <div class="scale-track">
                 <div class="scale-segment low"></div>
@@ -49,215 +53,72 @@ const template = `
 
           <!-- Optional date picker for adding past readings -->
           <div class="input-with-scale">
-            <input type="date" id="reading-date" aria-label="Reading date" />
+            <label for="reading-date">Reading date</label>
+            <input type="date" id="reading-date" />
           </div>
           <div class="reading-form-modal-btns">
-            <button type="button">Cancel</button>
+            <button type="button" class="reading-cancel">Cancel</button>
             <button type="submit">OK</button>
           </div>
         </form>
       </div>
     </div>
-  </div>`;
+  </${readingDialogTag}>`;
 
-export const AddReadingModal = () => {
-  let modal = null;
+export function AddReadingModal(date) {
+  document.body.insertAdjacentHTML('beforeend', template);
+  const dialog = document.body.lastElementChild;
+  const form = dialog.querySelector('form');
+  const { open, close } = configureReadingDialog(dialog, () => dialog.remove());
+  const submitButton = form.querySelector('button[type="submit"]');
 
-  modal = createComponent({
-    initialProps: { systolic: '', diastolic: '', pulse: '', date: '' },
-    template,
-    // handlers: { onSubmit },
-    parent: document.body, // Optional: parent element
-    containerTag: 'div', // Optional: default 'div'
-    className: 'add-reading-modal', // Optional: CSS class
-    onMount: (el) => {
-      /* runs once after initial render (after append if autoAppend) */
-      const form = el.querySelector('form');
-      const overlay = el.querySelector('.modal-overlay');
-      const closeBtn = el.querySelector('.modal-close');
-      const cancelBtn = el.querySelector('button[type="button"]');
+  const dateInput = form.elements['reading-date'];
+  if (date) dateInput.value = date;
+  else dateInput.valueAsDate = new Date();
 
-      const submitHandler = async (e) => {
-        e.preventDefault();
-        try {
-          // Read values from the form inside the modal
-          const get = (sel) => overlay.querySelector(sel);
-          const sysVal = Number(get('#systolic')?.value);
-          const diaVal = Number(get('#diastolic')?.value);
-          const pulseVal = Number(get('#pulse')?.value);
-          if (
-            !Number.isFinite(sysVal) ||
-            !Number.isFinite(diaVal) ||
-            !Number.isFinite(pulseVal)
-          ) {
-            alert(
-              'Please enter valid numbers for systolic, diastolic and pulse.',
-            );
-            return;
-          }
+  dialog.querySelector('.modal-close').addEventListener('click', close);
+  dialog.querySelector('.reading-cancel').addEventListener('click', close);
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (submitButton.disabled) return;
 
-          // Determine date (preserve time-of-day if a date is provided)
-          const dateInput = get('#reading-date')?.value;
-          const now = new Date();
-          let readingDateIso;
-          if (dateInput) {
-            const d = new Date(dateInput);
-            d.setHours(
-              now.getHours(),
-              now.getMinutes(),
-              now.getSeconds(),
-              now.getMilliseconds(),
-            );
-            readingDateIso = d.toISOString();
-          } else {
-            readingDateIso = now.toISOString();
-          }
+    const systolic = Number(form.elements.systolic.value);
+    const diastolic = Number(form.elements.diastolic.value);
+    const pulse = Number(form.elements.pulse.value);
+    if (![systolic, diastolic, pulse].every(Number.isFinite)) {
+      alert('Please enter valid numbers for systolic, diastolic and pulse.');
+      return;
+    }
 
-          const category = getCategory(sysVal, diaVal);
-
-          const reading = {
-            systolic: sysVal,
-            diastolic: diaVal,
-            pulse: pulseVal,
-            date: readingDateIso,
-            category,
-          };
-
-          // Save reading
-          await saveReading(reading);
-
-          // Notify the app that readings changed and provide the added reading
-          document.dispatchEvent(new CustomEvent('readings-updated'));
-          document.dispatchEvent(
-            new CustomEvent('reading-added', { detail: reading }),
-          );
-          // Close (and dispose) after successful save
-          el.close && el.close();
-        } catch (err) {
-          console.error('AddReadingModal submit error', err);
-          alert('Error saving reading. See console for details.');
-        }
+    submitButton.disabled = true;
+    try {
+      const now = new Date();
+      const readingDate = dateInput.value ? new Date(dateInput.value) : now;
+      readingDate.setHours(
+        now.getHours(),
+        now.getMinutes(),
+        now.getSeconds(),
+        now.getMilliseconds(),
+      );
+      const reading = {
+        systolic,
+        diastolic,
+        pulse,
+        date: readingDate.toISOString(),
+        category: getCategory(systolic, diastolic),
       };
 
-      const openHandler = (dateArg) => {
-        if (!overlay) return;
-        // Save previously focused element to restore later
-        el._previouslyFocused = document.activeElement;
-        overlay.classList.add('active');
-
-        // Set date input to today by default
-        const dateInput = overlay.querySelector('#reading-date');
-        if (dateInput) {
-          // If caller provided a date (YYYY-MM-DD), use it; otherwise default to today
-          if (dateArg) dateInput.value = dateArg;
-          else dateInput.valueAsDate = new Date();
-        }
-
-        // Prefer focusing the first input (systolic) so the user can type immediately
-        const systInput = overlay.querySelector('#systolic');
-        if (
-          systInput &&
-          !systInput.disabled &&
-          systInput.offsetParent !== null
-        ) {
-          systInput.focus();
-        }
-      };
-
-      const overlayClickHandler = (e) => {
-        if (e.target === overlay) el.close();
-      };
-
-      const keyHandler = (e) => {
-        // If modal isn't active, ignore
-        if (!overlay || !overlay.classList.contains('active')) return;
-
-        // Close on Escape
-        if (e.key === 'Escape') {
-          el.close();
-          return;
-        }
-
-        // Minimal focus trap for Tab / Shift+Tab
-        if (e.key === 'Tab') {
-          const focusable = Array.from(
-            overlay.querySelectorAll(
-              'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-            ),
-          ).filter((el) => el.offsetParent !== null);
-          if (focusable.length === 0) {
-            e.preventDefault();
-            return;
-          }
-          const first = focusable[0];
-          const last = focusable[focusable.length - 1];
-          if (e.shiftKey) {
-            // Shift + Tab
-            if (document.activeElement === first) {
-              e.preventDefault();
-              last.focus();
-            }
-          } else {
-            // Tab
-            if (document.activeElement === last) {
-              e.preventDefault();
-              first.focus();
-            }
-          }
-        }
-      };
-
-      // Cleanup function that closes over handlers
-      const cleanup = () => {
-        form && form.removeEventListener('submit', submitHandler);
-        closeBtn && closeBtn.removeEventListener('click', el.close);
-        cancelBtn && cancelBtn.removeEventListener('click', el.close);
-        overlay && overlay.removeEventListener('click', overlayClickHandler);
-        document.removeEventListener('keydown', keyHandler);
-      };
-
-      // Expose open/close API on the component element
-      el.open = openHandler;
-      el.close = () => {
-        // remove active class and restore focus
-        if (overlay && overlay.classList.contains('active')) {
-          overlay.classList.remove('active');
-          if (
-            el._previouslyFocused &&
-            typeof el._previouslyFocused.focus === 'function'
-          ) {
-            el._previouslyFocused.focus();
-          }
-        }
-
-        // Dispose after a short delay to allow any close transitions
-        setTimeout(() => {
-          try {
-            el.dispose();
-          } catch (e) {
-            console.warn('Error disposing modal', e);
-          }
-        }, 140);
-      };
-
-      // Attach listeners
-      form && form.addEventListener('submit', submitHandler);
-      closeBtn && closeBtn.addEventListener('click', el.close);
-      cancelBtn && cancelBtn.addEventListener('click', el.close);
-      overlay && overlay.addEventListener('click', overlayClickHandler);
-      document.addEventListener('keydown', keyHandler);
-
-      // Open immediately so calling AddReadingModal() shows the modal by default
-      openHandler();
-
-      // Make cleanup available to onCleanup (called by dispose)
-      el._cleanup = cleanup;
-    },
-    onCleanup: () => {
-      if (modal && typeof modal._cleanup === 'function') modal._cleanup();
-    },
-    autoAppend: true, // Optional: default true
-    preserveInputState: true, // Optional: default true
+      await saveReading(reading);
+      close();
+      document.dispatchEvent(new CustomEvent('readings-updated'));
+      document.dispatchEvent(new CustomEvent('reading-added', { detail: reading }));
+    } catch (error) {
+      submitButton.disabled = false;
+      console.error('AddReadingModal submit error', error);
+      alert('Error saving reading. See console for details.');
+    }
   });
-  return modal;
-};
+
+  initializeVisualScales();
+  open();
+}

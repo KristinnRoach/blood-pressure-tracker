@@ -54,7 +54,7 @@ export async function exportReadings(readings, options = {}) {
     // Trigger download
     downloadFile(content, filename, handler.mimeType);
   } catch (error) {
-    throw new Error(`Export failed: ${error.message}`);
+    throw new Error(`Export failed: ${error.message}`, { cause: error });
   }
 }
 
