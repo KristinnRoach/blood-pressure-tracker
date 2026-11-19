@@ -1,6 +1,6 @@
 // UI update functions for status display and history
 
-import { getCategory, getPulseStatus } from '../analysis/bloodPressure.js';
+import { getPulseStatus } from '../analysis/bloodPressure.js';
 
 const MAX_NUM_READINGS_TO_RENDER = 50;
 
@@ -13,16 +13,9 @@ export class HistoryList {
     }
 
     this.containerEl = container;
-    this.containerId = containerId;
-    this.readings = [];
   }
 
-  async init(readings) {
-    this.readings = readings || [];
-    await this.updateReadings(this.readings);
-  }
-
-  async updateReadings(updatedReadings) {
+  updateReadings(updatedReadings) {
     if (!this.containerEl) return;
 
     if (updatedReadings.length === 0) {
@@ -40,7 +33,6 @@ export class HistoryList {
     this.containerEl.innerHTML = readingsToShow
       .map((reading) => {
         const date = new Date(reading.date);
-        const category = getCategory(reading.systolic, reading.diastolic);
         const pulseStatus = getPulseStatus(reading.pulse);
         return `
           <div class="entry">

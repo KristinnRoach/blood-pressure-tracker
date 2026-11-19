@@ -1,44 +1,38 @@
 import { getCategory } from '../analysis/bloodPressure.js';
+import { calculateMedian } from '../helpers/calculateMedian.js';
+import { getLocalDateKey } from '../helpers/localDate.js';
+import { AddReadingModal } from './addReadingModal.js';
 
 export class Calendar {
-  constructor(containerId = 'calendar-container') {
-    this.containerId = containerId;
+  constructor(containerId, modal) {
     this.container = document.getElementById(containerId);
     this.currentMonth = new Date();
-    this.readings = [];
     this.readingsByDate = new Map();
-    this.modal = null;
-    const today = new Date();
-    this.selectedDate = `${today.getFullYear()}-${String(
-      today.getMonth() + 1,
-    ).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  }
-
-  async init(modal) {
     this.modal = modal;
+    this.selectedDate = getLocalDateKey(this.currentMonth);
+    this.container.addEventListener('click', (event) => {
+      const button = event.target.closest('button');
+      if (!button || button.disabled) return;
 
-    console.warn(this.selectedDate);
-    await this.loadReadings();
-    this.render();
-    console.warn(this.selectedDate);
+      if (button.dataset.date) {
+        this.handleDayClick(button);
+      } else if (button.id === 'prev-month' || button.id === 'next-month') {
+        if (button.id === 'prev-month') this.prevMonth();
+        else this.nextMonth();
+        this.container.querySelector(`#${button.id}`).focus();
+      }
+    });
   }
 
-  async loadReadings(readingsOverride = null) {
-    if (readingsOverride) {
-      this.readings = readingsOverride;
-    } else {
-      // Import storage dynamically to avoid circular dependencies
-      const { getReadings } = await import('../storage.js');
-      this.readings = await getReadings();
-    }
+  updateReadings(readings) {
+    const focusedDate = this.container.querySelector(
+      'button[data-date]:focus',
+    )?.dataset.date;
 
     // Group readings by date (YYYY-MM-DD format) - store arrays of readings
     this.readingsByDate = new Map();
-    this.readings.forEach((reading) => {
-      const date = new Date(reading.date);
-      const dateKey = `${date.getFullYear()}-${String(
-        date.getMonth() + 1,
-      ).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    readings.forEach((reading) => {
+      const dateKey = getLocalDateKey(new Date(reading.date));
 
       // Push reading into array for this date
       if (!this.readingsByDate.has(dateKey)) {
@@ -46,11 +40,12 @@ export class Calendar {
       }
       this.readingsByDate.get(dateKey).push(reading);
     });
-  }
-
-  async updateReadings(updatedReadings) {
-    await this.loadReadings(updatedReadings);
     this.render();
+    if (focusedDate) {
+      this.container
+        .querySelector(`button[data-date="${focusedDate}"]`)
+        ?.focus();
+    }
   }
 
   render() {
@@ -81,9 +76,9 @@ export class Calendar {
 
     let html = `
       <div class="calendar-header">
-        <button class="calendar-nav-btn" id="prev-month">&lt;</button>
+        <button type="button" class="calendar-nav-btn" id="prev-month" aria-label="Previous month">&lt;</button>
         <h3>${monthNames[month]} ${year}</h3>
-        <button class="calendar-nav-btn" id="next-month">&gt;</button>
+        <button type="button" class="calendar-nav-btn" id="next-month" aria-label="Next month">&gt;</button>
       </div>
       <div class="calendar-grid">
         <div class="calendar-day-header">Sun</div>
@@ -110,8 +105,14 @@ export class Calendar {
       ).padStart(2, '0')}`;
       const isFuture = new Date(`${dateKey}T00:00:00`) > todayMidnight;
       const futureClass = isFuture ? ' future' : '';
-      const futureAttr = isFuture ? ' aria-disabled="true"' : '';
+      const futureAttr = isFuture ? ' disabled' : '';
       const readings = this.readingsByDate.get(dateKey);
+      const count = readings?.length ?? 0;
+      const dateLabel = `${monthNames[month]} ${day}, ${year}`;
+      const actionLabel = count
+        ? `${dateLabel}, ${count} saved ${count === 1 ? 'reading' : 'readings'}`
+        : `${dateLabel}, add reading`;
+      const buttonAttrs = `type="button" data-date="${dateKey}" aria-label="${actionLabel}"${futureAttr}`;
 
       if (readings && readings.length > 0) {
         // Calculate median values for color coding
@@ -136,36 +137,24 @@ export class Calendar {
 
         const activeClass = this.selectedDate === dateKey ? ' active' : '';
         html += `
-          <div class="calendar-day has-reading${activeClass}${futureClass}" data-date="${dateKey}"${futureAttr} style="background-color: var(--color-${categoryClass})">
+          <button class="calendar-day has-reading${activeClass}${futureClass}" ${buttonAttrs} style="background-color: var(--color-${categoryClass})">
             <span class="day-number">${day}</span>
             ${countBadge}
-          </div>
+          </button>
         `;
       } else {
         // Always include a data-date on actual month days so they can be clicked
         const activeClass = this.selectedDate === dateKey ? ' active' : '';
         html += `
-          <div class="calendar-day${activeClass}${futureClass}" data-date="${dateKey}"${futureAttr}>
+          <button class="calendar-day${activeClass}${futureClass}" ${buttonAttrs}>
             <span class="day-number">${day}</span>
-          </div>
+          </button>
         `;
       }
     }
 
     html += '</div>';
     this.container.innerHTML = html;
-
-    // Attach event listeners
-    this.attachEventListeners();
-  }
-
-  calculateMedian(numbers) {
-    if (numbers.length === 0) return 0;
-    const sorted = [...numbers].sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 === 0
-      ? (sorted[mid - 1] + sorted[mid]) / 2
-      : sorted[mid];
   }
 
   getMedianReading(readings) {
@@ -177,9 +166,9 @@ export class Calendar {
     const pulseValues = readings.map((r) => r.pulse);
 
     return {
-      systolic: Math.round(this.calculateMedian(systolicValues)),
-      diastolic: Math.round(this.calculateMedian(diastolicValues)),
-      pulse: Math.round(this.calculateMedian(pulseValues)),
+      systolic: Math.round(calculateMedian(systolicValues)),
+      diastolic: Math.round(calculateMedian(diastolicValues)),
+      pulse: Math.round(calculateMedian(pulseValues)),
     };
   }
 
@@ -192,68 +181,19 @@ export class Calendar {
     return 'normal';
   }
 
-  attachEventListeners() {
-    // Navigation buttons
-    document
-      .getElementById('prev-month')
-      ?.addEventListener('click', () => this.prevMonth());
-    document
-      .getElementById('next-month')
-      ?.addEventListener('click', () => this.nextMonth());
-
-    // Day clicks - include all actual month days (those with a data-date attribute)
-    document.querySelectorAll('.calendar-day[data-date]').forEach((dayEl) => {
-      dayEl.addEventListener('click', (e) => {
-        const date = e.currentTarget.dataset.date;
-        // Ignore clicks on future-marked days
-        if (e.currentTarget.classList.contains('future')) return;
-        this.handleDayClick(date);
-      });
-    });
-  }
-
-  /**
-   * @param {string} dateKey - date string in 'YYYY-MM-DD' format (from data-date attribute)
-   */
-  async handleDayClick(dateKey) {
+  handleDayClick(button) {
+    const dateKey = button.dataset.date;
     const readings = this.readingsByDate.get(dateKey);
-    console.log('handleDayClick', dateKey, readings, this.modal);
 
-    // pre-fill any existing date input (if present in DOM)
-    const dateInputEl = document.getElementById('reading-date');
-    if (dateInputEl) dateInputEl.value = dateKey;
-
-    // Update selection
+    this.container
+      .querySelector('.calendar-day.active')
+      ?.classList.remove('active');
     this.selectedDate = dateKey;
-    // Re-render to update active visuals (safe because the container is replaced and listeners re-attached)
-    this.render();
+    button.classList.add('active');
+    button.focus();
 
-    if (readings && readings.length > 0 && this.modal) {
-      // Pass all readings to modal (existing reading info display)
-      this.modal.open(readings);
-    } else {
-      // No readings on this day — open AddReadingModal with the clicked date prefilled
-      try {
-        const { AddReadingModal } = await import('./addReadingModal.js');
-        const newModal = AddReadingModal();
-        if (newModal && typeof newModal.open === 'function') {
-          newModal.open(dateKey);
-        }
-      } catch (err) {
-        console.error('Error opening AddReadingModal for date:', dateKey, err);
-      }
-    }
-  }
-
-  getCategoryText(categoryClass) {
-    const texts = {
-      normal: 'Normal',
-      elevated: 'Elevated',
-      high1: 'High Blood Pressure (Stage 1)',
-      high2: 'High Blood Pressure (Stage 2)',
-      critical: 'Hypertensive Crisis',
-    };
-    return texts[categoryClass] || 'Unknown';
+    if (readings?.length) this.modal.open(readings);
+    else AddReadingModal(dateKey);
   }
 
   nextMonth() {

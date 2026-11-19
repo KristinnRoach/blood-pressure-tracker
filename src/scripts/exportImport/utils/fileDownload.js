@@ -50,7 +50,7 @@ export function downloadFile(content, filename, mimeType) {
     document.body.removeChild(anchor);
   } catch (error) {
     const message = (error && error.message) || String(error);
-    throw new Error(`Failed to download file: ${message}`);
+    throw new Error(`Failed to download file: ${message}`, { cause: error });
   } finally {
     // Clean up the object URL after a short delay
     // (immediate cleanup can prevent download in some browsers)

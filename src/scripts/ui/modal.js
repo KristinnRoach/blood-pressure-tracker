@@ -1,5 +1,8 @@
 import { getCategory, getPulseStatus } from '../analysis/bloodPressure.js';
 import { getThresholdsSync } from '../storage.js';
+import { calculateMedian } from '../helpers/calculateMedian.js';
+import { AddReadingModal } from './addReadingModal.js';
+import { configureReadingDialog, readingDialogTag } from './readingDialog.js';
 
 export class ReadingInfoModal {
   constructor() {
@@ -7,53 +10,27 @@ export class ReadingInfoModal {
     this.numReadings = 0;
     this.currentDateKey = null; // track which date the modal is showing
     this.init();
-    this.isOpen = () => {
-      return this.modal.classList.contains('active');
-    };
   }
 
   init() {
     const modalHTML = `
-      <div class="modal-overlay" id="reading-modal">
+      <${readingDialogTag} class="reading-dialog" id="reading-modal" aria-label="Reading details" closedby="any">
         <div class="modal-content">
-          <button class="modal-close" aria-label="Close modal">&times;</button>
-          <div class="modal-body">
-            <!-- Reading details will be populated here -->
-          </div>
+          <button type="button" class="modal-close" aria-label="Close reading details" autofocus>&times;</button>
+          <div class="modal-body"></div>
         </div>
-      </div>
+      </${readingDialogTag}>
     `;
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     this.modal = document.getElementById('reading-modal');
-
-    this.attachCloseListeners();
+    this.dialogControls = configureReadingDialog(this.modal);
+    this.closeButton = this.modal.querySelector('.modal-close');
+    this.closeButton.addEventListener('click', () => this.close());
   }
 
-  attachCloseListeners() {
-    // Close button click
-    const closeButton = this.modal.querySelector('.modal-close');
-    closeButton.addEventListener('click', () => this.close());
-
-    // Click outside modal (on overlay) to close
-    this.modal.addEventListener('click', (e) => {
-      if (!this.isOpen()) return;
-
-      if (e.target === this.modal) {
-        this.close();
-      }
-    });
-
-    // ESC or Enter key to close
-    document.addEventListener('keydown', (e) => {
-      if (!this.isOpen()) return;
-
-      if (e.key === 'Escape' || e.key === 'Enter') {
-        if (this.modal.classList.contains('active')) {
-          this.close();
-        }
-      }
-    });
+  isOpen() {
+    return this.modal.hasAttribute('open');
   }
 
   open(readingOrReadings) {
@@ -76,23 +53,16 @@ export class ReadingInfoModal {
       const pulseValues = readings.map((r) => r.pulse);
 
       medianReading = {
-        systolic: Math.round(this.calculateMedian(systolicValues)),
-        diastolic: Math.round(this.calculateMedian(diastolicValues)),
-        pulse: Math.round(this.calculateMedian(pulseValues)),
+        systolic: Math.round(calculateMedian(systolicValues)),
+        diastolic: Math.round(calculateMedian(diastolicValues)),
+        pulse: Math.round(calculateMedian(pulseValues)),
       };
     }
 
-    // Shared date variable reused for grouped and single-reading modes.
-    // For grouped readings we use the first reading's date (date-only),
-    // and for a single reading we overwrite this with the full locale string.
-    let date = null;
-    if (readings[0] && readings[0].date) {
-      // store a date-only key for the modal so updates can filter to this date
-      this.currentDateKey = this.getDateKey(readings[0].date);
-      if (readings.length > 1) {
-        date = new Date(readings[0].date).toLocaleDateString();
-      }
-    }
+    // Keep the day selected when the details are refreshed.
+    this.currentDateKey = readings[0].date
+      ? this.getDateKey(readings[0].date)
+      : null;
 
     // Helper for ordinal suffixes (1st, 2nd, 3rd, 4th...)
     const ordinalSuffix = (n) => {
@@ -155,8 +125,7 @@ export class ReadingInfoModal {
     if (readings.length === 1) {
       // Single reading - show large and clear
       const reading = readings[0];
-      // Overwrite shared `date` with a full localized date/time string
-      date = new Date(reading.date).toLocaleString();
+      const date = new Date(reading.date).toLocaleString();
       html += `
         <div class="reading-single">
           <div class="reading-bp">
@@ -270,33 +239,14 @@ export class ReadingInfoModal {
     }
 
     html += '</div>';
+    const hadFocus = modalBody.contains(document.activeElement);
     modalBody.innerHTML = html;
+    modalBody.querySelector('.add-reading-btn')?.addEventListener('click', () => {
+      AddReadingModal(this.currentDateKey);
+    });
 
-    // Attach Add button handler (opens AddReadingModal prefilled with the current date)
-    const addBtn = modalBody.querySelector('.add-reading-btn');
-    if (addBtn) {
-      addBtn.addEventListener('click', async (evt) => {
-        try {
-          const { AddReadingModal } = await import('./addReadingModal.js');
-          const newModal = AddReadingModal();
-          if (newModal && typeof newModal.open === 'function') {
-            newModal.open(this.currentDateKey);
-          }
-        } catch (err) {
-          console.error(
-            'Failed to open AddReadingModal from ReadingInfoModal',
-            err,
-          );
-        }
-      });
-    }
-
-    // Show modal by adding active class
-    this.modal.classList.add('active');
-
-    // Set focus to modal for accessibility
-    this.modal.setAttribute('tabindex', '-1');
-    this.modal.focus();
+    if (!this.isOpen()) this.dialogControls.open();
+    else if (hadFocus) this.closeButton.focus();
   }
 
   // Refresh modal contents when readings change
@@ -332,7 +282,7 @@ export class ReadingInfoModal {
   }
 
   close() {
-    this.modal.classList.remove('active');
+    this.dialogControls.close();
     this.currentDateKey = null;
   }
 
@@ -346,15 +296,6 @@ export class ReadingInfoModal {
     } catch (e) {
       return null;
     }
-  }
-
-  calculateMedian(numbers) {
-    if (numbers.length === 0) return 0;
-    const sorted = [...numbers].sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 === 0
-      ? (sorted[mid - 1] + sorted[mid]) / 2
-      : sorted[mid];
   }
 
   getAbnormalFlags(systolic, diastolic, pulse) {

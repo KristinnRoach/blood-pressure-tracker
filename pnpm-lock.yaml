@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@kidlib/create-component':
-        specifier: ^0.1.5
-        version: 0.1.5
+        specifier: ^0.1.6
+        version: 0.1.6
       chart.js:
         specifier: ^4.6.1
         version: 4.6.1
@@ -67,8 +67,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kidlib/create-component@0.1.5':
-    resolution: {integrity: sha512-viom5Q6hIMz13plwb6665OT+2N3OBLs+8T7dNT5G9+0UQFcCtOI0iFE0tq0PNf5nnkNsrhS/NkhkyFvclTbMKA==}
+  '@kidlib/create-component@0.1.6':
+    resolution: {integrity: sha512-6srEqwqN4wPy0D60cr66DpS4SnV62Isy/5Zt2MbUgBPWHnRnwcX3I3M5GD2P7MxFZVbeK7L1M26bY12CCMZGEA==}
 
   '@kurkle/color@0.3.4':
     resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
@@ -804,7 +804,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.3
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@kidlib/create-component@0.1.5': {}
+  '@kidlib/create-component@0.1.6': {}
 
   '@kurkle/color@0.3.4': {}
 

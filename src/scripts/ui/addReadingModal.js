@@ -1,15 +1,18 @@
-import createComponent from '@kidlib/create-component';
 import { saveReading } from '../storage.js';
-import { getCategory, getPulseStatus } from '../analysis/bloodPressure.js';
+import { getCategory } from '../analysis/bloodPressure.js';
+import { getLocalDateKey } from '../helpers/localDate.js';
+import { configureReadingDialog, readingDialogTag } from './readingDialog.js';
+import { initializeVisualScales } from './visualScales.js';
 
 const template = `
-  <div class="modal-overlay" id="add-reading-modal">
+  <${readingDialogTag} class="reading-dialog add-reading-modal" id="add-reading-modal" aria-label="Add reading" closedby="any">
     <div class="modal-content">
-      <button class="modal-close" aria-label="Close modal">&times;</button>
+      <button type="button" class="modal-close" aria-label="Close add reading">&times;</button>
       <div class="modal-body">
         <form id="reading-form" class="input-group">
           <div class="input-with-scale">
-            <input type="number" inputmode="numeric" id="systolic" placeholder="Systolic" min="50" max="300" step="1" placeholder="120" />
+            <label for="systolic">Systolic</label>
+            <input type="number" inputmode="numeric" id="systolic" min="50" max="300" step="1" required autofocus />
             <div class="visual-scale" id="systolic-scale">
               <div class="scale-track">
                 <div class="scale-segment normal"></div>
@@ -23,7 +26,8 @@ const template = `
           </div>
 
           <div class="input-with-scale">
-            <input type="number" inputmode="numeric" id="diastolic" placeholder="Diastolic" min="30" max="200" step="1" placeholder="80" />
+            <label for="diastolic">Diastolic</label>
+            <input type="number" inputmode="numeric" id="diastolic" min="30" max="200" step="1" required />
             <div class="visual-scale" id="diastolic-scale">
               <div class="scale-track">
                 <div class="scale-segment normal"></div>
@@ -36,7 +40,8 @@ const template = `
           </div>
 
           <div class="input-with-scale">
-            <input type="number" inputmode="numeric" id="pulse" placeholder="Pulse" min="20" max="250" step="1" placeholder="72" />
+            <label for="pulse">Pulse</label>
+            <input type="number" inputmode="numeric" id="pulse" min="20" max="250" step="1" required />
             <div class="visual-scale" id="pulse-scale">
               <div class="scale-track">
                 <div class="scale-segment low"></div>
@@ -49,215 +54,84 @@ const template = `
 
           <!-- Optional date picker for adding past readings -->
           <div class="input-with-scale">
-            <input type="date" id="reading-date" aria-label="Reading date" />
+            <label for="reading-date">Reading date</label>
+            <input type="date" id="reading-date" />
           </div>
           <div class="reading-form-modal-btns">
-            <button type="button">Cancel</button>
+            <button type="button" class="reading-cancel">Cancel</button>
             <button type="submit">OK</button>
           </div>
         </form>
       </div>
     </div>
-  </div>`;
+  </${readingDialogTag}>`;
 
-export const AddReadingModal = () => {
-  let modal = null;
-
-  modal = createComponent({
-    initialProps: { systolic: '', diastolic: '', pulse: '', date: '' },
-    template,
-    // handlers: { onSubmit },
-    parent: document.body, // Optional: parent element
-    containerTag: 'div', // Optional: default 'div'
-    className: 'add-reading-modal', // Optional: CSS class
-    onMount: (el) => {
-      /* runs once after initial render (after append if autoAppend) */
-      const form = el.querySelector('form');
-      const overlay = el.querySelector('.modal-overlay');
-      const closeBtn = el.querySelector('.modal-close');
-      const cancelBtn = el.querySelector('button[type="button"]');
-
-      const submitHandler = async (e) => {
-        e.preventDefault();
-        try {
-          // Read values from the form inside the modal
-          const get = (sel) => overlay.querySelector(sel);
-          const sysVal = Number(get('#systolic')?.value);
-          const diaVal = Number(get('#diastolic')?.value);
-          const pulseVal = Number(get('#pulse')?.value);
-          if (
-            !Number.isFinite(sysVal) ||
-            !Number.isFinite(diaVal) ||
-            !Number.isFinite(pulseVal)
-          ) {
-            alert(
-              'Please enter valid numbers for systolic, diastolic and pulse.',
-            );
-            return;
-          }
-
-          // Determine date (preserve time-of-day if a date is provided)
-          const dateInput = get('#reading-date')?.value;
-          const now = new Date();
-          let readingDateIso;
-          if (dateInput) {
-            const d = new Date(dateInput);
-            d.setHours(
-              now.getHours(),
-              now.getMinutes(),
-              now.getSeconds(),
-              now.getMilliseconds(),
-            );
-            readingDateIso = d.toISOString();
-          } else {
-            readingDateIso = now.toISOString();
-          }
-
-          const category = getCategory(sysVal, diaVal);
-
-          const reading = {
-            systolic: sysVal,
-            diastolic: diaVal,
-            pulse: pulseVal,
-            date: readingDateIso,
-            category,
-          };
-
-          // Save reading
-          await saveReading(reading);
-
-          // Notify the app that readings changed and provide the added reading
-          document.dispatchEvent(new CustomEvent('readings-updated'));
-          document.dispatchEvent(
-            new CustomEvent('reading-added', { detail: reading }),
-          );
-          // Close (and dispose) after successful save
-          el.close && el.close();
-        } catch (err) {
-          console.error('AddReadingModal submit error', err);
-          alert('Error saving reading. See console for details.');
-        }
-      };
-
-      const openHandler = (dateArg) => {
-        if (!overlay) return;
-        // Save previously focused element to restore later
-        el._previouslyFocused = document.activeElement;
-        overlay.classList.add('active');
-
-        // Set date input to today by default
-        const dateInput = overlay.querySelector('#reading-date');
-        if (dateInput) {
-          // If caller provided a date (YYYY-MM-DD), use it; otherwise default to today
-          if (dateArg) dateInput.value = dateArg;
-          else dateInput.valueAsDate = new Date();
-        }
-
-        // Prefer focusing the first input (systolic) so the user can type immediately
-        const systInput = overlay.querySelector('#systolic');
-        if (
-          systInput &&
-          !systInput.disabled &&
-          systInput.offsetParent !== null
-        ) {
-          systInput.focus();
-        }
-      };
-
-      const overlayClickHandler = (e) => {
-        if (e.target === overlay) el.close();
-      };
-
-      const keyHandler = (e) => {
-        // If modal isn't active, ignore
-        if (!overlay || !overlay.classList.contains('active')) return;
-
-        // Close on Escape
-        if (e.key === 'Escape') {
-          el.close();
-          return;
-        }
-
-        // Minimal focus trap for Tab / Shift+Tab
-        if (e.key === 'Tab') {
-          const focusable = Array.from(
-            overlay.querySelectorAll(
-              'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-            ),
-          ).filter((el) => el.offsetParent !== null);
-          if (focusable.length === 0) {
-            e.preventDefault();
-            return;
-          }
-          const first = focusable[0];
-          const last = focusable[focusable.length - 1];
-          if (e.shiftKey) {
-            // Shift + Tab
-            if (document.activeElement === first) {
-              e.preventDefault();
-              last.focus();
-            }
-          } else {
-            // Tab
-            if (document.activeElement === last) {
-              e.preventDefault();
-              first.focus();
-            }
-          }
-        }
-      };
-
-      // Cleanup function that closes over handlers
-      const cleanup = () => {
-        form && form.removeEventListener('submit', submitHandler);
-        closeBtn && closeBtn.removeEventListener('click', el.close);
-        cancelBtn && cancelBtn.removeEventListener('click', el.close);
-        overlay && overlay.removeEventListener('click', overlayClickHandler);
-        document.removeEventListener('keydown', keyHandler);
-      };
-
-      // Expose open/close API on the component element
-      el.open = openHandler;
-      el.close = () => {
-        // remove active class and restore focus
-        if (overlay && overlay.classList.contains('active')) {
-          overlay.classList.remove('active');
-          if (
-            el._previouslyFocused &&
-            typeof el._previouslyFocused.focus === 'function'
-          ) {
-            el._previouslyFocused.focus();
-          }
-        }
-
-        // Dispose after a short delay to allow any close transitions
-        setTimeout(() => {
-          try {
-            el.dispose();
-          } catch (e) {
-            console.warn('Error disposing modal', e);
-          }
-        }, 140);
-      };
-
-      // Attach listeners
-      form && form.addEventListener('submit', submitHandler);
-      closeBtn && closeBtn.addEventListener('click', el.close);
-      cancelBtn && cancelBtn.addEventListener('click', el.close);
-      overlay && overlay.addEventListener('click', overlayClickHandler);
-      document.addEventListener('keydown', keyHandler);
-
-      // Open immediately so calling AddReadingModal() shows the modal by default
-      openHandler();
-
-      // Make cleanup available to onCleanup (called by dispose)
-      el._cleanup = cleanup;
-    },
-    onCleanup: () => {
-      if (modal && typeof modal._cleanup === 'function') modal._cleanup();
-    },
-    autoAppend: true, // Optional: default true
-    preserveInputState: true, // Optional: default true
+export function AddReadingModal(date) {
+  document.body.insertAdjacentHTML('beforeend', template);
+  const dialog = document.body.lastElementChild;
+  const form = dialog.querySelector('form');
+  let saving = false;
+  const { open, close, dismiss } = configureReadingDialog(dialog, {
+    onClose: () => dialog.remove(),
+    canDismiss: () => !saving,
   });
-  return modal;
-};
+  const submitButton = form.querySelector('button[type="submit"]');
+  const closeButton = dialog.querySelector('.modal-close');
+  const cancelButton = dialog.querySelector('.reading-cancel');
+
+  const dateInput = form.elements['reading-date'];
+  dateInput.value = date || getLocalDateKey(new Date());
+
+  closeButton.addEventListener('click', dismiss);
+  cancelButton.addEventListener('click', dismiss);
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (saving) return;
+
+    const systolic = form.elements.systolic.valueAsNumber;
+    const diastolic = form.elements.diastolic.valueAsNumber;
+    const pulse = form.elements.pulse.valueAsNumber;
+    if (![systolic, diastolic, pulse].every(Number.isFinite)) {
+      alert('Please enter valid numbers for systolic, diastolic and pulse.');
+      return;
+    }
+
+    saving = true;
+    for (const button of [submitButton, closeButton, cancelButton]) {
+      button.setAttribute('aria-disabled', 'true');
+    }
+    submitButton.textContent = 'Saving…';
+    dialog.setAttribute('closedby', 'none');
+    try {
+      const readingDate = new Date();
+      if (dateInput.value && dateInput.value !== getLocalDateKey(readingDate)) {
+        const [year, month, day] = dateInput.value.split('-').map(Number);
+        readingDate.setFullYear(year, month - 1, day);
+      }
+      const reading = {
+        systolic,
+        diastolic,
+        pulse,
+        date: readingDate.toISOString(),
+        category: getCategory(systolic, diastolic),
+      };
+
+      await saveReading(reading);
+      close();
+      document.dispatchEvent(new CustomEvent('reading-added', { detail: reading }));
+    } catch (error) {
+      console.error('AddReadingModal submit error', error);
+      alert('Error saving reading. See console for details.');
+    } finally {
+      saving = false;
+      for (const button of [submitButton, closeButton, cancelButton]) {
+        button.removeAttribute('aria-disabled');
+      }
+      submitButton.textContent = 'OK';
+      dialog.setAttribute('closedby', 'any');
+    }
+  });
+
+  initializeVisualScales();
+  open();
+}

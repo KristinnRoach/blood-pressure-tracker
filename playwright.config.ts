@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const appUrl = 'http://127.0.0.1:4173/blood-pressure-tracker/';
+
 export default defineConfig({
   testDir: './tests/playwright',
   timeout: 30 * 1000,
@@ -9,6 +11,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'list',
   use: {
+    baseURL: appUrl,
     headless: true,
     viewport: { width: 1280, height: 800 },
     actionTimeout: 5000,
@@ -21,9 +24,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
+    // The app registers its service worker only in production.
+    command:
+      'pnpm build && pnpm exec vite preview --host 127.0.0.1 --port 4173 --strictPort',
+    url: appUrl,
     timeout: 120 * 1000,
   },
 });

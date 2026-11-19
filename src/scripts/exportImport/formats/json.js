@@ -50,7 +50,7 @@ function deserialize(content) {
   try {
     data = JSON.parse(content);
   } catch (error) {
-    throw new Error(`Invalid JSON: ${error.message}`);
+      throw new Error(`Invalid JSON: ${error.message}`, { cause: error });
   }
 
   // Validate structure
