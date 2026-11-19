@@ -6,6 +6,7 @@
  */
 
 import { exportReadings, importReadings } from '../exportImport/index.js';
+import { jsonFormat } from '../exportImport/formats/json.js';
 import {
   convertToExportFormat,
   convertFromExportFormat,
@@ -20,6 +21,22 @@ import {
   normalizeThresholds,
   getCurrentUserSync,
 } from '../storage.js';
+
+/**
+ * Build the same JSON content as a manual export, without downloading it.
+ * @returns {Promise<string>}
+ */
+export async function buildBackupJson() {
+  const metadata = prepareExportMetadata({
+    appVersion: '1.0.0',
+    user: getCurrentUserSync(),
+    thresholds: await getThresholds(),
+  });
+  return jsonFormat.serialize(
+    convertToExportFormat(await getReadings()),
+    metadata,
+  );
+}
 
 /**
  * Handle export operation

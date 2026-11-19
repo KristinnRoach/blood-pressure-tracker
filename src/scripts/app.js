@@ -24,6 +24,7 @@ import { ReadingInfoModal } from './ui/modal.js';
 import { UndoRedoManager } from './helpers/UndoRedoManager.js';
 import { AddReadingModal } from './ui/addReadingModal.js';
 import { SettingsModal } from './ui/settingsModal.js';
+import { scheduleBackup } from './autoBackup.js';
 
 // Create calendar and modal instances
 let calendar = null;
@@ -189,11 +190,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   document.addEventListener('readings-updated', async () => {
+    scheduleBackup();
     await updateUIReadings();
   });
 
   // When an individual reading is added, open the ReadingInfoModal with that reading
   document.addEventListener('reading-added', async (e) => {
+    scheduleBackup();
     await updateUIReadings(e.detail);
   });
 
