@@ -23,10 +23,7 @@ export class HistoryList {
       return;
     }
 
-    const numReadings = Math.min(
-      updatedReadings.length,
-      MAX_NUM_READINGS_TO_RENDER,
-    );
+    const numReadings = Math.min(updatedReadings.length, MAX_NUM_READINGS_TO_RENDER);
 
     const readingsToShow = updatedReadings.slice(-numReadings).reverse();
 
@@ -42,9 +39,7 @@ export class HistoryList {
               } bpm (${pulseStatus})<br>
               <small>${date.toLocaleDateString()} ${date.toLocaleTimeString()}</small>
             </div>
-            <button class="delete" onclick="window.deleteReadingById(${
-              reading.id
-            })">Delete</button>
+            <button class="delete" onclick="window.deleteReadingById(${reading.id})">Delete</button>
           </div>
         `;
       })

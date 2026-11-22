@@ -102,11 +102,7 @@ export function initializeVisualScales() {
 
 // Clear all indicators (used when form is reset)
 export function clearIndicators() {
-  const indicators = [
-    'systolic-indicator',
-    'diastolic-indicator',
-    'pulse-indicator',
-  ];
+  const indicators = ['systolic-indicator', 'diastolic-indicator', 'pulse-indicator'];
   indicators.forEach((id) => {
     const indicator = document.getElementById(id);
     if (indicator) {

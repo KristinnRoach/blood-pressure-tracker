@@ -32,10 +32,7 @@ export async function buildBackupJson(user = getCurrentUserSync()) {
     user,
     thresholds: await getThresholds(user),
   });
-  return jsonFormat.serialize(
-    convertToExportFormat(await getReadings(user)),
-    metadata,
-  );
+  return jsonFormat.serialize(convertToExportFormat(await getReadings(user)), metadata);
 }
 
 /**
@@ -141,9 +138,7 @@ export async function handleImport(file, { applySettings = false } = {}) {
       try {
         const thresholds = normalizeThresholds(settings.thresholds);
         await setThresholds(thresholds);
-        document.dispatchEvent(
-          new CustomEvent('thresholds-updated', { detail: thresholds }),
-        );
+        document.dispatchEvent(new CustomEvent('thresholds-updated', { detail: thresholds }));
       } catch (error) {
         console.warn('Failed to apply imported thresholds', error);
       }

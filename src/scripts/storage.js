@@ -36,13 +36,9 @@ export function getCurrentUserSync() {
 }
 
 export async function setCurrentUser(username) {
-  if (!username || typeof username !== 'string')
-    throw new Error('Username required');
+  if (!username || typeof username !== 'string') throw new Error('Username required');
   const user = await getOrCreateUser(username.trim());
-  localStorage.setItem(
-    CURRENT_USER_KEY,
-    JSON.stringify({ id: user.id, username: user.username }),
-  );
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({ id: user.id, username: user.username }));
   return user;
 }
 
@@ -60,11 +56,7 @@ async function migrateFromLocalStorage() {
     const existingData = localStorage.getItem('bpHistory');
     if (existingData) {
       const readings = JSON.parse(existingData);
-      console.log(
-        'Migrating',
-        readings.length,
-        'readings from localStorage to IndexedDB',
-      );
+      console.log('Migrating', readings.length, 'readings from localStorage to IndexedDB');
 
       // Convert old format to new format and add to IndexedDB
       for (const reading of readings) {
@@ -232,14 +224,8 @@ export function normalizeThresholds(raw) {
       return Number.isFinite(n) ? n : null;
     };
 
-    const candidateMin =
-      r.min != null ? toNumber(r.min) : r.low != null ? toNumber(r.low) : null;
-    const candidateMax =
-      r.max != null
-        ? toNumber(r.max)
-        : r.high != null
-          ? toNumber(r.high)
-          : null;
+    const candidateMin = r.min != null ? toNumber(r.min) : r.low != null ? toNumber(r.low) : null;
+    const candidateMax = r.max != null ? toNumber(r.max) : r.high != null ? toNumber(r.high) : null;
 
     const min = candidateMin !== null ? candidateMin : fallback.min;
     const max = candidateMax !== null ? candidateMax : fallback.max;
@@ -264,9 +250,7 @@ export function getThresholdsSync() {
   try {
     const current = getCurrentUserSync();
     const key =
-      current && current.id != null
-        ? `bpThresholds:${current.id}`
-        : 'bpThresholds:global';
+      current && current.id != null ? `bpThresholds:${current.id}` : 'bpThresholds:global';
     const raw = localStorage.getItem(key);
     return raw ? normalizeThresholds(JSON.parse(raw)) : DEFAULT_THRESHOLDS;
   } catch (e) {
@@ -281,9 +265,7 @@ export function getThresholdsSync() {
 export async function getThresholds(current = getCurrentUserSync()) {
   try {
     const key =
-      current && current.id != null
-        ? `bpThresholds:${current.id}`
-        : 'bpThresholds:global';
+      current && current.id != null ? `bpThresholds:${current.id}` : 'bpThresholds:global';
     const raw = localStorage.getItem(key);
     return raw ? normalizeThresholds(JSON.parse(raw)) : DEFAULT_THRESHOLDS;
   } catch (e) {
@@ -300,9 +282,7 @@ export async function setThresholds(thresholds) {
   try {
     const current = getCurrentUserSync();
     const key =
-      current && current.id != null
-        ? `bpThresholds:${current.id}`
-        : 'bpThresholds:global';
+      current && current.id != null ? `bpThresholds:${current.id}` : 'bpThresholds:global';
     localStorage.setItem(key, JSON.stringify(thresholds));
     return thresholds;
   } catch (e) {

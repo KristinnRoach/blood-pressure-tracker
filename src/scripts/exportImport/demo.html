@@ -6,10 +6,7 @@
     <title>Export/Import Module Demo</title>
     <style>
       body {
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
+        font-family: system-ui, -apple-system, sans-serif;
         max-width: 800px;
         margin: 40px auto;
         padding: 20px;
@@ -92,8 +89,7 @@
     <h1>📊 Export/Import Module Demo</h1>
 
     <p>
-      This demo shows the export/import module working in isolation, without any
-      app dependencies.
+      This demo shows the export/import module working in isolation, without any app dependencies.
     </p>
 
     <!-- Sample Data Section -->
@@ -111,9 +107,7 @@
     <div class="section">
       <h2>2. Export Readings</h2>
       <p>Export the current readings to a JSON file:</p>
-      <button onclick="exportData()" id="exportBtn" disabled>
-        Export to JSON
-      </button>
+      <button onclick="exportData()" id="exportBtn" disabled>Export to JSON</button>
       <div class="output" id="exportOutput"></div>
     </div>
 
@@ -121,12 +115,7 @@
     <div class="section">
       <h2>3. Import Readings</h2>
       <p>Import readings from a previously exported JSON file:</p>
-      <input
-        type="file"
-        id="fileInput"
-        accept=".json"
-        onchange="importData(event)"
-      />
+      <input type="file" id="fileInput" accept=".json" onchange="importData(event)" />
       <div class="output" id="importOutput"></div>
     </div>
 
@@ -141,11 +130,7 @@
     </div>
 
     <script type="module">
-      import {
-        exportReadings,
-        importReadings,
-        getSupportedFormats,
-      } from './index.js';
+      import { exportReadings, importReadings, getSupportedFormats } from './index.js';
 
       // Store readings in memory for demo
       let currentReadings = [];
@@ -195,11 +180,7 @@
               source: 'demo-page',
             },
           });
-          log(
-            'exportOutput',
-            '✓ Export successful! Check your downloads folder.',
-            'success',
-          );
+          log('exportOutput', '✓ Export successful! Check your downloads folder.', 'success');
         } catch (error) {
           log('exportOutput', `✗ Export failed: ${error.message}`, 'error');
         }
@@ -236,11 +217,7 @@
 
             log('importOutput', summary.join('\n'), 'success');
           } else {
-            log(
-              'importOutput',
-              `✗ Import failed:\n${result.errors.join('\n')}`,
-              'error',
-            );
+            log('importOutput', `✗ Import failed:\n${result.errors.join('\n')}`, 'error');
           }
         } catch (error) {
           log('importOutput', `✗ Import failed: ${error.message}`, 'error');
@@ -258,17 +235,9 @@
 
         try {
           const result = await importReadings(invalidFile);
-          log(
-            'errorOutput',
-            `Result: ${JSON.stringify(result, null, 2)}`,
-            'info',
-          );
+          log('errorOutput', `Result: ${JSON.stringify(result, null, 2)}`, 'info');
         } catch (error) {
-          log(
-            'errorOutput',
-            `✓ Correctly caught error: ${error.message}`,
-            'success',
-          );
+          log('errorOutput', `✓ Correctly caught error: ${error.message}`, 'success');
         }
       };
 
@@ -301,11 +270,9 @@
           ],
         };
 
-        const file = new File(
-          [JSON.stringify(invalidData)],
-          'invalid-readings.json',
-          { type: 'application/json' },
-        );
+        const file = new File([JSON.stringify(invalidData)], 'invalid-readings.json', {
+          type: 'application/json',
+        });
 
         const result = await importReadings(file);
         log(
@@ -331,11 +298,9 @@
           readings: [...currentReadings, ...currentReadings], // Duplicate all readings
         };
 
-        const file = new File(
-          [JSON.stringify(duplicateData)],
-          'duplicates.json',
-          { type: 'application/json' },
-        );
+        const file = new File([JSON.stringify(duplicateData)], 'duplicates.json', {
+          type: 'application/json',
+        });
 
         const result = await importReadings(file, {
           skipDuplicates: true,
@@ -351,8 +316,7 @@
 
       // Helper functions
       function updateReadingsCount() {
-        document.getElementById('readingsCount').textContent =
-          `${currentReadings.length} readings`;
+        document.getElementById('readingsCount').textContent = `${currentReadings.length} readings`;
       }
 
       function log(elementId, message, type = 'info') {
@@ -363,11 +327,7 @@
 
       // Initialize
       updateReadingsCount();
-      log(
-        'exportOutput',
-        'Ready to export. Generate sample data first.',
-        'info',
-      );
+      log('exportOutput', 'Ready to export. Generate sample data first.', 'info');
       log('importOutput', 'Ready to import. Select a JSON file.', 'info');
       log('errorOutput', 'Click buttons above to test error handling.', 'info');
 

@@ -47,9 +47,7 @@ export async function exportReadings(readings, options = {}) {
     const content = handler.serialize(readings, metadata);
 
     // Generate filename
-    const filename =
-      options.filename ||
-      generateFilename('bp-readings', handler.fileExtension);
+    const filename = options.filename || generateFilename('bp-readings', handler.fileExtension);
 
     // Trigger download
     downloadFile(content, filename, handler.mimeType);
@@ -143,10 +141,7 @@ export async function importReadings(file, options = {}) {
     let finalReadings = validReadings;
     if (skipDuplicates) {
       // Always run duplicate detection to catch intra-file duplicates
-      const { unique, duplicates } = detectDuplicates(
-        validReadings,
-        existingReadings,
-      );
+      const { unique, duplicates } = detectDuplicates(validReadings, existingReadings);
       finalReadings = unique;
       result.skipped = duplicates.length;
     }

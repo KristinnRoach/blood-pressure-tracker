@@ -1,12 +1,7 @@
 export const readingDialogTag =
-  typeof globalThis.HTMLDialogElement?.prototype.showModal === 'function'
-    ? 'dialog'
-    : 'div';
+  typeof globalThis.HTMLDialogElement?.prototype.showModal === 'function' ? 'dialog' : 'div';
 
-export function configureReadingDialog(
-  dialog,
-  { onClose, canDismiss } = {},
-) {
+export function configureReadingDialog(dialog, { onClose, canDismiss } = {}) {
   const legacy = readingDialogTag === 'div';
   let invoker;
   const close = () => {
@@ -32,9 +27,7 @@ export function configureReadingDialog(
       if (event.key === 'Escape') dismiss();
       if (event.key !== 'Tab') return;
 
-      const controls = dialog.querySelectorAll(
-        'button:not(:disabled), input:not(:disabled)',
-      );
+      const controls = dialog.querySelectorAll('button:not(:disabled), input:not(:disabled)');
       const first = controls[0];
       const last = controls[controls.length - 1];
       if (event.shiftKey && event.target === first) {
@@ -78,9 +71,7 @@ export function configureReadingDialog(
 function attachBackdropDismiss(dialog, panel, dismiss) {
   const outside = ({ clientX, clientY }) => {
     const { left, right, top, bottom } = panel.getBoundingClientRect();
-    return (
-      clientX < left || clientX > right || clientY < top || clientY > bottom
-    );
+    return clientX < left || clientX > right || clientY < top || clientY > bottom;
   };
   let backdropPointer = null;
 

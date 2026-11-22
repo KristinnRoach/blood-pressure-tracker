@@ -197,9 +197,7 @@ function setupRangeListeners() {
   const labels = document.querySelectorAll('.range-filter-label');
   labels.forEach((label) => {
     label.addEventListener('click', (e) => {
-      selectedRangeDays = e.target.dataset.rangeDays
-        ? Number(e.target.dataset.rangeDays)
-        : null;
+      selectedRangeDays = e.target.dataset.rangeDays ? Number(e.target.dataset.rangeDays) : null;
 
       labels.forEach((currentLabel) => currentLabel.classList.remove('active'));
       e.target.classList.add('active');
@@ -218,9 +216,7 @@ function getDateKey(date) {
 function filterDailyMedians(dailyMedians, rangeDays = selectedRangeDays) {
   if (!rangeDays || dailyMedians.length === 0) return dailyMedians;
 
-  const lastDate = new Date(
-    `${dailyMedians[dailyMedians.length - 1].date}T00:00:00`,
-  );
+  const lastDate = new Date(`${dailyMedians[dailyMedians.length - 1].date}T00:00:00`);
   const cutoff = new Date(lastDate);
   cutoff.setDate(cutoff.getDate() - rangeDays + 1);
 
@@ -237,9 +233,7 @@ function isRangeAvailable(dailyMedians, rangeDays) {
 function updateRangeAvailability(dailyMedians) {
   const labels = document.querySelectorAll('.range-filter-label');
   labels.forEach((label) => {
-    const rangeDays = label.dataset.rangeDays
-      ? Number(label.dataset.rangeDays)
-      : null;
+    const rangeDays = label.dataset.rangeDays ? Number(label.dataset.rangeDays) : null;
 
     label.disabled = !isRangeAvailable(dailyMedians, rangeDays);
   });
@@ -248,9 +242,7 @@ function updateRangeAvailability(dailyMedians) {
     const fallback = Array.from(labels).find((label) => !label.disabled);
     if (!fallback) return;
 
-    selectedRangeDays = fallback.dataset.rangeDays
-      ? Number(fallback.dataset.rangeDays)
-      : null;
+    selectedRangeDays = fallback.dataset.rangeDays ? Number(fallback.dataset.rangeDays) : null;
 
     labels.forEach((label) => label.classList.remove('active'));
     fallback.classList.add('active');

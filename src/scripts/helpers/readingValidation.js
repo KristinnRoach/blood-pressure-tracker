@@ -33,15 +33,11 @@ export function validateAndNormalizeReading(reading) {
   } else if (typeof ts === 'string' || typeof ts === 'number') {
     const d = new Date(ts);
     if (Number.isNaN(d.getTime())) {
-      throw new Error(
-        'Invalid reading: timestamp must be a valid ISO string, number, or Date'
-      );
+      throw new Error('Invalid reading: timestamp must be a valid ISO string, number, or Date');
     }
     normalized.timestamp = d;
   } else {
-    throw new Error(
-      'Invalid reading: timestamp must be a Date, ISO string, or number'
-    );
+    throw new Error('Invalid reading: timestamp must be a Date, ISO string, or number');
   }
 
   return normalized;

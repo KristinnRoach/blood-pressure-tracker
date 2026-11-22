@@ -77,10 +77,7 @@ export function getCategory(sys, dia) {
     return { class: 'high1', text: 'High BP: Stage 1' };
   }
 
-  if (
-    (sys >= sElevatedLow && sys < sStage1Low) ||
-    (dia >= dElevatedLow && dia < dStage1Low)
-  ) {
+  if ((sys >= sElevatedLow && sys < sStage1Low) || (dia >= dElevatedLow && dia < dStage1Low)) {
     return { class: 'elevated', text: 'Elevated BP' };
   }
 
@@ -100,12 +97,7 @@ export function getPulseStatus(pulse) {
 
   const thresholds = getThresholdsSync();
 
-  if (
-    !thresholds ||
-    !thresholds.pulse ||
-    !thresholds.pulse.min ||
-    !thresholds.pulse.max
-  ) {
+  if (!thresholds || !thresholds.pulse || !thresholds.pulse.min || !thresholds.pulse.max) {
     console.error('Pulse thresholds not properly configured');
     return 'Unknown';
   }

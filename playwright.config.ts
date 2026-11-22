@@ -25,8 +25,7 @@ export default defineConfig({
   ],
   webServer: {
     // The app registers its service worker only in production.
-    command:
-      'pnpm build && pnpm exec vite preview --host 127.0.0.1 --port 4173 --strictPort',
+    command: 'pnpm build && pnpm exec vite preview --host 127.0.0.1 --port 4173 --strictPort',
     url: appUrl,
     timeout: 120 * 1000,
   },

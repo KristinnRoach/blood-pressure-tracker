@@ -95,10 +95,7 @@ self.addEventListener('fetch', (event) => {
       fetch(event.request)
         .then((response) => {
           if (response && response.status === 200) {
-            console.log(
-              'Service Worker: Fetched fresh HTML from network',
-              event.request.url,
-            );
+            console.log('Service Worker: Fetched fresh HTML from network', event.request.url);
             // Cache the fresh HTML
             const responseToCache = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -109,10 +106,7 @@ self.addEventListener('fetch', (event) => {
           throw new Error('Network response not ok');
         })
         .catch((error) => {
-          console.log(
-            'Service Worker: Network failed, serving cached HTML',
-            event.request.url,
-          );
+          console.log('Service Worker: Network failed, serving cached HTML', event.request.url);
           // Fallback to cache for offline
           return caches.match(event.request).then((cachedResponse) => {
             return cachedResponse || caches.match('./index.html');
@@ -124,25 +118,15 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) {
-          console.log(
-            'Service Worker: Serving asset from cache',
-            event.request.url,
-          );
+          console.log('Service Worker: Serving asset from cache', event.request.url);
           return cachedResponse;
         }
 
-        console.log(
-          'Service Worker: Fetching asset from network',
-          event.request.url,
-        );
+        console.log('Service Worker: Fetching asset from network', event.request.url);
         return fetch(event.request)
           .then((response) => {
             // Don't cache non-successful responses
-            if (
-              !response ||
-              response.status !== 200 ||
-              response.type !== 'basic'
-            ) {
+            if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
 
@@ -179,9 +163,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'CLEAR_CACHE') {
     console.log('Service Worker: Clearing all caches');
     caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => caches.delete(cacheName)),
-      );
+      return Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
     });
   }
 });

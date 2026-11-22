@@ -1,18 +1,13 @@
 import { expect, test } from '@playwright/test';
 
-test('saves a reading offline and keeps it after reloading', async ({
-  page,
-  context,
-}) => {
+test('saves a reading offline and keeps it after reloading', async ({ page, context }) => {
   await page.goto('./');
   await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
 
   // Reload under service worker control so it can cache the production bundle.
   await page.reload();
   await page.waitForFunction(async () => {
-    const entry = document.querySelector<HTMLScriptElement>(
-      'script[type="module"][src]',
-    );
+    const entry = document.querySelector<HTMLScriptElement>('script[type="module"][src]');
     return Boolean(entry && (await caches.match(entry.src)));
   });
 
@@ -106,9 +101,7 @@ test.describe('reading dates west of UTC', () => {
   });
 });
 
-test('keeps the legacy reading form open on a drag onto the backdrop', async ({
-  page,
-}) => {
+test('keeps the legacy reading form open on a drag onto the backdrop', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
       value: undefined,
@@ -134,31 +127,34 @@ test('blocks dismissal while a reading write is pending', async ({ page }) => {
 
   // Keep a separate IndexedDB write transaction open until dismissal is tested.
   await page.evaluate(
-    () => new Promise<void>((resolve, reject) => {
-      const open = indexedDB.open('BloodPressureDB');
-      open.onerror = () => reject(open.error);
-      open.onsuccess = () => {
-        const db = open.result;
-        const transaction = db.transaction('readings', 'readwrite');
-        const store = transaction.objectStore('readings');
-        let holding = true;
-        window.addEventListener(
-          'release-test-write-lock',
-          () => { holding = false; },
-          { once: true },
-        );
-        transaction.oncomplete = () => db.close();
-        transaction.onerror = () => reject(transaction.error);
+    () =>
+      new Promise<void>((resolve, reject) => {
+        const open = indexedDB.open('BloodPressureDB');
+        open.onerror = () => reject(open.error);
+        open.onsuccess = () => {
+          const db = open.result;
+          const transaction = db.transaction('readings', 'readwrite');
+          const store = transaction.objectStore('readings');
+          let holding = true;
+          window.addEventListener(
+            'release-test-write-lock',
+            () => {
+              holding = false;
+            },
+            { once: true },
+          );
+          transaction.oncomplete = () => db.close();
+          transaction.onerror = () => reject(transaction.error);
 
-        const hold = () => {
-          store.get(-1).onsuccess = () => {
-            resolve();
-            if (holding) hold();
+          const hold = () => {
+            store.get(-1).onsuccess = () => {
+              resolve();
+              if (holding) hold();
+            };
           };
+          hold();
         };
-        hold();
-      };
-    }),
+      }),
   );
 
   await page.getByRole('button', { name: "Add Today's Reading" }).click();
@@ -176,9 +172,7 @@ test('blocks dismissal while a reading write is pending', async ({ page }) => {
     await form.getByRole('button', { name: 'Cancel' }).click({ force: true });
     await expect(form.getByLabel('Pulse')).toHaveValue('64');
   } finally {
-    await page.evaluate(() =>
-      window.dispatchEvent(new Event('release-test-write-lock')),
-    );
+    await page.evaluate(() => window.dispatchEvent(new Event('release-test-write-lock')));
   }
   await expect(form).toBeHidden();
   await expect(page.getByRole('dialog', { name: 'Reading details' })).toBeVisible();

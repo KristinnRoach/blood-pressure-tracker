@@ -11,9 +11,7 @@
 export function createReadingKey(reading) {
   // Normalize timestamp to ISO string if it's a Date object
   const timestamp =
-    reading.timestamp instanceof Date
-      ? reading.timestamp.toISOString()
-      : reading.timestamp;
+    reading.timestamp instanceof Date ? reading.timestamp.toISOString() : reading.timestamp;
 
   return `${timestamp}|${reading.systolic}|${reading.diastolic}|${reading.pulse}`;
 }
