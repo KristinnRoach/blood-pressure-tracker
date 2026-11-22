@@ -1,8 +1,16 @@
-import { defineConfig } from 'vite';
+import { defineConfig, lazyPlugins } from 'vite-plus';
 import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
 export default defineConfig({
+  fmt: {
+    singleQuote: true,
+  },
+  lint: {
+    jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
+    rules: { 'vite-plus/prefer-vite-plus-imports': 'error' },
+    options: { typeAware: true, typeCheck: true },
+  },
   base: '/blood-pressure-tracker/',
   root: 'src',
   publicDir: '../public',
@@ -16,7 +24,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
   },
-  plugins: [
+  plugins: lazyPlugins(() => [
     {
       name: 'service-worker-cache-version',
       apply: 'build',
@@ -27,10 +35,7 @@ export default defineConfig({
         try {
           const originalSource = readFileSync(swPath, 'utf-8');
           const buildTime = Date.now();
-          const updatedSource = originalSource.replace(
-            /__BUILD_TIME__/g,
-            buildTime,
-          );
+          const updatedSource = originalSource.replace(/__BUILD_TIME__/g, buildTime);
 
           // Verify replacement actually happened
           if (originalSource === updatedSource) {
@@ -40,13 +45,11 @@ export default defineConfig({
           }
 
           writeFileSync(swPath, updatedSource, 'utf-8');
-          console.log(
-            `✓ Service worker cache version set to: bp-tracker-${buildTime}`,
-          );
+          console.log(`✓ Service worker cache version set to: bp-tracker-${buildTime}`);
         } catch (error) {
           this.error(`Failed to update service-worker.js: ${error.message}`);
         }
       },
     },
-  ],
+  ]),
 });

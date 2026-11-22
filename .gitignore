@@ -38,3 +38,4 @@ logs
 
 # Tests
 test-results/
+.vitest/

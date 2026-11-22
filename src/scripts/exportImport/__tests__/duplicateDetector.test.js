@@ -1,8 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import {
-  createReadingKey,
-  detectDuplicates,
-} from '../utils/duplicateDetector.js';
+import { describe, it, expect } from 'vite-plus/test';
+import { createReadingKey, detectDuplicates } from '../utils/duplicateDetector.js';
 
 describe('duplicateDetector', () => {
   describe('createReadingKey', () => {

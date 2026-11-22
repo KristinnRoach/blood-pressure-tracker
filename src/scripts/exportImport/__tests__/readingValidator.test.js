@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { validateReading } from '../validators/readingValidator.js';
 
 describe('readingValidator', () => {
@@ -199,9 +199,7 @@ describe('readingValidator', () => {
       const result = validateReading(reading);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain(
-        'Timestamp must be a valid ISO 8601 date string',
-      );
+      expect(result.errors).toContain('Timestamp must be a valid ISO 8601 date string');
     });
 
     it('should reject invalid Date object', () => {

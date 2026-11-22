@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { jsonFormat } from '../formats/json.js';
 
 describe('jsonFormat', () => {
@@ -148,9 +148,7 @@ describe('jsonFormat', () => {
         readings: [],
       });
 
-      expect(() => jsonFormat.deserialize(jsonString)).toThrow(
-        'Unsupported format version',
-      );
+      expect(() => jsonFormat.deserialize(jsonString)).toThrow('Unsupported format version');
     });
 
     it('should throw error for missing readings array', () => {

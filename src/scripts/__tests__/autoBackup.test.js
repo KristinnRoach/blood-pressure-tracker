@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 
 import { saveReading } from '../storage.js';
 import { backupFileName, writeBackup } from '../autoBackup.js';
@@ -7,9 +7,7 @@ import { backupFileName, writeBackup } from '../autoBackup.js';
 describe('autoBackup', () => {
   it('names files per user and strips unsafe characters', () => {
     expect(backupFileName(null)).toBe('bp-backup.json');
-    expect(backupFileName({ id: 3, username: 'a/b c' })).toBe(
-      'bp-backup-3-a_b_c.json',
-    );
+    expect(backupFileName({ id: 3, username: 'a/b c' })).toBe('bp-backup-3-a_b_c.json');
   });
 
   it('writes export JSON to the directory handle', async () => {

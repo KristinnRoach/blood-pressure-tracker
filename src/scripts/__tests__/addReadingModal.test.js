@@ -1,4 +1,4 @@
-import { afterEach, expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { saveReading } from '../storage.js';
 
 vi.mock('../storage.js', () => ({
@@ -21,9 +21,10 @@ test('keeps focus in the legacy form during a failed save and allows retry', asy
   vi.stubGlobal('alert', alert);
   let failSave;
   saveReading.mockReset().mockImplementationOnce(
-    () => new Promise((_, reject) => {
-      failSave = reject;
-    }),
+    () =>
+      new Promise((_, reject) => {
+        failSave = reject;
+      }),
   );
 
   AddReadingModal();
@@ -43,9 +44,7 @@ test('keeps focus in the legacy form during a failed save and allows retry', asy
   const closeButton = dialog.querySelector('.modal-close');
   closeButton.click();
   dialog.querySelector('.reading-cancel').click();
-  submit.dispatchEvent(
-    new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
-  );
+  submit.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   expect(dialog.hasAttribute('open')).toBe(true);
 
   const tab = new KeyboardEvent('keydown', {
