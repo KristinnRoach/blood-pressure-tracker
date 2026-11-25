@@ -55,9 +55,7 @@ export async function generateDummyData() {
       console.log(`Added dummy reading ${i + 1}:`, readingData);
     }
 
-    console.log(
-      `Successfully generated ${dummyReadings.length} dummy readings`,
-    );
+    console.log(`Successfully generated ${dummyReadings.length} dummy readings`);
     return dummyReadings.length;
   } catch (error) {
     console.error('Error generating dummy data:', error);

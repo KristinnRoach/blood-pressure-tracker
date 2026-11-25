@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vite-plus/test';
 import {
   convertToExportFormat,
   convertFromExportFormat,
@@ -82,12 +82,8 @@ describe('Data Adapter Integration', () => {
       const importedAppReadings = convertFromExportFormat(exportReadings);
 
       // Compare (excluding id which is database-specific)
-      expect(importedAppReadings[0].systolic).toBe(
-        originalAppReadings[0].systolic,
-      );
-      expect(importedAppReadings[0].diastolic).toBe(
-        originalAppReadings[0].diastolic,
-      );
+      expect(importedAppReadings[0].systolic).toBe(originalAppReadings[0].systolic);
+      expect(importedAppReadings[0].diastolic).toBe(originalAppReadings[0].diastolic);
       expect(importedAppReadings[0].pulse).toBe(originalAppReadings[0].pulse);
       expect(importedAppReadings[0].date).toBe(originalAppReadings[0].date);
     });

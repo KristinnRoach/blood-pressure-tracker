@@ -13,10 +13,7 @@ import {
 import { setCustomThresholds } from './ui/visualScales.js';
 import { initializeCharts, updateCharts } from './ui/chart.js';
 import { initializePWA, setupOfflineHandling } from './pwa.js';
-import {
-  generateDummyData,
-  shouldGenerateDummyData,
-} from './helpers/dummyData.js';
+import { generateDummyData, shouldGenerateDummyData } from './helpers/dummyData.js';
 import { initTheme } from './ui/theme.js';
 import { Calendar } from './ui/calendar.js';
 import { HistoryList } from './ui/historyList.js';
@@ -268,9 +265,7 @@ async function generateDummyDataHandler() {
 
     document.dispatchEvent(new CustomEvent('readings-updated')); // Notify all ui components to refresh
 
-    alert(
-      `Successfully added ${count} dummy readings for development testing!`,
-    );
+    alert(`Successfully added ${count} dummy readings for development testing!`);
     console.log('Dummy data generation completed');
   } catch (error) {
     console.error('Error generating dummy data:', error);

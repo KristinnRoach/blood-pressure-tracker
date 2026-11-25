@@ -1,6 +1,6 @@
 // Test storage delete + restore (undo) flow using fake-indexeddb
 import 'fake-indexeddb/auto';
-import { beforeEach, describe, it, expect } from 'vitest';
+import { beforeEach, describe, it, expect } from 'vite-plus/test';
 
 import {
   saveReading,
@@ -55,9 +55,7 @@ describe('Storage undo (delete -> restore) flow', () => {
     expect(restored.diastolic).toBe(80);
     expect(restored.pulse).toBe(70);
     // date is stored as ISO string in getReadings
-    expect(new Date(restored.date).toISOString().slice(0, 10)).toBe(
-      nowIso.slice(0, 10)
-    );
+    expect(new Date(restored.date).toISOString().slice(0, 10)).toBe(nowIso.slice(0, 10));
   });
 
   it('should work with UndoRedoManager (app-level undo flow)', async () => {

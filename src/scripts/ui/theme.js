@@ -9,10 +9,7 @@ function getInitialTheme() {
   }
 
   // Check system preference
-  if (
-    window.matchMedia &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-  ) {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     return 'dark';
   }
 
@@ -37,8 +34,7 @@ function applyTheme(theme) {
 
 // Toggle between light and dark
 function toggleTheme() {
-  const currentTheme =
-    document.documentElement.getAttribute('data-theme') || 'light';
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
   applyTheme(newTheme);
 }
@@ -56,15 +52,13 @@ function initTheme() {
 
   // Listen for system theme changes (only if user hasn't set a preference)
   if (window.matchMedia) {
-    window
-      .matchMedia('(prefers-color-scheme: dark)')
-      .addEventListener('change', (e) => {
-        // Only auto-switch if user hasn't manually set a theme
-        const savedTheme = localStorage.getItem(THEME_KEY);
-        if (!savedTheme) {
-          applyTheme(e.matches ? 'dark' : 'light');
-        }
-      });
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      // Only auto-switch if user hasn't manually set a theme
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (!savedTheme) {
+        applyTheme(e.matches ? 'dark' : 'light');
+      }
+    });
   }
 }
 

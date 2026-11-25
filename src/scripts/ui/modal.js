@@ -60,9 +60,7 @@ export class ReadingInfoModal {
     }
 
     // Keep the day selected when the details are refreshed.
-    this.currentDateKey = readings[0].date
-      ? this.getDateKey(readings[0].date)
-      : null;
+    this.currentDateKey = readings[0].date ? this.getDateKey(readings[0].date) : null;
 
     // Helper for ordinal suffixes (1st, 2nd, 3rd, 4th...)
     const ordinalSuffix = (n) => {
@@ -88,9 +86,7 @@ export class ReadingInfoModal {
         const d = new Date(readings[0].date);
         const month = d.toLocaleString(undefined, { month: 'long' });
         const day = d.getDate();
-        groupedSummary = `${month} ${day}${ordinalSuffix(day)} - ${
-          readings.length
-        } saved readings`;
+        groupedSummary = `${month} ${day}${ordinalSuffix(day)} - ${readings.length} saved readings`;
       } else {
         groupedSummary = `${readings.length} saved readings`;
       }
@@ -98,10 +94,7 @@ export class ReadingInfoModal {
 
     // Get category for display (use median if multiple, otherwise first reading)
     const displayReading = medianReading || readings[0];
-    const category = getCategory(
-      displayReading.systolic,
-      displayReading.diastolic,
-    );
+    const category = getCategory(displayReading.systolic, displayReading.diastolic);
     const categoryClass = category.class;
     const categoryText = category.text || this.getCategoryText(categoryClass);
     const categoryColor = `var(--color-${categoryClass})`;
@@ -147,9 +140,7 @@ export class ReadingInfoModal {
           <div>Diastolic: <span class="${statuses.diastolicClass}">${
             statuses.diastolicStatus
           }</span></div>
-          <div>Pulse: <span class="${statuses.pulseClass}">${
-            statuses.pulseStatus
-          }</span></div>
+          <div>Pulse: <span class="${statuses.pulseClass}">${statuses.pulseStatus}</span></div>
         </div>
           <div class="add-delete-btns">
             <button class="add-reading-btn" type="button">Add</button>
@@ -179,11 +170,7 @@ export class ReadingInfoModal {
           hour: '2-digit',
           minute: '2-digit',
         });
-        const flags = this.getAbnormalFlags(
-          reading.systolic,
-          reading.diastolic,
-          reading.pulse,
-        );
+        const flags = this.getAbnormalFlags(reading.systolic, reading.diastolic, reading.pulse);
         const systolicClass = flags.systolic ? 'abnormal-value' : '';
         const diastolicClass = flags.diastolic ? 'abnormal-value' : '';
         const pulseClass = flags.pulse ? 'abnormal-value' : '';
@@ -229,9 +216,7 @@ export class ReadingInfoModal {
             <div>Diastolic: <span class="${statuses.diastolicClass}">${
               statuses.diastolicStatus
             }</span></div>
-            <div>Pulse: <span class="${statuses.pulseClass}">${
-              statuses.pulseStatus
-            }</span></div>
+            <div>Pulse: <span class="${statuses.pulseClass}">${statuses.pulseStatus}</span></div>
           </div>
         </div>
      </div>
@@ -263,8 +248,7 @@ export class ReadingInfoModal {
         let filtered = readings;
         if (this.currentDateKey) {
           filtered = readings.filter(
-            (r) =>
-              r && r.date && this.getDateKey(r.date) === this.currentDateKey,
+            (r) => r && r.date && this.getDateKey(r.date) === this.currentDateKey,
           );
         }
 
@@ -370,8 +354,7 @@ export class ReadingInfoModal {
     // 'CRITICAL' keywords which are not currently returned. Either restore
     // granular messages in `getPulseStatus` or change this UI to derive severity
     // from numeric pulse thresholds directly.
-    if (/CRITICAL|Very High|High/i.test(pulseStatusText))
-      pulseClass = 'status-high';
+    if (/CRITICAL|Very High|High/i.test(pulseStatusText)) pulseClass = 'status-high';
     if (/Low|Very Low/i.test(pulseStatusText)) pulseClass = 'status-low';
 
     return {

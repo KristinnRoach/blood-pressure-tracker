@@ -31,7 +31,7 @@ export async function registerServiceWorker() {
       console.log('PWA: Registering service worker...');
 
       const registration = await navigator.serviceWorker.register(
-        `${import.meta.env.BASE_URL}service-worker.js`
+        `${import.meta.env.BASE_URL}service-worker.js`,
       );
 
       console.log('PWA: Service worker registered successfully', registration);
@@ -42,10 +42,7 @@ export async function registerServiceWorker() {
         console.log('PWA: New service worker found');
 
         newWorker.addEventListener('statechange', () => {
-          if (
-            newWorker.state === 'installed' &&
-            navigator.serviceWorker.controller
-          ) {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
             console.log('PWA: New service worker installed, update available');
             showUpdateAvailable(registration);
           }
@@ -158,9 +155,7 @@ export function initializePWA() {
       console.log('PWA: isInstalled:', isInstalled);
 
       if (!deferredPrompt && !isInstalled) {
-        console.log(
-          'PWA: No install prompt detected, showing button for testing'
-        );
+        console.log('PWA: No install prompt detected, showing button for testing');
         const installBtn = document.getElementById('install-btn');
         if (installBtn) {
           installBtn.style.display = 'inline-block';
@@ -168,7 +163,7 @@ export function initializePWA() {
 
           installBtn.addEventListener('click', () => {
             alert(
-              'Install prompt not available. Try:\n1. Build and serve over HTTPS\n2. Use Chrome/Edge\n3. Visit multiple times\n4. Clear browser data and revisit'
+              'Install prompt not available. Try:\n1. Build and serve over HTTPS\n2. Use Chrome/Edge\n3. Visit multiple times\n4. Clear browser data and revisit',
             );
           });
         }

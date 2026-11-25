@@ -3,7 +3,7 @@
  * These tests verify the full flow from app data to export and back
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vite-plus/test';
 import {
   convertToExportFormat,
   convertFromExportFormat,
@@ -96,8 +96,7 @@ describe('End-to-End Integration', () => {
       const exportData = convertToExportFormat(appReadings);
       const metadata = prepareExportMetadata({}); // No user or thresholds
       const jsonString = jsonFormat.serialize(exportData, metadata);
-      const { readings, metadata: importedMetadata } =
-        jsonFormat.deserialize(jsonString);
+      const { readings, metadata: importedMetadata } = jsonFormat.deserialize(jsonString);
 
       const settings = extractImportSettings(importedMetadata);
       expect(settings.username).toBeUndefined();

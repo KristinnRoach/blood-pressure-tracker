@@ -132,18 +132,12 @@ export const SettingsModal = () => {
 
           // Update numeric displays
           const updateDisplays = () => {
-            const sMin =
-              systSlider?.valueMin ?? overlay.querySelector('#systolic-min');
-            const sMax =
-              systSlider?.valueMax ?? overlay.querySelector('#systolic-max');
-            const dMin =
-              diaSlider?.valueMin ?? overlay.querySelector('#diastolic-min');
-            const dMax =
-              diaSlider?.valueMax ?? overlay.querySelector('#diastolic-max');
-            const pMin =
-              pulseSlider?.valueMin ?? overlay.querySelector('#pulse-min');
-            const pMax =
-              pulseSlider?.valueMax ?? overlay.querySelector('#pulse-max');
+            const sMin = systSlider?.valueMin ?? overlay.querySelector('#systolic-min');
+            const sMax = systSlider?.valueMax ?? overlay.querySelector('#systolic-max');
+            const dMin = diaSlider?.valueMin ?? overlay.querySelector('#diastolic-min');
+            const dMax = diaSlider?.valueMax ?? overlay.querySelector('#diastolic-max');
+            const pMin = pulseSlider?.valueMin ?? overlay.querySelector('#pulse-min');
+            const pMax = pulseSlider?.valueMax ?? overlay.querySelector('#pulse-max');
 
             overlay.querySelector('#systolic-min').textContent =
               systSlider?.valueMin ?? t.systolic.min;
@@ -153,10 +147,8 @@ export const SettingsModal = () => {
               diaSlider?.valueMin ?? t.diastolic.min;
             overlay.querySelector('#diastolic-max').textContent =
               diaSlider?.valueMax ?? t.diastolic.max;
-            overlay.querySelector('#pulse-min').textContent =
-              pulseSlider?.valueMin ?? t.pulse.min;
-            overlay.querySelector('#pulse-max').textContent =
-              pulseSlider?.valueMax ?? t.pulse.max;
+            overlay.querySelector('#pulse-min').textContent = pulseSlider?.valueMin ?? t.pulse.min;
+            overlay.querySelector('#pulse-max').textContent = pulseSlider?.valueMax ?? t.pulse.max;
           };
 
           // Listen for slider changes to update displays and schedule save
@@ -165,15 +157,11 @@ export const SettingsModal = () => {
             if (!target) return;
             const id = target.id;
             if (id === 'systolic-slider') {
-              overlay.querySelector('#systolic-min').textContent =
-                target.valueMin;
-              overlay.querySelector('#systolic-max').textContent =
-                target.valueMax;
+              overlay.querySelector('#systolic-min').textContent = target.valueMin;
+              overlay.querySelector('#systolic-max').textContent = target.valueMax;
             } else if (id === 'diastolic-slider') {
-              overlay.querySelector('#diastolic-min').textContent =
-                target.valueMin;
-              overlay.querySelector('#diastolic-max').textContent =
-                target.valueMax;
+              overlay.querySelector('#diastolic-min').textContent = target.valueMin;
+              overlay.querySelector('#diastolic-max').textContent = target.valueMax;
             } else if (id === 'pulse-slider') {
               overlay.querySelector('#pulse-min').textContent = target.valueMin;
               overlay.querySelector('#pulse-max').textContent = target.valueMax;
@@ -223,27 +211,19 @@ export const SettingsModal = () => {
             const pulseSlider = overlay.querySelector('#pulse-slider');
 
             const sMin =
-              systSlider?.valueMin ??
-              parseInt(overlay.querySelector('#systolic-min')?.textContent);
+              systSlider?.valueMin ?? parseInt(overlay.querySelector('#systolic-min')?.textContent);
             const sMax =
-              systSlider?.valueMax ??
-              parseInt(overlay.querySelector('#systolic-max')?.textContent);
+              systSlider?.valueMax ?? parseInt(overlay.querySelector('#systolic-max')?.textContent);
             const dMin =
-              diaSlider?.valueMin ??
-              parseInt(overlay.querySelector('#diastolic-min')?.textContent);
+              diaSlider?.valueMin ?? parseInt(overlay.querySelector('#diastolic-min')?.textContent);
             const dMax =
-              diaSlider?.valueMax ??
-              parseInt(overlay.querySelector('#diastolic-max')?.textContent);
+              diaSlider?.valueMax ?? parseInt(overlay.querySelector('#diastolic-max')?.textContent);
             const pMin =
-              pulseSlider?.valueMin ??
-              parseInt(overlay.querySelector('#pulse-min')?.textContent);
+              pulseSlider?.valueMin ?? parseInt(overlay.querySelector('#pulse-min')?.textContent);
             const pMax =
-              pulseSlider?.valueMax ??
-              parseInt(overlay.querySelector('#pulse-max')?.textContent);
+              pulseSlider?.valueMax ?? parseInt(overlay.querySelector('#pulse-max')?.textContent);
 
-            if (
-              [sMin, sMax, dMin, dMax, pMin, pMax].some((v) => Number.isNaN(v))
-            ) {
+            if ([sMin, sMax, dMin, dMax, pMin, pMax].some((v) => Number.isNaN(v))) {
               console.warn('Skipping save: invalid threshold values');
               return;
             }
@@ -255,9 +235,7 @@ export const SettingsModal = () => {
             };
 
             await setThresholds(thresholds);
-            document.dispatchEvent(
-              new CustomEvent('thresholds-updated', { detail: thresholds }),
-            );
+            document.dispatchEvent(new CustomEvent('thresholds-updated', { detail: thresholds }));
           } catch (err) {
             console.error('Auto-save failed', err);
           }
@@ -319,8 +297,7 @@ export const SettingsModal = () => {
           importBtn.textContent = '⏳ Importing...';
 
           const result = await handleImport(file, {
-            applySettings: overlay.querySelector('#import-apply-settings')
-              ?.checked,
+            applySettings: overlay.querySelector('#import-apply-settings')?.checked,
           });
 
           if (result.success) {
@@ -360,8 +337,7 @@ export const SettingsModal = () => {
               : status === 'needs-permission'
                 ? `Paused: allow access to "${name}" to resume.`
                 : 'Off.';
-          chooseBtn.textContent =
-            status === 'off' ? 'Choose folder' : 'Change folder';
+          chooseBtn.textContent = status === 'off' ? 'Choose folder' : 'Change folder';
           regrantBtn.hidden = status !== 'needs-permission';
           offBtn.hidden = status === 'off';
         };
@@ -404,8 +380,7 @@ export const SettingsModal = () => {
       const closeBtnHandler = () => el.close && el.close();
 
       const cleanup = () => {
-        closeBtn &&
-          closeBtn.removeEventListener('click', closeBtnHandler);
+        closeBtn && closeBtn.removeEventListener('click', closeBtnHandler);
         // cancelBtn removed — nothing to remove
         overlay && overlay.removeEventListener('click', overlayClickHandler);
         document.removeEventListener('keydown', keyHandler);
@@ -435,8 +410,7 @@ export const SettingsModal = () => {
 
       // No submit button — auto-save on slider change
       // Fix close button: ensure we call the element's close method when clicked
-      closeBtn &&
-        closeBtn.addEventListener('click', closeBtnHandler);
+      closeBtn && closeBtn.addEventListener('click', closeBtnHandler);
       overlay && overlay.addEventListener('click', overlayClickHandler);
       document.addEventListener('keydown', keyHandler);
 
@@ -444,10 +418,7 @@ export const SettingsModal = () => {
       el.close = () => {
         if (overlay && overlay.classList.contains('active')) {
           overlay.classList.remove('active');
-          if (
-            el._previouslyFocused &&
-            typeof el._previouslyFocused.focus === 'function'
-          ) {
+          if (el._previouslyFocused && typeof el._previouslyFocused.focus === 'function') {
             el._previouslyFocused.focus();
           }
         }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -105,14 +105,7 @@
     <div class="demo-section">
       <h2>Basic Range Slider (0-100)</h2>
       <div class="slider-container">
-        <two-thumb-slider
-          id="slider1"
-          min="0"
-          max="100"
-          step="1"
-          value-min="25"
-          value-max="75"
-        >
+        <two-thumb-slider id="slider1" min="0" max="100" step="1" value-min="25" value-max="75">
         </two-thumb-slider>
         <div class="values" id="values1">Min: 25, Max: 75</div>
       </div>
@@ -125,14 +118,7 @@
     <div class="demo-section">
       <h2>Decimal Values (0-1)</h2>
       <div class="slider-container">
-        <two-thumb-slider
-          id="slider2"
-          min="0"
-          max="1"
-          step="0.01"
-          value-min="0.2"
-          value-max="0.8"
-        >
+        <two-thumb-slider id="slider2" min="0" max="1" step="0.01" value-min="0.2" value-max="0.8">
         </two-thumb-slider>
         <div class="values" id="values2">Min: 0.2, Max: 0.8</div>
       </div>
@@ -141,14 +127,7 @@
     <div class="demo-section">
       <h2>Custom Range (-50 to 50)</h2>
       <div class="slider-container">
-        <two-thumb-slider
-          id="slider3"
-          min="-50"
-          max="50"
-          step="5"
-          value-min="-20"
-          value-max="30"
-        >
+        <two-thumb-slider id="slider3" min="-50" max="50" step="5" value-min="-20" value-max="30">
         </two-thumb-slider>
         <div class="values" id="values3">Min: -20, Max: 30</div>
       </div>
@@ -172,14 +151,7 @@
 
     <script type="module">
       class TwoThumbSlider extends HTMLElement {
-        static observedAttributes = [
-          'min',
-          'max',
-          'step',
-          'minimum-gap',
-          'value-min',
-          'value-max',
-        ];
+        static observedAttributes = ['min', 'max', 'step', 'minimum-gap', 'value-min', 'value-max'];
 
         constructor() {
           super();
@@ -243,26 +215,14 @@
           const thumbMin = this.querySelector('.thumb-min');
           const thumbMax = this.querySelector('.thumb-max');
 
-          thumbMin.addEventListener('mousedown', (e) =>
-            this.startDrag(e, 'min')
-          );
-          thumbMax.addEventListener('mousedown', (e) =>
-            this.startDrag(e, 'max')
-          );
-          thumbMin.addEventListener(
-            'touchstart',
-            (e) => this.startDrag(e, 'min'),
-            {
-              passive: false,
-            }
-          );
-          thumbMax.addEventListener(
-            'touchstart',
-            (e) => this.startDrag(e, 'max'),
-            {
-              passive: false,
-            }
-          );
+          thumbMin.addEventListener('mousedown', (e) => this.startDrag(e, 'min'));
+          thumbMax.addEventListener('mousedown', (e) => this.startDrag(e, 'max'));
+          thumbMin.addEventListener('touchstart', (e) => this.startDrag(e, 'min'), {
+            passive: false,
+          });
+          thumbMax.addEventListener('touchstart', (e) => this.startDrag(e, 'max'), {
+            passive: false,
+          });
         }
 
         startDrag(e, thumb) {
@@ -285,8 +245,7 @@
           if (!this.activeThumb) return;
 
           e.preventDefault();
-          const clientX =
-            'touches' in e && e.touches[0] ? e.touches[0].clientX : e.clientX;
+          const clientX = 'touches' in e && e.touches[0] ? e.touches[0].clientX : e.clientX;
           const track = this.querySelector('.slider-track');
           const rect = track.getBoundingClientRect();
 
@@ -323,10 +282,8 @@
 
           if (!rangeElement || !thumbMin || !thumbMax) return;
 
-          const percentMin =
-            ((this.valueMin - this.min) / (this.max - this.min)) * 100;
-          const percentMax =
-            ((this.valueMax - this.min) / (this.max - this.min)) * 100;
+          const percentMin = ((this.valueMin - this.min) / (this.max - this.min)) * 100;
+          const percentMax = ((this.valueMax - this.min) / (this.max - this.min)) * 100;
 
           const minVisualGap = 2;
           const actualGap = percentMax - percentMin;
@@ -355,7 +312,7 @@
                 max: this.valueMax,
               },
               bubbles: true,
-            })
+            }),
           );
         }
 
@@ -375,39 +332,26 @@
       customElements.define('two-thumb-slider', TwoThumbSlider);
 
       // Event listeners for all sliders
-      document
-        .getElementById('slider1')
-        .addEventListener('range-change', (e) => {
-          document.getElementById(
-            'values1'
-          ).textContent = `Min: ${e.detail.min}, Max: ${e.detail.max}`;
-        });
+      document.getElementById('slider1').addEventListener('range-change', (e) => {
+        document.getElementById('values1').textContent =
+          `Min: ${e.detail.min}, Max: ${e.detail.max}`;
+      });
 
-      document
-        .getElementById('slider2')
-        .addEventListener('range-change', (e) => {
-          document.getElementById(
-            'values2'
-          ).textContent = `Min: ${e.detail.min.toFixed(
-            2
-          )}, Max: ${e.detail.max.toFixed(2)}`;
-        });
+      document.getElementById('slider2').addEventListener('range-change', (e) => {
+        document.getElementById('values2').textContent = `Min: ${e.detail.min.toFixed(
+          2,
+        )}, Max: ${e.detail.max.toFixed(2)}`;
+      });
 
-      document
-        .getElementById('slider3')
-        .addEventListener('range-change', (e) => {
-          document.getElementById(
-            'values3'
-          ).textContent = `Min: ${e.detail.min}, Max: ${e.detail.max}`;
-        });
+      document.getElementById('slider3').addEventListener('range-change', (e) => {
+        document.getElementById('values3').textContent =
+          `Min: ${e.detail.min}, Max: ${e.detail.max}`;
+      });
 
-      document
-        .getElementById('slider4')
-        .addEventListener('range-change', (e) => {
-          document.getElementById(
-            'values4'
-          ).textContent = `Min: ${e.detail.min} Hz, Max: ${e.detail.max} Hz`;
-        });
+      document.getElementById('slider4').addEventListener('range-change', (e) => {
+        document.getElementById('values4').textContent =
+          `Min: ${e.detail.min} Hz, Max: ${e.detail.max} Hz`;
+      });
 
       // Control functions
       window.resetSlider1 = () => {

@@ -28,9 +28,7 @@ function serialize(readings, metadata = {}) {
       diastolic: reading.diastolic,
       pulse: reading.pulse,
       timestamp:
-        reading.timestamp instanceof Date
-          ? reading.timestamp.toISOString()
-          : reading.timestamp,
+        reading.timestamp instanceof Date ? reading.timestamp.toISOString() : reading.timestamp,
     })),
   };
 
@@ -50,7 +48,7 @@ function deserialize(content) {
   try {
     data = JSON.parse(content);
   } catch (error) {
-      throw new Error(`Invalid JSON: ${error.message}`, { cause: error });
+    throw new Error(`Invalid JSON: ${error.message}`, { cause: error });
   }
 
   // Validate structure

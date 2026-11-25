@@ -1,12 +1,5 @@
 export class TwoThumbSlider extends HTMLElement {
-  static observedAttributes = [
-    'min',
-    'max',
-    'step',
-    'minimum-gap',
-    'value-min',
-    'value-max',
-  ];
+  static observedAttributes = ['min', 'max', 'step', 'minimum-gap', 'value-min', 'value-max'];
 
   constructor() {
     super();
@@ -100,8 +93,7 @@ export class TwoThumbSlider extends HTMLElement {
     if (!this.activeThumb) return;
 
     e.preventDefault();
-    const clientX =
-      'touches' in e && e.touches[0] ? e.touches[0].clientX : e.clientX;
+    const clientX = 'touches' in e && e.touches[0] ? e.touches[0].clientX : e.clientX;
     const track = this.querySelector('.slider-track');
     const rect = track.getBoundingClientRect();
 
@@ -143,10 +135,8 @@ export class TwoThumbSlider extends HTMLElement {
     if (!rangeElement || !thumbMin || !thumbMax) return;
 
     // Calculate positions as percentages
-    const percentMin =
-      ((this.valueMin - this.min) / (this.max - this.min)) * 100;
-    const percentMax =
-      ((this.valueMax - this.min) / (this.max - this.min)) * 100;
+    const percentMin = ((this.valueMin - this.min) / (this.max - this.min)) * 100;
+    const percentMax = ((this.valueMax - this.min) / (this.max - this.min)) * 100;
 
     // Add visual padding when thumbs are too close
     const minVisualGap = 2; // Minimum visual gap in percentage points
@@ -177,7 +167,7 @@ export class TwoThumbSlider extends HTMLElement {
           max: this.valueMax,
         },
         bubbles: true,
-      })
+      }),
     );
   }
 

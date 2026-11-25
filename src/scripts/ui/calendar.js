@@ -25,9 +25,7 @@ export class Calendar {
   }
 
   updateReadings(readings) {
-    const focusedDate = this.container.querySelector(
-      'button[data-date]:focus',
-    )?.dataset.date;
+    const focusedDate = this.container.querySelector('button[data-date]:focus')?.dataset.date;
 
     // Group readings by date (YYYY-MM-DD format) - store arrays of readings
     this.readingsByDate = new Map();
@@ -42,9 +40,7 @@ export class Calendar {
     });
     this.render();
     if (focusedDate) {
-      this.container
-        .querySelector(`button[data-date="${focusedDate}"]`)
-        ?.focus();
+      this.container.querySelector(`button[data-date="${focusedDate}"]`)?.focus();
     }
   }
 
@@ -100,9 +96,10 @@ export class Calendar {
     todayMidnight.setHours(0, 0, 0, 0);
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(
-        day,
-      ).padStart(2, '0')}`;
+      const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(
+        2,
+        '0',
+      )}`;
       const isFuture = new Date(`${dateKey}T00:00:00`) > todayMidnight;
       const futureClass = isFuture ? ' future' : '';
       const futureAttr = isFuture ? ' disabled' : '';
@@ -117,23 +114,15 @@ export class Calendar {
       if (readings && readings.length > 0) {
         // Calculate median values for color coding
         const medianReading = this.getMedianReading(readings);
-        const category = getCategory(
-          medianReading.systolic,
-          medianReading.diastolic,
-        );
+        const category = getCategory(medianReading.systolic, medianReading.diastolic);
         const categoryClass =
           category && category.class
             ? category.class
-            : this.getCategoryClass(
-                medianReading.systolic,
-                medianReading.diastolic,
-              );
+            : this.getCategoryClass(medianReading.systolic, medianReading.diastolic);
 
         // Show count if multiple readings
         const countBadge =
-          readings.length > 1
-            ? `<span class="reading-count">${readings.length}</span>`
-            : '';
+          readings.length > 1 ? `<span class="reading-count">${readings.length}</span>` : '';
 
         const activeClass = this.selectedDate === dateKey ? ' active' : '';
         html += `
@@ -185,9 +174,7 @@ export class Calendar {
     const dateKey = button.dataset.date;
     const readings = this.readingsByDate.get(dateKey);
 
-    this.container
-      .querySelector('.calendar-day.active')
-      ?.classList.remove('active');
+    this.container.querySelector('.calendar-day.active')?.classList.remove('active');
     this.selectedDate = dateKey;
     button.classList.add('active');
     button.focus();
